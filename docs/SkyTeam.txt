@@ -1,12 +1,34 @@
 # Sky Team 规则文档索引
 
-本目录包含项目设计文档与从官方 PDF 提取并整理后的规则文本：
-
 | 文件 | 说明 |
 |------|------|
-| DESIGN.md | 本项目设计、架构、实现决策与踩坑记录 |
-| SkyTeam.en.md | 英文规则（整理版 Markdown） |
-| SkyTeam.zh.md | 中文规则（完整翻译） |
+| **SkyTeam.raw.md** | 页图 OCR 原文 + 每页补充说明（20 页已完成） |
+| **SkyTeam.zh.md** | 中文规则书（依据 SkyTeam.raw.md 整理） |
+| **SkyTeam.en.md** | 英文全文（PDF 20 页逐页转写） |
 | SkyTeam.pdf | 官方 PDF 原件 |
+| pdf-pages/ | 每页 PNG（2× 渲染，供核对） |
+| DESIGN.md | 本项目设计与实现 |
 
-原始 PDF 纯文本提取（含分页标记与 OCR 断字）已整理为上述 Markdown 文档。
+## 重新生成页图
+
+```bash
+pip3 install pymupdf
+python3 - <<'PY'
+import fitz, os
+pdf = 'docs/SkyTeam.pdf'
+out = 'docs/pdf-pages'
+os.makedirs(out, exist_ok=True)
+doc = fitz.open(pdf)
+for i in range(doc.page_count):
+    doc[i].get_pixmap(matrix=fitz.Matrix(2, 2)).save(f'{out}/page-{i+1:02d}.png')
+print(doc.page_count, 'pages')
+PY
+```
+
+## 与代码实现的差异
+
+| 项目 | PDF / 文档 | `game-logic.js` |
+|------|------------|-----------------|
+| 起落架 | 3 槽（1/2、3/4、5/6） | 3 槽（gear1–gear3） |
+| 集中精力 | 共用 ☕ 槽 ×3 | coffee1–coffee3（shared） |
+| 蓝标记起始 | 4 与 5 之间 | `BLUE_START: 5` |

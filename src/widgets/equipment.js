@@ -18,7 +18,7 @@ var EquipmentWidget = {
   render: function (ctx) {
     var state = ctx.state;
     var h = ['<div class="card"><h3>装备 · Equipment</h3>'];
-    h.push(this.equipRow('🛬 起落架（机长）', 4, state.gearAct));
+    h.push(this.equipRow('🛬 起落架（机长）', ctx.logic.CONFIG.GEAR_COUNT, state.gearAct));
     h.push(this.equipRow('🪂 襟翼（副驾）', ctx.logic.CONFIG.FLAP_COUNT, state.flapsAct));
     h.push(this.equipRow('🛑 刹车（机长）', 3, state.brakesAct));
     h.push('</div>');

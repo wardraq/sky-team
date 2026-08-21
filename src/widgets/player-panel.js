@@ -42,8 +42,8 @@ var PlayerPanel = {
   slotHTML: function (ctx, role, slotName) {
     var L = ctx.logic;
     var state = ctx.state;
-    var def = L.SLOTS[role][slotName];
-    var p = state.placements[role][slotName];
+    var def = L.getSlotDef ? L.getSlotDef(role, slotName) : L.SLOTS[role][slotName];
+    var p = L.getPlacement ? L.getPlacement(state, role, slotName) : state.placements[role][slotName];
     var chk = (p === null) ? L.slotAllowed(state, role, slotName) : null;
     var cls = ['slot'];
     var extra = '';
@@ -85,6 +85,18 @@ var PlayerPanel = {
     }
     return '<div class="' + cls.join(' ') + '" data-act="slot" data-role="' + role + '" data-slot="' + slotName + '">' +
       '<div class="slot-head">' + nameHtml + '</div>' + extra + '</div>';
+  },
+
+  sharedCoffeeHTML: function (ctx, role) {
+    var L = ctx.logic;
+    var slots = L.SHARED_SLOTS ? Object.keys(L.SHARED_SLOTS) : [];
+    if (!slots.length) return '';
+    var h = ['<div class="slot-group coffee-slots"><div class="slot-group-label" style="font-size:11px;color:var(--dim);margin:4px 0 2px">☕ 集中精力（共用 · ' + slots.length + '）</div>'];
+    slots.forEach(function (slotName) {
+      h.push(PlayerPanel.slotHTML(ctx, role, slotName));
+    });
+    h.push('</div>');
+    return h.join('');
   },
 
   render: function (role, ctx) {
@@ -158,7 +170,6 @@ var PlayerPanel = {
 
       var order = ['axis', 'engine', 'radio'];
       if (role === 'copilot') order.push('radio2');
-      order.push('coffee');
       Object.keys(L.SLOTS[role]).forEach(function (s) { if (order.indexOf(s) === -1) order.push(s); });
       var single = [], grid = [];
       order.forEach(function (s) {
@@ -168,6 +179,7 @@ var PlayerPanel = {
       h.push('<div style="display:flex;flex-direction:column;gap:6px">');
       single.forEach(function (s) { h.push(PlayerPanel.slotHTML(ctx, role, s)); });
       h.push('</div>');
+      h.push(PlayerPanel.sharedCoffeeHTML(ctx, role));
       if (grid.length) {
         h.push('<div class="slot-group">');
         grid.forEach(function (s) { h.push(PlayerPanel.slotHTML(ctx, role, s)); });

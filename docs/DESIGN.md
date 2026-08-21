@@ -123,7 +123,7 @@ URL 无参数打开（默认 `start` 屏幕）。
 | 引擎 | 双方各 1 | **必填** | 无 | — | — |
 | 无线电 | 机长 1 / 副驾 2 | 可选 | 无（任意点数） | — | 值 = 清除第 N 格飞机 |
 | 集中精力 ☕ | 双方各 1 | 可选 | 无 | — | 每放一个获得 1 咖啡标记（池上限 3） |
-| 起落架 | 机长 | 可选 | **1/2、2/3、3/4、4/5** | 4 | 任意顺序激活，蓝标记 +1 |
+| 起落架 | 机长 | 可选 | **1/2、3/4、5/6** | 3 | 任意顺序激活，蓝标记 +1 |
 | 襟翼 | 副驾 | 可选 | **1/2、2/3、4/5、5/6** | 4 | **须按顺序**激活，橙标记 +1 |
 | 刹车 | 机长 | 可选 | **2、4、6**（须按顺序） | 3 | 按 2→4→6 顺序，刹车值 +2 |
 
@@ -148,14 +148,14 @@ CONFIG = {
   DISTANCE_START: 6,
   AXIS_LIMIT: 3,
   TRAFFIC_START: [3],
-  BLUE_START: 5, BLUE_MAX: 9,       // 起落架每档 +1
-  ORANGE_START: 9, ORANGE_MAX: 13,   // 襟翼每档 +1（与蓝标记独立）
+  BLUE_START: 5, BLUE_MAX: 8,       // 起落架每档 +1（初始介于 4–5，满档 8）
+  ORANGE_START: 8, ORANGE_MAX: 12,   // 襟翼每档 +1（初始介于 8–9，满档 12）
   BRAKE_BASE: 2, BRAKE_STEP: 2,      // 刹车值 = 2 + 2×激活数
-  COFFEE_MAX: 3,
+  COFFEE_MAX: 3, COFFEE_SLOT_COUNT: 3,
   REROLL_START: 0,
   ALTITUDE_REROLL_SPACES: [7, 4],
   APPROACH_AXIS: {},
-  GEAR_COUNT: 4, FLAP_COUNT: 4, BRAKE_COUNT: 3
+  GEAR_COUNT: 3, FLAP_COUNT: 4, BRAKE_COUNT: 3
 }
 ```
 

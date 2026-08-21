@@ -18,7 +18,7 @@ var EngineBarWidget = {
     for (var v = 2; v <= 12; v++) h.push('<div class="tick" style="left:' + pct(v) + '"><span>' + v + '</span></div>');
     h.push('<div class="aero-mark blue" style="left:calc(' + pct(blue) + ' - 3px)"></div>');
     h.push('<div class="aero-mark orange" style="left:calc(' + pct(orange) + ' - 3px)"></div>');
-    h.push('</div><div class="aero-legend"><span>■ 蓝 <b>' + blue + '</b>（起落架）</span><span>■ 橙 <b>' + orange + '</b>（襟翼）</span><span>和 &lt;蓝 悬停 · 蓝~橙 +1 · ≥橙 +2</span>');
+    h.push('</div><div class="aero-legend"><span>■ 蓝 <b>' + blue + '</b>（起落架）</span><span>■ 橙 <b>' + orange + '</b>（襟翼）</span><span>和 &lt;蓝 悬停 · 蓝~橙 +1 · &gt;橙 +2</span>');
     if (preview.engine !== null) {
       h.push(' <b style="color:#dfe9f2;font-family:var(--mono);margin-left:8px">和 = ' + preview.engine + ' → ' + preview.engineLabel + '</b>');
     }

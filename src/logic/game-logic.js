@@ -12,16 +12,17 @@ var CONFIG = {
   AXIS_LIMIT: 3,
   TRAFFIC_START: [3],
   BLUE_START: 5,
-  BLUE_MAX: 9,
-  ORANGE_START: 9,
-  ORANGE_MAX: 13,
+  BLUE_MAX: 8,
+  ORANGE_START: 8,
+  ORANGE_MAX: 12,
   BRAKE_BASE: 2,
   BRAKE_STEP: 2,
   COFFEE_MAX: 3,
+  COFFEE_SLOT_COUNT: 3,
   REROLL_START: 0,
   ALTITUDE_REROLL_SPACES: [7, 4],
   APPROACH_AXIS: {},
-  GEAR_COUNT: 4,
+  GEAR_COUNT: 3,
   FLAP_COUNT: 4,
   BRAKE_COUNT: 3
 };
@@ -29,16 +30,40 @@ var CONFIG = {
 var ROLES = { pilot: '机长', copilot: '副驾' };
 var ROLE_COLOR = { pilot: 'blue', copilot: 'orange' };
 
+/** 双方共用的放骰槽（集中精力 ☕） */
+var SHARED_SLOTS = {
+  coffee1: { name: '集中精力 ☕', coffee: true },
+  coffee2: { name: '集中精力 ☕', coffee: true },
+  coffee3: { name: '集中精力 ☕', coffee: true }
+};
+
+function isSharedSlot(slotName) {
+  return Object.prototype.hasOwnProperty.call(SHARED_SLOTS, slotName);
+}
+
+function getSlotDef(role, slotName) {
+  if (isSharedSlot(slotName)) return SHARED_SLOTS[slotName];
+  return SLOTS[role] && SLOTS[role][slotName];
+}
+
+function getPlacement(s, role, slotName) {
+  if (isSharedSlot(slotName)) return s.placements.shared[slotName];
+  return s.placements[role][slotName];
+}
+
+function setPlacement(s, role, slotName, val) {
+  if (isSharedSlot(slotName)) s.placements.shared[slotName] = val;
+  else s.placements[role][slotName] = val;
+}
+
 var SLOTS = {
   pilot: {
     axis:    { name: '姿态',  mandatory: true },
     engine:  { name: '引擎',  mandatory: true },
     radio:   { name: '无线电' },
-    coffee:  { name: '集中精力 ☕' },
     gear1:   { name: '起落架 1/2', gear: true, limit: [1, 2] },
-    gear2:   { name: '起落架 2/3', gear: true, limit: [2, 3] },
-    gear3:   { name: '起落架 3/4', gear: true, limit: [3, 4] },
-    gear4:   { name: '起落架 4/5', gear: true, limit: [4, 5] },
+    gear2:   { name: '起落架 3/4', gear: true, limit: [3, 4] },
+    gear3:   { name: '起落架 5/6', gear: true, limit: [5, 6] },
     brake1:  { name: '刹车 2', order: 'brake', limit: [2] },
     brake2:  { name: '刹车 4', order: 'brake', limit: [4] },
     brake3:  { name: '刹车 6', order: 'brake', limit: [6] }
@@ -48,7 +73,6 @@ var SLOTS = {
     engine:  { name: '引擎',  mandatory: true },
     radio:   { name: '无线电·左' },
     radio2:  { name: '无线电·右' },
-    coffee:  { name: '集中精力 ☕' },
     flap1:   { name: '襟翼 1/2', order: 'flap', limit: [1, 2] },
     flap2:   { name: '襟翼 2/3', order: 'flap', limit: [2, 3] },
     flap3:   { name: '襟翼 4/5', order: 'flap', limit: [4, 5] },
@@ -150,11 +174,11 @@ function newGame(scenarioId) {
 }
 
 function emptyPlacements() {
-  var p = {};
+  var p = { pilot: {}, copilot: {}, shared: {} };
   ['pilot', 'copilot'].forEach(function (r) {
-    p[r] = {};
     Object.keys(SLOTS[r]).forEach(function (s) { p[r][s] = null; });
   });
+  Object.keys(SHARED_SLOTS).forEach(function (s) { p.shared[s] = null; });
   return p;
 }
 function effVal(s) { return s ? clamp(s.v + (s.mod || 0), 1, 6) : null; }
@@ -251,7 +275,7 @@ function tryResolveEngineImmediate(s) {
     logPush(s, '⚡ 等待模式：速度 ' + es + ' 低于蓝标记 ' + s.blueMark + '，悬停安全');
   } else {
     var orange = getOrangeMark(s);
-    var k = es < s.blueMark ? 0 : (es < orange ? 1 : 2);
+    var k = es < s.blueMark ? 0 : (es <= orange ? 1 : 2);
     if (k > 0) {
       if (hasTraffic(s, s.distance)) {
         s.phase = 'lose';
@@ -296,9 +320,10 @@ function resolveMandatoryImmediate(s) {
  *  无线电→清障 | 起落架/襟翼/刹车→拨杆 | 咖啡→+1
  *  姿态/引擎→双方槽位满第二颗时立即结算（见上） */
 function applyPlacementEffect(s, role, slotName) {
-  var p = s.placements[role][slotName];
+  var p = getPlacement(s, role, slotName);
   if (!p || p._effectApplied) return;
-  var def = SLOTS[role][slotName];
+  var def = getSlotDef(role, slotName);
+  if (!def) return;
   var val = effVal(p);
   var applied = false;
 
@@ -320,7 +345,7 @@ function applyPlacementEffect(s, role, slotName) {
       logPush(s, ROLES[role] + ' ' + def.name + '（骰点 ' + val + '）：距离 ' + target + ' 无飞机' + hint);
     }
     applied = true;
-  } else if (slotName === 'coffee') {
+  } else if (def.coffee) {
     if (s.coffee < CONFIG.COFFEE_MAX) {
       s.coffee++;
       logPush(s, ROLES[role] + ' 集中精力 → ☕ +1（' + s.coffee + '/' + CONFIG.COFFEE_MAX + '）');
@@ -328,11 +353,15 @@ function applyPlacementEffect(s, role, slotName) {
       logPush(s, ROLES[role] + ' 集中精力：☕ 已满，无额外获得');
     }
     applied = true;
-  } else if (def.gear && !s.gearOn[slotName]) {
-    s.gearOn[slotName] = true;
-    s.gearAct++;
-    s.blueMark = clamp(CONFIG.BLUE_START + s.gearAct, CONFIG.BLUE_START, CONFIG.BLUE_MAX);
-    logPush(s, '起落架「' + def.name + '」激活 → 蓝标记 ' + s.blueMark);
+  } else if (def.gear) {
+    if (!s.gearOn[slotName]) {
+      s.gearOn[slotName] = true;
+      s.gearAct++;
+      s.blueMark = clamp(CONFIG.BLUE_START + s.gearAct, CONFIG.BLUE_START, CONFIG.BLUE_MAX);
+      logPush(s, '起落架「' + def.name + '」激活 → 蓝标记 ' + s.blueMark);
+    } else {
+      logPush(s, '起落架「' + def.name + '」已激活，放置无效果');
+    }
     applied = true;
   } else if (def.order === 'flap' && !s.flapsOn[slotName]) {
     s.flapsOn[slotName] = true;
@@ -355,6 +384,9 @@ function applyAllPlacementEffects(s) {
     Object.keys(s.placements[r]).forEach(function (slotName) {
       if (s.placements[r][slotName]) applyPlacementEffect(s, r, slotName);
     });
+  });
+  Object.keys(s.placements.shared).forEach(function (slotName) {
+    if (s.placements.shared[slotName]) applyPlacementEffect(s, 'pilot', slotName);
   });
 }
 
@@ -419,10 +451,12 @@ function rerollAll(s) {
 }
 
 function slotAllowed(s, role, slotName, dieValue) {
-  var def = SLOTS[role][slotName];
+  var def = getSlotDef(role, slotName);
   if (!def) return { ok: false, why: '不存在的槽位' };
-  if (s.placements[role][slotName] != null) return { ok: false, why: '该槽位已占用' };
-  if (def.gear && s.gearOn[slotName]) return { ok: false, why: '该起落架已激活，不可重复放置' };
+  if (getPlacement(s, role, slotName) != null) return { ok: false, why: '该槽位已占用' };
+  if (def.gear && s.gearOn[slotName]) {
+    /* 已激活的起落架槽仍可放置，但无额外效果（官方规则） */
+  }
   if (def.order === 'flap') {
     var fn = +slotName.replace('flap', '');
     if (s.flapsAct + 1 !== fn) {
@@ -474,10 +508,10 @@ function placeDie(s, role, dieIdx, slotName, opts) {
 
   var chk = slotAllowed(s, role, slotName, finalV);
   if (!chk.ok) return { ok: false, why: chk.why };
-  var def = SLOTS[role][slotName];
+  var def = getSlotDef(role, slotName);
 
   die.used = true;
-  s.placements[role][slotName] = { v: die.v, mod: finalV - die.v };
+  setPlacement(s, role, slotName, { v: die.v, mod: finalV - die.v });
   if (coffeeSpent > 0) {
     s.coffee -= coffeeSpent;
     logPush(s, '☕ 放置前修正骰子 ' + die.v + ' → ' + finalV + '（+' + cPlus + '/−' + cMinus + '，剩 ' + s.coffee + '）');
@@ -497,6 +531,9 @@ function nextPlace(s) {
     Object.keys(s.placements[r]).forEach(function (k) {
       if (s.placements[r][k]) placed++;
     });
+  });
+  Object.keys(s.placements.shared).forEach(function (k) {
+    if (s.placements.shared[k]) placed++;
   });
   if (placed >= CONFIG.DICE_PER_PLAYER * 2) {
     s.phase = 'reveal';
@@ -550,7 +587,7 @@ function resolveRound(s) {
     var fails = [];
     if (s.distance !== 0) fails.push('未到达机场（距 ' + s.distance + '）');
     if (s.axis !== 0) fails.push('姿态未水平（' + s.axis + '）');
-    if (s.gearAct < CONFIG.GEAR_COUNT) fails.push('起落架未全部激活（' + s.gearAct + '/4）');
+    if (s.gearAct < CONFIG.GEAR_COUNT) fails.push('起落架未全部激活（' + s.gearAct + '/' + CONFIG.GEAR_COUNT + '）');
     if (s.flapsAct < CONFIG.FLAP_COUNT) fails.push('襟翼未全部激活（' + s.flapsAct + '/' + CONFIG.FLAP_COUNT + '）');
     if (s.traffic.length > 0) fails.push('路径仍有 ' + s.traffic.length + ' 架飞机');
     if (typeof ModuleRegistry !== 'undefined') {
@@ -585,7 +622,8 @@ function nextRound(s) {
 }
 
 var GameLogic = {
-  CONFIG: CONFIG, ROLES: ROLES, SLOTS: SLOTS,
+  CONFIG: CONFIG, ROLES: ROLES, SLOTS: SLOTS, SHARED_SLOTS: SHARED_SLOTS,
+  isSharedSlot: isSharedSlot, getSlotDef: getSlotDef, getPlacement: getPlacement,
   mergeConfig: mergeConfig, resolveScenario: resolveScenario,
   newGame: newGame, beginRound: beginRound,
   rollDice: rollDice, rerollAll: rerollAll,

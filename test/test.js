@@ -29,6 +29,15 @@ function pickDieForSlot(free, role, slot, Logic) {
   return ok.length ? ok[Math.floor(Math.random() * ok.length)] : null;
 }
 
+function nextCoffeeSlot(s, Logic) {
+  if (!s.placements.shared) return null;
+  for (var i = 1; i <= Logic.CONFIG.COFFEE_SLOT_COUNT; i++) {
+    var cs = 'coffee' + i;
+    if (!s.placements.shared[cs]) return cs;
+  }
+  return null;
+}
+
 function findEquipMove(s, role, p, free) {
   if (role === 'pilot') {
     if (s.brakesAct < Logic.CONFIG.BRAKE_COUNT) {
@@ -85,8 +94,10 @@ function placeHeuristic(s) {
     } else {
       const equip = findEquipMove(s, role, p, free);
       if (equip) { target = equip.target; diePick = equip.diePick; }
-      else if (!p.coffee) { target = 'coffee'; diePick = free[Math.floor(Math.random() * free.length)]; }
       else {
+        var coffeeSlot = nextCoffeeSlot(s, Logic);
+        if (coffeeSlot) { target = coffeeSlot; diePick = free[Math.floor(Math.random() * free.length)]; }
+        else {
         var moves = [];
         Object.keys(Logic.SLOTS[role]).forEach(function (k) {
           if (p[k] !== null) return;
@@ -94,16 +105,25 @@ function placeHeuristic(s) {
             if (Logic.slotAllowed(s, role, k, x.d.v).ok) moves.push({ target: k, diePick: x });
           });
         });
+        if (Logic.SHARED_SLOTS) {
+          Object.keys(Logic.SHARED_SLOTS).forEach(function (k) {
+            if (s.placements.shared[k] !== null) return;
+            free.forEach(function (x) {
+              if (Logic.slotAllowed(s, role, k, x.d.v).ok) moves.push({ target: k, diePick: x });
+            });
+          });
+        }
         if (!moves.length) return;
         var pick = moves[Math.floor(Math.random() * moves.length)];
         target = pick.target;
         diePick = pick.diePick;
+        }
       }
     }
   }
   if (!target || !diePick) return;
   var opts = {};
-  var def = Logic.SLOTS[role][target];
+  var def = Logic.getSlotDef ? Logic.getSlotDef(role, target) : Logic.SLOTS[role][target];
   if (def.limit && def.limit.indexOf(diePick.d.v) === -1 && s.coffee > 0) {
     for (var plus = 0; plus <= s.coffee; plus++) {
       for (var minus = 0; plus + minus <= s.coffee; minus++) {

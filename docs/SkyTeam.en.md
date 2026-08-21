@@ -1,417 +1,549 @@
 # Sky Team — Landing Procedure
 
-> Official rulebook text, cleaned and reformatted from PDF extraction.  
+> Full transcription from `SkyTeam.pdf` page images (`docs/pdf-pages/`).  
 > Designer: Luc Rémond · Publisher: Le Scorpion Masqué · © 2023
 
 ---
 
-## Game Overview
+## Page 1 — Cover & Goal
 
-**Sky Team** is a cooperative two-player game. You and your partner pilot a commercial airliner and land at airports around the world.
+**SKY TEAM — LANDING PROCEDURE**
 
-Landing is harder than it looks. You must coordinate with the control tower to keep your approach clear, manage speed so you do not overshoot the runway, keep the aircraft level, deploy flaps and landing gear, and engage the brakes after touchdown. Cooperation and steady nerves are essential.
+Take the controls of an airliner with your trusty crewmate, coordinate your efforts, and land your aircraft all over the world!
 
-- **Players:** 2  
-- **Age:** 14+  
-- **Time:** ~20 minutes  
+### GOAL
 
----
+In this cooperative game, you play a team of pilots charged with landing your commercial airliner at airports all over the world. But landing an airplane is not as easy as you might think! You'll need to:
 
-## First Time You Open the Box
+- **communicate with the Control Tower** to make sure your approach is free of air traffic
+- **adjust your speed** to not overshoot the airport
+- **level your plane** in order to land square with the ground
+- **deploy your flaps** to increase lift and allow you to descend more steeply
+- **deploy your landing gear** to ensure a safe landing
+- **engage the brakes** to slow the plane once you've landed
 
-1. Remove and discard all Control Panel parts marked with the discard symbol.
-2. Apply the 9 double-sided stickers to the indicated spaces on the Control Panel.
-3. Stick the airplane sticker on the Airplane Axis disc and place the disc in its space.
-4. Place the 10 Switches on the green lights.
+Cooperation and nerves of steel are all it takes to succeed!
 
----
+| | |
+|---|---|
+| **Time** | 20' |
+| **Age** | 14+ |
+| **Players** | 2 |
 
-## Before Each Game (Basic / Montreal Tutorial)
+A game by **Luc Rémond** · Illustrations by **Eric Hibbeler** and **Adrien Rives**
 
-Place the Control Panel between the players (ideally sitting side-by-side on the same edge of the table).
-
-### Initial setup
-
-| Step | Action |
-|------|--------|
-| Axis disc | Arrow points at the black triangle at the top |
-| Switches | All covering green lights |
-| Speed Gauge | Blue Aerodynamics marker between **4 and 5**; orange marker between **8 and 9** |
-| Brake track | Red Brake marker to the **left of 2** |
-| Roles | **Pilot** (blue spaces) gets 4 blue dice; **Co-Pilot** (orange spaces) gets 4 orange dice |
-| Altitude Track | Slide in (green/yellow side) until **6000** ft shows — this is **Current Altitude** |
-| Approach Track | Slide YUL Montréal-Trudeau track until the position icon shows — this is **Current Position** |
-| Reroll tokens | One on each Reroll icon on the Altitude Track |
-| Traffic | Place Airplane tokens on Approach Track spaces matching Traffic icons |
-| Coffee | Create a supply of Coffee tokens beside the board (not on it) |
-| Screens | Give each player a screen; read the reminders inside |
-
-> **Note:** This is the **basic game** setup. Components in the closed compartment belong to **advanced modules** — leave them in the box for now.
-
-### Control Panel areas (reference)
-
-| Area | Pilot | Co-Pilot | Notes |
-|------|-------|----------|-------|
-| Radio | 1 slot | 2 slots | Any die value |
-| Axis | 1 slot | 1 slot | **Mandatory** each round |
-| Landing Gear | 4 slots | — | Any order |
-| Concentration | Shared | Shared | Any die value |
-| Engines | 1 slot | 1 slot | **Mandatory** each round |
-| Brakes | 3 slots | — | In order: 2 → 4 → 6 |
-| Flaps | — | 4 slots | In order, top to bottom |
-| Reroll | Supply | Supply | See Reroll rules |
+Learn the rules via video: [scorpionmasque.com](https://scorpionmasque.com)
 
 ---
 
-## General Rules
+## Page 2 — First Time You Open the Box
 
-The game lasts **7 rounds**. Each round has three phases:
+**PREPARATION — WHEN YOU FIRST OPEN THE BOX**
 
-1. **Strategy discussion and dice rolls**
-2. **Dice placement**
-3. **End of round**
+1. Start by removing and throwing out all parts of the Control Panel with the discard (trash bin) symbol.
+2. Stick the **9 double-sided stickers** on the indicated spaces on the inside and back of the Control Panel.
+3. Stick the airplane sticker on the **Airplane Axis disc**. Place the Airplane Axis disc into its space.
+4. Place the **10 Switches** on the green lights:
+   - **Left (Landing Gear):** 3 switches
+   - **Bottom center (Brakes):** 3 switches
+   - **Right (Flaps):** 4 switches
 
-### Turn order
+### Control Panel areas (labeled on diagram)
 
-- The arrow in the **Current Altitude** screen shows who plays first (Pilot/blue starts round 1).
-- On your turn, place **exactly one** die from behind your screen onto a **free** Control Panel space.
-
-### Placement constraints
-
-- **Colour:** Pilot → blue spaces only; Co-Pilot → orange only. Some spaces are both colours — either player may use them.
-- **Number:** Many spaces require specific values (e.g. first Flaps space accepts 1 or 2 only).
-- **Radio:** Colour only — any value allowed.
-- **Concentration:** No constraints — any player, any value.
-
-### Phase 1 — Strategy discussion and dice rolls
-
-Discuss strategy at the start of each round (e.g. “We need to clear that plane” or “Let’s advance 2 spaces”).
-
-**You may not discuss dice values.** Forbidden examples:
-
-- “If you get a 6, put it here”
-- “Use your weakest die for this action”
-
-After discussion, each player rolls all 4 dice **behind their screen**. From this moment until all 8 dice are placed, **both players must stay silent** (except to correct rules errors).
-
-### Phase 2 — Dice placement
-
-Place one die per turn until all 8 dice are on the panel.
-
-When all 8 dice are placed, players may speak again and proceed to end-of-round steps.
-
-### Reroll
-
-If a Reroll token sits in the **Current Altitude** space at round start (e.g. 6000 ft in round 1), remove it to the Reroll supply (top-left of panel).
-
-**Any time during the round**, either player may spend one Reroll token. Both players may then reroll **one or more** of their own dice **once** behind their screens.
+| Area | Location |
+|------|----------|
+| Reroll | Top left |
+| Radio | Top left & top right |
+| Current Position screen | Top center-left |
+| Current Altitude screen | Top center-right |
+| Axis | Center |
+| Landing Gear | Left — **3 slots** |
+| Flaps | Right — **4 slots** |
+| Engines | Below Axis |
+| Brakes | Bottom center — **3 slots** |
+| Concentration | Bottom |
 
 ---
 
-## Actions
+## Page 3 — Setup Before Each Game
 
-Dice effects depend on **where** they are placed and **what value** they show.
+> **NOTE:** This is the setup for the **basic game**. Components in the closed compartment belong to **advanced modules** — leave them in the box for now.
 
-Most effects apply **immediately when the die is placed**. Axis and Engines resolve **as soon as the second die** is placed on those sections.
-
-### Mandatory actions ⚠
-
-Spaces marked mandatory must be filled **every round** (not necessarily first):
-
-- Each player: **1 die on Axis**
-- Each player: **1 die on Engines**
-
-**Instant loss:** At end of a round, if either colour is missing from Axis or Engines.
+1. Place the **Control Panel** between the players (ideally sitting side-by-side on the same edge). Ensure the **Airplane Axis disc** arrow points at the black triangle at the top, and all **Switches** cover the green lights.
+2. On the **Speed Gauge**, place the blue **Aerodynamics marker** between **4 and 5**, and the orange marker between **8 and 9**.
+3. Place the **Brake marker** to the **left of 2** on the Brake track.
+4. **Pilot** (blue side) gets **4 blue dice**; **Co-Pilot** (orange side) gets **4 orange dice**.
+5. Slide the **Altitude Track** (green/yellow) into the top-right slot until **6000** shows — **Current Altitude**.
+6. Slide the **YUL Montréal-Trudeau Approach Track** into the top-left slot until the cloud icon shows — **Current Position**.
+7. Place a **Reroll token** on each Reroll icon on the Altitude Track.
+8. Place **Airplane tokens** on every Approach Track space with a Traffic icon.
+9. Create a reserve of **Coffee tokens** beside the board (not on it).
+10. Give each player a **screen**; read the reminders inside.
 
 ---
 
-### Axis ⚠ (Mandatory)
+## Page 4 — Game Flow & Dice Placement
+
+**GAME** — played over **7 rounds**, each with **3 phases**:
+
+1. **Strategy Discussion and Dice Rolls**
+2. **Dice Placement**
+3. **End of Round**
+
+### Phase 1 — Strategy Discussion and Dice Rolls
+
+Discuss strategy at the start of each round (e.g. "We need to get rid of that plane," "Let's advance 2 spaces").
+
+**You may NOT discuss dice values.** Forbidden examples:
+
+- "If you get a 6, put it here"
+- "Use your weakest die for this action"
+
+After discussion, each player rolls **4 dice** behind their screen. From then until the end of the round, **both players must stay silent** (except to correct rule errors).
+
+#### Reroll
+
+If a **Reroll token** is on the Current Altitude space at round start (e.g. round 1 at 6000 ft), move it to the Reroll supply (top-left of panel).
+
+**At any time during the round**, either player may spend 1 Reroll token. **Both** players may then reroll **one or more** of their own dice **once** behind their screens.
+
+### Phase 2 — Dice Placement — General Rules
+
+| Label | Rule |
+|-------|------|
+| **A** | Take turns. The Current Altitude arrow shows who starts (Pilot/blue starts round 1). |
+| **B** | On your turn, place **exactly one** die on a **free** space. Pilot → blue spaces; Co-Pilot → orange. Some spaces are both colours — either player may use them. |
+| **C** | Respect **number** constraints (e.g. first Flaps space accepts only 1 or 2). |
+| **D** | Most spaces have colour **and/or** number constraints (e.g. Brakes: Pilot only, and must be a 2 on the first brake space). |
+| **E** | **Radio** spaces: colour only — any die value. |
+| **F** | **Concentration** spaces: no constraints — any player, any value. |
+
+**Pilot side (diagram):** Landing Gear **3 slots** (1/2, 3/4, 5/6) · Brakes 2→4→6  
+**Co-Pilot side:** Flaps **4 slots** (1/2, 2/3, 4/5, 5/6)
+
+---
+
+## Page 5 — Actions: Mandatory & Axis
+
+> The dice produce different effects depending on their value and the spaces on which they are placed.
+
+### Mandatory Actions ⚠
+
+Spaces marked ⚠ are **mandatory**. Every round, each player must place **1 die on Axis** and **1 die on Engines**.
+
+> **You immediately lose** if, at end of round, there isn't 1 die of each colour on Axis **and** 1 of each colour on Engines.
+
+> **NOTE:** Mandatory spaces need not be filled first.
+
+### Axis ⚠
 
 Manage roll during approach. The airplane tilts — avoid a spin!
 
-**When the second Axis die is placed**, compare both values:
+**As soon as the second Axis die is placed**, compare both values:
 
 | Result | Effect |
 |--------|--------|
-| Same value | No change |
-| Different values | Turn the disc by the **difference**; arrow points toward whoever played the **higher** die |
-| Arrow reaches/passes spin marker | **Immediate loss** — spin |
+| Same | Nothing moves |
+| Different | Turn the disc by the **difference**; arrow points toward the **higher** die. **Do not reset** at end of round. |
 
-The Axis **does not reset** at end of round.
+> **GOING INTO A SPIN:** If the Axis arrow reaches or passes **X**, you immediately lose.
 
-> *Did you know?* Real aircraft use yaw, pitch, and roll. This game simplifies to **roll only**.
+> **DID YOU KNOW?** Real aircraft use yaw, pitch, and roll; this game simplifies to **roll** only.
 
-**Victory (final round):** Airplane Axis must be **completely horizontal** (centre).
+**Example:** Pilot 5, Co-Pilot 3 → Axis turns **2** marks toward Pilot.
+
+**VICTORY CONDITION C:** At end of last round, plane must be **completely horizontal**. *(See p. 11.)*
 
 ---
 
-### Engines ⚠ (Mandatory)
+## Page 6 — Engines ⚠
 
-**When the second Engine die is placed**, add both dice — this is your **speed**.
+**As soon as the second Engine die is placed**, add both dice — this is your **speed**:
 
-Compare speed to the two Aerodynamics markers on the Speed Gauge:
-
-| Speed vs markers | Approach Track |
-|------------------|----------------|
-| Sum **<** blue (weaker) marker | **Do not move** (0 spaces) |
+| Speed vs Aerodynamics markers | Approach Track |
+|-------------------------------|----------------|
+| Sum **<** blue (lower) marker | **Do not move** (0 spaces) |
 | Sum **between** blue and orange | Advance **1** space |
 | Sum **>** orange (higher) marker | Advance **2** spaces |
 
-#### Collision
+### Collision
 
-- If you must advance and **Airplane token(s) occupy Current Position** → **collision — you lose**.
-- If you advance into Current Position but tokens only **move through** (not stopping there) → you survive.
+- Airplane tokens **moving into** Current Position but you don't have to advance → still alive.
+- Airplane tokens **in** Current Position **and** you must advance → **collision — you lose**.
 
-#### Overshoot
+### Overshoot
 
-- If the **airport** is in Current Position and you must still advance → **overshoot — you lose**.
-
-> **Strategic core:** Order matters within a round — e.g. clear traffic with Radio **before** the second Engine die advances you into a plane.
+- **Airport** in Current Position **and** you must advance → **overshoot — you lose**.
 
 ---
 
-### Landing Gear
-
-Deploy gear to increase drag. Pilot only.
-
-- Place a die matching the number constraint on an inactive slot.
-- **Order does not matter.**
-- Slide the Switch to green.
-- **Immediately** advance the **blue** Aerodynamics marker one space (should sit between 7 and 8 when all gear is out).
-- Placing on an already-green slot has **no effect**.
-
-**Victory:** All Landing Gear switches green at game end.
-
----
+## Page 7 — Radio, Landing Gear, Aerodynamics
 
 ### Radio
 
-Contact the tower to clear traffic on your approach.
+Contact the Control Tower to clear traffic.
 
-- Pilot: 1 Radio slot · Co-Pilot: 2 Radio slots · Any die value.
-- Count spaces from **Current Position**; **immediately remove** one Airplane token from that space.
+- Pilot: **1** Radio slot · Co-Pilot: **2** · Any die value.
+- Count from **Current Position**; **immediately remove** one Airplane from that space.
   - Value **1** → Current Position space.
   - Value **2** → second space ahead, etc.
-- No effect if that space has no airplane.
+- No airplane in indicated space → **no effect**.
 
-**Victory:** No Airplane tokens remain on the Approach Track.
+**VICTORY CONDITION A:** Remove all Airplanes. *(See p. 11.)*
 
----
+**Example:** Pilot plays **2** on Radio → removes airplane from second space after Current Position.
 
-### Aerodynamics and speed
+### Landing Gear *(Pilot only)*
 
-Moving blue/orange markers changes what engine totals mean:
+Deploy gear to increase drag.
 
-- Moving the **blue** marker forward means a speed of 5 might advance **0** instead of **1**.
-- **Landing gear** moves blue forward; **flaps** move orange forward.
-
----
-
-### Flaps
-
-Increase lift and drag. Co-Pilot only.
-
-- Place a die matching the constraint.
-- Deploy **in order** (top to bottom): 1/2 → 2/3 → … → final slot.
+- Place die matching number constraint; **order does not matter**.
 - Slide Switch to green.
-- **Immediately** advance the **orange** Aerodynamics marker one space (just past 12 when all flaps deployed).
+- **Immediately** advance **blue** Aerodynamics marker one space (all **3** deployed → between **7 and 8**).
+- Placing on already-green slot → **no effect**.
 
-**Victory:** All Flaps switches green at game end.
+**3 slots:** **1/2** · **3/4** · **5/6**
 
----
+**Example:** First gear activation — place **4** on **3/4**, switch green, blue marker moves to between 5 and 6.
 
-### Concentration & Coffee ☕
+**VICTORY CONDITION B:** All Landing Gear switches green at game end. *(See p. 11.)*
 
-Either player may place any die on a free Concentration space.
+### Aerodynamics and Speed
 
-- **Immediately** place one Coffee token (max **3** on the panel).
-- **When placing any die**, you may spend Coffee tokens to add or subtract 1 per token from that die’s value (result stays 1–6).
-  - Cannot wrap 1→6 or 6→1.
-  - Any player may spend tokens regardless of who earned them.
-  - Unspent tokens remain for the next round.
+Moving Aerodynamics markers changes what engine totals mean. Example: blue marker forward → speed 5 may advance **0** instead of **1**.
 
 ---
 
-### Brakes
+## Page 8 — Flaps & Concentration
 
-Slow the aircraft after touchdown. Pilot only.
+### Flaps *(Co-Pilot only)*
 
-- Place matching die; deploy **in order**: **2 → 4 → 6**.
-- **Immediately** advance the red Brake marker one space.
-- Brakes matter only in the **final round** (see below).
-- You need not deploy all brakes, but more brakes = easier landing.
+Extend flaps for lift and drag.
 
-**Victory (final round):** Speed (engine sum) must be **less than** the Brake marker position.
+- Place die matching constraint; deploy **in order top to bottom**: **1/2 → 2/3 → 4/5 → 5/6**.
+- Slide Switch to green.
+- **Immediately** advance **orange** marker one space (all flaps out → just **past 12**).
+
+**VICTORY CONDITION B:** All Flaps switches green at game end. *(See p. 11.)*
+
+**Example:** Co-Pilot places **2** on second space (2/3), switch green, orange marker to between 10 and 11.
+
+### Concentration ☕
+
+- Either player may place **any die** on a free ☕ space.
+- **Immediately** take 1 Coffee token (max **3** on panel).
+- When placing **any** die, spend Coffee to modify that die **±1** per token (stay within 1–6; 1−1≠6, 6+1≠1).
+- Either player may use tokens; unspent remain for next round.
+
+**Example:** Pilot has die **3**, spends 2 Coffee → becomes **1**, places on Radio, clears Current Position.
 
 ---
 
-## End of Round
+## Page 9 — Brakes & End of Round
 
-After all 8 dice are placed:
+### Brakes *(Pilot only)*
 
-1. **Decrease altitude** — advance Altitude Track one space (−1000 ft). Seven spaces = seven rounds.
-2. **Take back your dice.**
+Brake to halt after touchdown.
 
-If **Airport** shows in Current Position **and** **Airplane** shows in Current Altitude → proceed to **final landing round**.  
+- Place die matching constraint; deploy **in order**: **2 → 4 → 6**.
+- **Immediately** advance red Brake marker one space.
+- Brakes matter only in the **final round** (except marker placement during game).
+
+> Deploy in order starting with **2**, then **4**, then **6**. Need not deploy all, but more brakes = easier landing.
+
+**VICTORY CONDITION D:** Last round — speed **<** red Brake marker position. *(See p. 11.)*
+
+**Example:** Place **4** on brake-4 space; move red marker one space (between 4 and 5).
+
+### Rerolls reminder
+
+You may spend a Reroll token at any time during the round. *(See p. 4.)*
+
+### Phase 3 — End of Round
+
+When all **8** dice are placed, you may speak again. Then:
+
+#### Decreasing Altitude
+
+Seven spaces on Altitude Track = seven rounds.
+
+1. Advance Altitude Track one space (−1000 ft).
+2. Take back your dice.
+
+If **Airport** shows in Current Position **and** **Airplane** shows in Current Altitude → proceed to **End of Game**.  
 Otherwise → start a new round.
 
-You may spend Reroll tokens at any time during the round (see above).
-
 ---
 
-## Special Cases
+## Page 10 — Special Cases & Final Round
 
-### Reaching the airport too soon
+### Special Cases
+
+**Reaching the airport too soon**
 
 - Airport in Current Position, but Airplane **not** yet in Current Altitude.
-- You are in a **holding pattern** — play one or more full rounds **without advancing** on the Approach Track (keep speed below blue marker).
+- **Holding pattern** — play one or more full rounds **without advancing** on Approach Track; reduce speed.
 
-### Not reaching the airport in time
+**Not reaching the airport in time**
 
 - Airplane in Current Altitude, but Airport **not** in Current Position.
-- **Crash landing — you lose.**
+- **Crash landed before the airport — you lose.**
 
-### Final round — landing
+### Final Round and End of Game
 
-Begins when both Airport and Airplane icons align in their screens.
+Final round begins when **Airport** and **Airplane** icons appear in their screens **simultaneously**.
 
-**Engine rule change:** When the **second** Engine die is placed, compare speed to **Brakes**, not Aerodynamics markers.
+> You've arrived at the airport as the plane touches down. Great timing!
 
-- Speed must be **<** Brake marker (brake strength **>** speed).
-- You need not deploy every brake slot, but marker cannot stay below **2** or you cannot stop on the runway.
+### Engines (final round)
+
+After touchdown, apply brakes so you don't run off the runway.
+
+> **WATCH OUT:** When the **second** Engine die is placed in the final round, compare speed to **BRAKES**, not Aerodynamics markers.
+
+**VICTORY CONDITION D:** Brake strength (red marker) **>** speed (Engine sum). *(See p. 11.)*
+
+Unlike Flaps and Landing Gear, you need **not** deploy all brakes — but marker cannot stay **below 2** or you cannot stop.
+
+**Example:** Speed 3 (1+2), Brakes 2 and 4 deployed → speed left of marker → condition met.
 
 ---
 
-## Victory Conditions (End of Final Round)
+## Page 11 — Final Turn & Credits
 
-You **win** if **all** are true:
+### FINAL TURN — LANDING
 
-| # | Condition |
+**You win if ALL of the following at end of this round:**
+
+| | Condition |
 |---|-----------|
-| A | No Airplane tokens on the Approach Track |
-| B | All Flaps **and** Landing Gear switches show green |
-| C | Airplane Axis is completely horizontal |
-| D | Speed **<** Brakes when Engine dice were resolved |
+| **A** | No Airplane tokens on Approach Track |
+| **B** | All **Flaps** and **Landing Gear** switches show green |
+| **C** | Airplane Axis completely horizontal |
+| **D** | Speed **<** Brakes when Engine dice are placed |
+
+> **CONGRATULATIONS!** The passengers burst into applause!
+
+Now open the **FLIGHT LOG** booklet for new challenges!
+
+### Thanks & Credits
+
+**3 Co-Pilots:** Olivier Penaud · Jean-Claude Penaud (First Officer) · Michel Dôme
+
+**Team:** Manuel Sanchez (Head of Studio) · Christian Lemay (Development) · Olivier Lamontagne (PM) · Sébastien Bizos (Art) · Joëlle Bouhnik (Brand) · Matthew Legault (Translation)
+
+© 2023 Le Scorpion Masqué inc.
 
 ---
 
-## Strategy Tips (Optional — Page 12)
+## Page 12 — Strategic Advice
 
-> Do not read unless you are struggling to land successfully.
+> **IMPORTANT:** Do not read unless you're having trouble landing.
 
-- **Briefing:** Study the Approach Track — advance 0/1/2? What is urgent? What can wait?
-- **Communication:** Verbal before rolling; then silent placement communicates intent.
-- **Placing dice:** Your die choice tells your partner what you likely have left.
-- **Axis:** Dangerous if both wait until last die; flexible until final round.
-- **Concentration:** A “wasted” die is one fewer action — time Coffee carefully.
-- **Delaying:** Let partner place first on Axis/Engines when you have duplicate values.
-- **Speed:** Communicate engine strength early when planes block the path; less critical when path is clear.
-- **Flaps / Gear:** Do not deploy flaps too early if you need speed 2; lower gear to help stay at speed 0.
-- **Radio:** Clearing spaces 1–2 is critical; space 5 less so. Plan ahead — do not use first die to push a plane far away.
-
----
-
-## Flight Log — Advanced Play
-
-After mastering Montreal, use the **Flight Log** booklet: 21 scenarios, modules, and Special Ability cards.
-
-### Choosing a scenario
-
-1. Pick one of 21 scenarios (difficulty by colour).
-2. Replace Montreal Approach Track with the scenario track (length may differ).
-3. Add module(s) listed for that scenario.
-4. Optionally add Special Ability cards as indicated.
-
-**Difficulty colours:** Routine · Exceptional · Elite · Heroic
-
-### Special Ability examples
-
-- **Engines pair:** If both Engine dice show the same value, immediately gain a Reroll token (if available).
-- **Gear + Flaps:** If at least one die on Landing Gear and one on Flaps this round, roll Traffic die and place it as an extra action.
-
-Check off the scenario circle when you succeed.
+| Topic | Advice |
+|-------|--------|
+| **Briefing** | Study Approach Track — advance 0/1/2? What's urgent? What can wait? |
+| **Communication** | Verbal before rolling; dice placement sends information during placement. |
+| **Placing dice** | Your choice reveals what you still hold — help partner infer. |
+| **Axis** | Dangerous if both wait until last die; flexible until final round. |
+| **Concentration** | Wasted die = lost action — time Coffee carefully. |
+| **Delaying** | Let partner lead on Axis/Engines when you have duplicate values. |
+| **Speed** | Communicate engine strength when planes block path; less critical when clear. |
+| **Flaps & Gear** | Don't deploy flaps early if you need speed 2; lower gear to hold at 0 advance. |
+| **Radio** | Clearing spaces 1–2 is critical; space 5 less so. Don't push planes down-track with your first die. |
 
 ---
 
-## Advanced Modules (Summary)
+# Flight Log (Pages 13–20)
 
-### Traffic die
+## Page 13 — Flight Log Cover
 
-At round start, if Current Position shows a Traffic icon, roll the Traffic die once per icon on that space and add airplanes to indicated spaces (counting from Current Position).  
-If you **stay** on a Traffic space multiple rounds, roll again each round you remain.  
-Passing through during a 2-space advance does **not** trigger a roll.
+**SKY TEAM — FLIGHT LOG**
 
-### Kerosene
+Now that you've mastered landing in Montreal, discover iconic airports worldwide and challenges worthy of real pilots!
 
-- Track to the left; marker starts at 20.
-- **Kerosene action:** Either player places any die → move marker down by die value.
-- **End of round:** If no die placed on Kerosene this round, lose **6** kerosene.
-- Hit empty tank space → **immediate loss**.
-
-### Approach track effects (e.g. turns)
-
-When advancing the Approach Track, if Axis is not in a **permitted** position shown on Current Position (and on **both** spaces flown through when advancing 2), you lose.  
-No check if you advance 0 spaces.
-
-### Intern
-
-- Intern Board below panel; random face-up tokens.
-- Train by placing a die on your colour space; take nearest token and use its value as a die on a legal space (not Concentration; not modifiable by Coffee).
-- Die value must differ from next available token.
-- **Victory:** All intern tokens must be trained away by game end.
-
-### Wind
-
-- Wind ring with blue airplane token; after **Axis phase**, rotate token by current Axis offset even if Axis did not move.
-- **Engine phase:** Add wind value (space the token points to) to engine sum — all rounds including final.
-
-### Kerosene leak
-
-- Cannot use normal Kerosene action.
-- End of round fuel loss = **|Engine dice difference| + 1**.
-
-### Real-time
-
-- 60-second timer starts immediately after rolling dice.
-- When time expires, round ends; unplaced dice ignored.
-- If Axis/Engines not filled → loss.
-
-### Ice brakes
-
-- Replaces normal brake board.
-- Each brake step needs **two dice of the same value** in paired spaces same round.
-- If only one die placed, take it back without moving marker.
-- Deploy in order left to right; marker must pass **5** before game end.
+> **⚠ WARNING — DO NOT OPEN BEFORE HAVING SUCCESSFULLY LANDED IN MONTREAL.**
 
 ---
 
-## Scenario Index (Flight Log)
+## Page 14 — New Setup & Special Abilities
 
-| Code | Airport | Theme (abbrev.) |
-|------|---------|-----------------|
-| YUL | Montréal-Trudeau | Tutorial — calm dawn landing |
-| ATL | Hartsfield-Jackson | Heavy traffic; intern training |
-| HND | Haneda | Mount Fuji; left turn over Tokyo Bay |
-| LHR | Heathrow | Thames at night; traffic at approach |
-| PRG | Václav Havel | Prague; special abilities |
-| GIG | Galeão | Rio; strong tailwind; no tower response |
-| KUL | Kuala Lumpur | Electrical storms |
-| OSL | Gardermoen | Oslo; kerosene management |
-| KEF | Keflavík | Iceland snow; ice brakes |
-| TGU | Toncontín | Honduras mountains; steep approach |
-| PBH | Paro | Bhutan — “world’s most dangerous” |
+Before setup, select 1 of **21 scenarios** (pages 6–8 of Flight Log).
 
-*(Full scenario list and module combinations are in the printed Flight Log booklet, pages 6–8.)*
+### Difficulty colours
+
+| Colour | Level |
+|--------|-------|
+| Green | Routine Landing |
+| Yellow | Exceptional Conditions |
+| Red | Elite Pilots Only |
+| Black | Heroic Landing |
+
+Setup matches Landing Procedure, **except:**
+
+1. **Airport name/code** — use scenario Approach Track (lengths vary).
+2. **Special modules** — use icons on scenario card; rules pp. 3–5 of Flight Log.
+3. **Special abilities** — draw cards equal to star number on scenario.
+
+**Victories:** Check off the circle when you succeed.
+
+### Special Abilities
+
+Select the number of cards shown on the scenario (star icon). Example card:
+
+**SYNCHRONISATION:** If at least one die on **Landing Gear** and one on **Flaps** this round, roll the Traffic die and place it on any empty Control Panel space (any colour). Resolve as a normal die — counts as an **extra action** this turn.
 
 ---
 
-## Credits
+## Page 15 — Approach Effects & Kerosene Module
 
-**Design:** Luc Rémond · **Art:** Eric Hibbeler, Adrien Rives  
-**Development:** Christian Lemay · **Translation (original):** Matthew Legault  
+### Traffic Die
 
-Video rules: [scorpionmasque.com](https://scorpionmasque.com)
+If **Traffic icon(s)** in Current Position at round start, roll Traffic die **once per icon**. Place Airplane on space indicated (from Current Position). No icon → don't roll. Staying on Traffic space multiple rounds → roll each round start. Passing through while advancing 2 → no roll. No tokens left → skip. Die exceeds track → place on last space (Airport).
+
+**Example (Atlanta):** Still on first space, roll 3 → place on third space; second icon → roll again.
+
+### Turns
+
+> When advancing Approach Track, Axis must be in permitted position (▼ or ▽) shown in Current Position screen — **both spaces** if advancing 2. Advance 0 → no check.
+
+### Module: Kerosene
+
+> Manage fuel before going dry.
+
+**Setup:** Kerosene Track left of panel; marker at **20**.
+
+**Action:** Pilot or Co-Pilot places any die → marker moves down by die value.
+
+**End of round:** If no die on Kerosene slot → **lose 6** kerosene.
+
+> Marker hits **X** → out of fuel — **immediate loss** (even final round).
 
 ---
 
-*Source: Sky Team “Landing Procedure” rulebook PDF. Reformatted for reference; icons and layout elements omitted.*
+## Page 16 — Intern & Wind Modules
+
+### Module: Intern
+
+> Train your intern before landing.
+
+**Setup:** Intern Board below panel; random face-up tokens on each space.
+
+**Training:** On your turn, place any die on your colour space, take nearest token on your side, place token on any legal die space — resolve at token value.
+
+> Tokens remain on board at game end → **lose**.
+
+**Important:**
+
+- Coffee cannot modify Intern tokens.
+- Cannot use on Concentration.
+- Training die must differ from next available token value.
+
+### Module: Wind
+
+> Tail wind — turn plane to control speed.
+
+**Setup:** Blue Airplane token in Wind Ring, nose at white center; place right of panel.
+
+**After Axis phase:** Rotate token by current Axis offset (even if Axis didn't move this round).
+
+**Engine phase:** Add wind value (space token points to) to Engine sum — **all rounds including final**.
+
+**Example:** Axis 2 toward Pilot → rotate token 2 left. Engines 5+3, wind +2 = 10 → advance 2 spaces.
+
+---
+
+## Page 17 — Real-Time, Kerosene Leak, Ice Brakes
+
+### Module: Real-Time
+
+> Play in real time.
+
+After rolling dice each round, start **60-second** timer immediately.
+
+Timer ends → round ends; unplaced dice ignored. Axis/Engines unfilled → **lose**.
+
+### Module: Kerosene Leak
+
+**Setup:** Kerosene Track as normal; face-down Intern token on Kerosene die slot.
+
+**Rules:** No Kerosene Action. End-of-round loss = **|Engine₁ − Engine₂| + 1** (e.g. 6 and 3 → lose 4).
+
+### Module: Ice Brakes
+
+**Setup:** Ice Brakes board covers normal brakes.
+
+> Brake marker must reach **past 5** before game end or **lose**. Final round: speed < marker.
+
+Same as normal brakes except: **two dice of same value** in top and bottom slots **same round** to advance marker. Only one placed → die returned, no marker move. **No Switches.** Still left-to-right order; cannot play left of marker; may advance multiple times per round.
+
+---
+
+## Pages 18–20 — Scenarios
+
+Module icons: 🚛 Traffic · ⏱ Real-Time · 🌬 Wind · ⛽ Kerosene Leak · ❄ Ice Brakes · 👤 Intern · ★N Special Abilities
+
+### Page 18 (Flight Log p.6) — Green / Routine
+
+| Code | Airport | Flavor | Modules | ★ |
+|------|---------|--------|---------|---|
+| **YUL** | Montréal-Trudeau | First flight; dawn over St. Lawrence; smooth landing | *(tutorial — base rules)* | — |
+| **LHR** | Heathrow | Thames at night; traffic at end of approach | — | — |
+| **HND** | Haneda | Mount Fuji; wide left turn over Tokyo Bay | — | — |
+| **OSL** | Gardermoen | Oslo descent; Øyeren Lake; watch kerosene | Kerosene | — |
+| **ATL** | Hartsfield-Jackson | Busy traffic; nervous Intern | Intern | — |
+| **PRG** | Václav Havel | Prague; use your abilities | Kerosene | ★2 |
+
+### Page 19 (Flight Log p.7) — Yellow / Exceptional
+
+| Code | Airport | Flavor | Modules | ★ |
+|------|---------|--------|---------|---|
+| **LHR** | Heathrow | Fog; holding patterns over London | Traffic | — |
+| **TGU** | Toncontín | Mountain bowl; tight final turn; Honduras | Traffic | ★2 |
+| **GIG** | Galeão | Tower silent; tailwind; Copacabana | Wind | ★1 |
+| **KEF** | Keflavík | Low clouds; snow; Land of Fire and Ice | Ice Brakes | ★1 |
+| **PRG** | Václav Havel | Clear skies; fuel alarm; Carpathians | Kerosene Leak | ★2 |
+| **KUL** | Kuala Lumpur | Electrical storms between storm masses | Traffic | ★1 |
+| **ATL** | Hartsfield-Jackson | Thanksgiving traffic; fuel leak | Kerosene Leak | ★1 |
+
+### Page 20 (Flight Log p.8) — Red & Black / Elite & Heroic
+
+| Code | Airport | Difficulty | Flavor | Modules | ★ |
+|------|---------|------------|--------|---------|---|
+| **PBH** | Paro | Red | Bhutan Himalayas; 7000+ ft narrow valley | Traffic, Real-Time | ★2 |
+| **HND** | Haneda | Red | Hanami; crowded skies; reduced corridor | Traffic | ★1 |
+| **GIG** | Galeão | Red | South Atlantic cyclone; high winds | Wind, Kerosene Leak | ★2 |
+| **OSL** | Gardermoen | Red | Frozen runway; low kerosene 30 min | Kerosene Leak, Ice Brakes | ★2 |
+| **TGU** | Toncontín | Red | Tegucigalpa nightmares; mountain gap | Traffic, Wind | ★2 |
+| **KEF** | Keflavík | Black | Blizzard; dim runway lights | Wind, Ice Brakes | ★2 |
+| **KUL** | Kuala Lumpur | Black | Lightning hell; time pressure | Traffic, Real-Time | ★2 |
+| **PBH** | Paro | Black | World's most dangerous; only 8 certified pilots | Traffic, Real-Time | ★2 |
+
+---
+
+## PDF page index
+
+| PDF page | Booklet | Content |
+|----------|---------|---------|
+| 1 | Landing Procedure | Cover, goal |
+| 2 | Landing Procedure | Unboxing, panel layout |
+| 3 | Landing Procedure | Per-game setup |
+| 4 | Landing Procedure | 7 rounds, placement, rerolls |
+| 5 | Landing Procedure | Mandatory, Axis |
+| 6 | Landing Procedure | Engines |
+| 7 | Landing Procedure | Radio, Landing Gear (3), aerodynamics |
+| 8 | Landing Procedure | Flaps (4), Concentration |
+| 9 | Landing Procedure | Brakes, end of round |
+| 10 | Landing Procedure | Special cases, final round |
+| 11 | Landing Procedure | Victory A–D, credits |
+| 12 | Landing Procedure | Strategic advice |
+| 13 | Flight Log | Cover |
+| 14 | Flight Log p.2 | New setup, special abilities |
+| 15 | Flight Log p.3 | Traffic die, turns, kerosene |
+| 16 | Flight Log p.4 | Intern, wind |
+| 17 | Flight Log p.5 | Real-time, kerosene leak, ice brakes |
+| 18 | Flight Log p.6 | Scenarios (green) |
+| 19 | Flight Log p.7 | Scenarios (yellow) |
+| 20 | Flight Log p.8 | Scenarios (red/black) |
+
+Images: `docs/pdf-pages/page-01.png` … `page-20.png`

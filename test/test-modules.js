@@ -102,7 +102,7 @@ console.log('[traffic] 空中交通（logicOwner: core）');
   fillReveal(s3);
   s3.placements.pilot.engine = { v: 3, mod: 0 };
   s3.placements.copilot.engine = { v: 4, mod: 0 };
-  s3.gearAct = 4;
+  s3.gearAct = 3;
   s3.flapsAct = 4;
   s3.blueMark = 6;
   Logic.resolveRound(s3);
@@ -249,8 +249,9 @@ console.log('\n[slot-rules] 起落架 / 襟翼 / 刹车点数与顺序');
   }
 
   let s = prepPlace('pilot');
-  assert(!Logic.slotAllowed(s, 'pilot', 'gear3', 5).ok, 'gear3 拒绝点数 5');
-  assert(Logic.slotAllowed(s, 'pilot', 'gear3', 3).ok, 'gear3 接受点数 3');
+  assert(!Logic.slotAllowed(s, 'pilot', 'gear3', 3).ok, 'gear3 拒绝点数 3');
+  assert(Logic.slotAllowed(s, 'pilot', 'gear3', 5).ok, 'gear3 接受点数 5');
+  assert(Logic.slotAllowed(s, 'pilot', 'gear2', 3).ok, 'gear2 接受点数 3/4');
   assert(!Logic.slotAllowed(s, 'pilot', 'gear1', 3).ok, 'gear1 只接受 1/2');
 
   s = prepPlace('pilot');
@@ -277,6 +278,16 @@ console.log('\n[slot-rules] 起落架 / 襟翼 / 刹车点数与顺序');
   assert(Logic.slotAllowed(s, 'pilot', 'radio', 5).ok, '机长无线电任意点数');
   s = prepPlace('copilot');
   assert(Logic.slotAllowed(s, 'copilot', 'radio2', 3).ok, '副驾第二无线电槽任意点数');
+
+  s = prepPlace('pilot');
+  assert(Logic.slotAllowed(s, 'pilot', 'coffee1', 4).ok, '机长可用共用 coffee1');
+  s = prepPlace('copilot');
+  assert(Logic.slotAllowed(s, 'copilot', 'coffee2', 2).ok, '副驾可用共用 coffee2');
+
+  s = prepPlace('pilot');
+  s.gearOn.gear1 = true;
+  s.gearAct = 1;
+  assert(Logic.slotAllowed(s, 'pilot', 'gear1', 1).ok, '已激活起落架槽仍可放置（无效果）');
 }
 
 /* ---------- 场景 + 模块组合 ---------- */

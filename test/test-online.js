@@ -78,6 +78,15 @@ function pickDieForSlot(free, role, slot) {
   return ok.length ? ok[Math.floor(Math.random() * ok.length)] : null;
 }
 
+function nextCoffeeSlot(s) {
+  if (!s.placements.shared) return null;
+  for (let i = 1; i <= Logic.CONFIG.COFFEE_SLOT_COUNT; i++) {
+    const cs = 'coffee' + i;
+    if (!s.placements.shared[cs]) return cs;
+  }
+  return null;
+}
+
 function findEquipMove(s, role, p, free) {
   if (role === 'pilot') {
     if (s.brakesAct < Logic.CONFIG.BRAKE_COUNT) {
@@ -124,8 +133,10 @@ function autoPlace(s, role) {
     } else {
       const equip = findEquipMove(s, role, p, free);
       if (equip) { target = equip.target; diePick = equip.diePick; }
-      else if (!p.coffee) { target = 'coffee'; diePick = free[Math.floor(Math.random() * free.length)]; }
       else {
+        const coffeeSlot = nextCoffeeSlot(s);
+        if (coffeeSlot) { target = coffeeSlot; diePick = free[Math.floor(Math.random() * free.length)]; }
+        else {
         const moves = [];
         Object.keys(Logic.SLOTS[role]).forEach(k => {
           if (p[k] !== null) return;
@@ -133,10 +144,19 @@ function autoPlace(s, role) {
             if (Logic.slotAllowed(s, role, k, x.d.v).ok) moves.push({ target: k, diePick: x });
           });
         });
+        if (Logic.SHARED_SLOTS) {
+          Object.keys(Logic.SHARED_SLOTS).forEach(k => {
+            if (s.placements.shared[k] !== null) return;
+            free.forEach(x => {
+              if (Logic.slotAllowed(s, role, k, x.d.v).ok) moves.push({ target: k, diePick: x });
+            });
+          });
+        }
         if (!moves.length) return null;
         const pick = moves[Math.floor(Math.random() * moves.length)];
         target = pick.target;
         diePick = pick.diePick;
+        }
       }
     }
   }

@@ -40,11 +40,11 @@ var PlacementPreview = {
       result.engine = pe + ce;
       var orange = logic.getOrangeMark(state);
       var blue = state.blueMark;
-      if (result.engine >= orange) result.engineLabel = '前进 2 格';
+      if (result.engine > orange) result.engineLabel = '前进 2 格';
       else if (result.engine >= blue) result.engineLabel = '前进 1 格';
       else result.engineLabel = '悬停（不动）';
       result.isPreview = true;
-      var k = result.engine >= orange ? 2 : (result.engine >= blue ? 1 : 0);
+      var k = result.engine > orange ? 2 : (result.engine >= blue ? 1 : 0);
       if (k > 0 && logic.hasTraffic(state, state.distance)) {
         result.collisionWarn = '⚠ 当前位置有飞机，前进将撞机';
       }
