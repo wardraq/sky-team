@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模块实验室 · Sky Team</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg0: #0c141d; --bg1: #141f2b; --bg2: #1b2a39; --bg3: #243545;
+    --edge: #2e4155; --text: #dfe9f2; --dim: #8193a5;
+    --blue: #4aa8ff; --orange: #ff9440; --green: #3ddc84; --red: #ff5a5a;
+    --mono: "SF Mono", Menlo, Consolas, monospace;
+  }
+  body { font-family: system-ui, sans-serif; background: var(--bg0); color: var(--text); min-height: 100vh; }
+  a { color: var(--blue); }
+  header.lab-header {
+    display: flex; align-items: center; gap: 16px; padding: 12px 20px;
+    background: var(--bg1); border-bottom: 1px solid var(--edge);
+  }
+  header.lab-header h1 { font-size: 18px; letter-spacing: 1px; }
+  header.lab-header .sub { color: var(--dim); font-size: 13px; }
+  .lab-layout { display: grid; grid-template-columns: 240px 1fr 360px; min-height: calc(100vh - 52px); }
+  .lab-sidebar, .lab-main, .lab-inspector {
+    padding: 14px; overflow-y: auto; border-right: 1px solid var(--edge);
+  }
+  .lab-inspector { border-right: none; background: var(--bg1); }
+  h3 { font-size: 13px; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; margin: 16px 0 8px; }
+  h3:first-child { margin-top: 0; }
+  .lab-mod-btn {
+    display: block; width: 100%; text-align: left; padding: 10px 12px; margin-bottom: 6px;
+    background: var(--bg2); border: 1px solid var(--edge); border-radius: 8px; color: var(--text); cursor: pointer;
+  }
+  .lab-mod-btn:hover { border-color: var(--blue); }
+  .lab-mod-btn.active { border-color: var(--orange); box-shadow: 0 0 12px rgba(255,148,64,.25); }
+  .lab-mod-btn .name { display: block; font-weight: 700; font-size: 14px; }
+  .lab-mod-btn .meta { display: block; font-size: 11px; color: var(--dim); margin-top: 4px; }
+  .lab-layer { background: var(--bg2); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; font-size: 12.5px; }
+  .lab-layer-head { display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px; }
+  .lab-layer-head code { font-size: 10px; color: var(--dim); }
+  .lab-layer ul { padding-left: 18px; color: #c3d0dd; line-height: 1.6; }
+  .lab-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .lab-table th, .lab-table td { border: 1px solid var(--edge); padding: 6px 8px; text-align: left; }
+  .lab-table th { background: var(--bg2); color: var(--dim); }
+  .lab-table code { color: var(--orange); font-size: 11px; }
+  #lab-mod-detail h2 { font-size: 20px; margin-bottom: 8px; }
+  #lab-mod-detail code { color: var(--blue); font-size: 14px; margin-left: 8px; }
+  #lab-mod-detail p { color: #c3d0dd; line-height: 1.6; margin-bottom: 10px; }
+  .lab-note { font-size: 12px; padding: 8px 10px; background: var(--bg2); border-radius: 6px; margin-bottom: 10px; border: 1px solid var(--edge); }
+  .lab-note.warn { border-color: #7a5a28; background: #2a2010; color: #ffc53d; }
+  .lab-hook-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .lab-hook-tags .tag { font-size: 11px; padding: 3px 8px; background: #1a3a2a; color: var(--green); border-radius: 4px; font-family: var(--mono); }
+  .lab-muted { color: var(--dim); font-size: 12px; }
+  .lab-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .lab-toolbar select, .lab-toolbar button {
+    font: inherit; font-size: 12.5px; padding: 6px 12px; border-radius: 6px;
+    border: 1px solid var(--edge); background: var(--bg3); color: var(--text); cursor: pointer;
+  }
+  .lab-toolbar button:hover { filter: brightness(1.1); }
+  .lab-toolbar .chip { font-family: var(--mono); font-size: 12px; color: var(--dim); }
+  .lab-action-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 12px; }
+  .lab-action-grid button {
+    padding: 8px 10px; font-size: 12px; border-radius: 8px; border: 1px solid var(--edge);
+    background: var(--bg2); color: var(--text); cursor: pointer; text-align: left;
+  }
+  .lab-action-grid button:hover { border-color: var(--green); }
+  .lab-action-grid button b { display: block; font-size: 13px; margin-bottom: 2px; }
+  .lab-action-grid button small { color: var(--dim); font-size: 10px; }
+  .lab-hook-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .lab-hook-btn {
+    padding: 6px 10px; font-size: 11px; font-family: var(--mono); border-radius: 6px;
+    border: 1px solid var(--edge); background: #1a2a3a; color: var(--orange); cursor: pointer;
+  }
+  .lab-hook-btn small { display: block; color: var(--dim); font-family: system-ui; font-size: 9px; }
+  .lab-hook-btn.disabled, .lab-hook-btn:disabled { opacity: .35; cursor: not-allowed; }
+  .lab-hook-btn:not(:disabled):hover { border-color: var(--orange); }
+  #lab-state {
+    font-family: var(--mono); font-size: 11px; line-height: 1.5; white-space: pre-wrap;
+    background: var(--bg0); border: 1px solid var(--edge); border-radius: 8px; padding: 10px;
+    max-height: 320px; overflow: auto;
+  }
+  #lab-log { max-height: 240px; overflow-y: auto; font-size: 12px; }
+  .lab-log-item { padding: 6px 8px; border-bottom: 1px solid var(--edge); line-height: 1.5; }
+  .lab-log-item .t { color: var(--dim); font-family: var(--mono); font-size: 10px; margin-right: 6px; }
+  .lab-log-item.ok { border-left: 3px solid var(--green); }
+  .lab-log-item.warn { border-left: 3px solid #ffc53d; }
+  .lab-log-item.err { border-left: 3px solid var(--red); }
+  .lab-log-item pre { font-size: 10px; color: var(--dim); margin-top: 4px; white-space: pre-wrap; }
+  .lab-widget-preview { margin-top: 8px; padding: 8px; background: var(--bg2); border-radius: 6px; border: 1px dashed var(--edge); }
+  .lab-err { padding: 40px; color: var(--red); text-align: center; }
+</style>
+</head>
+<body>
+<header class="lab-header">
+  <h1>🧪 模块实验室</h1>
+  <span class="sub">单模块隔离测试 · 职责契约 · Hook 逐步驱动</span>
+  <a href="/" style="margin-left:auto;font-size:13px">← 返回游戏</a>
+</header>
+
+<div class="lab-layout">
+  <aside class="lab-sidebar">
+    <h3>玩法模块</h3>
+    <div id="lab-modules"></div>
+    <h3>职责分层</h3>
+    <div id="lab-layers"></div>
+  </aside>
+
+  <main class="lab-main">
+    <div id="lab-mod-detail"></div>
+
+    <h3>生命周期</h3>
+    <div id="lab-lifecycle"></div>
+
+    <h3>驱动测试</h3>
+    <div class="lab-toolbar">
+      <select id="lab-presets"></select>
+      <button id="btn-reset">↺ 重置模块</button>
+      <span class="chip">phase: <b id="lab-phase">—</b></span>
+      <span class="chip">round: <b id="lab-round">—</b></span>
+    </div>
+
+    <div class="lab-action-grid" id="lab-actions">
+      <button data-action="newGame"><b>新建对局</b><small>Core · config</small></button>
+      <button data-action="beginRound"><b>开始本轮</b><small>Core → onBeginRound</small></button>
+      <button data-action="rollDice" data-role="pilot"><b>机长掷骰</b><small>Core → onRollDice</small></button>
+      <button data-action="rollDice" data-role="copilot"><b>副驾掷骰</b><small>Core → onRollDice</small></button>
+      <button data-action="rerollAll"><b>重掷全部</b><small>Core → onRerollAll</small></button>
+      <button data-action="placeDie" data-role="pilot" data-idx="0" data-slot="axis"><b>放置姿态</b><small>Core → slotAllowed + onPlaceDie</small></button>
+      <button data-action="placeDie" data-role="pilot" data-idx="1" data-slot="engine"><b>放置引擎</b><small>Core → 模块 Hook</small></button>
+      <button data-action="useCoffee" data-role="pilot" data-slot="axis" data-delta="1"><b>咖啡 +1</b><small>Core · reveal</small></button>
+      <button data-action="resolveRound"><b>结算本轮</b><small>Core → before/afterResolve</small></button>
+      <button data-action="nextRound"><b>下一轮</b><small>Core · beginRound</small></button>
+      <button data-action="checkLanding"><b>降落检查</b><small>Core + checkWin</small></button>
+    </div>
+
+    <h3>直接调用 Hook（跳过 Core 路径）</h3>
+    <div class="lab-hook-grid" id="lab-hooks"></div>
+  </main>
+
+  <aside class="lab-inspector">
+    <h3>模块 state</h3>
+    <pre id="lab-state">{}</pre>
+    <h3>Widget 预览</h3>
+    <div id="lab-widget"><div class="lab-muted">getWidgets 输出</div></div>
+    <h3>操作日志 <button id="btn-clear-log" style="float:right;font-size:11px;padding:2px 8px">清空</button></h3>
+    <div id="lab-log"></div>
+  </aside>
+</div>
+
+<script src="src/logic/game-logic.js"></script>
+<script src="src/scenarios/scenario-registry.js"></script>
+<script src="src/scenarios/module-registry.js"></script>
+<script src="src/lab/module-contract.js"></script>
+<script src="src/lab/module-runner.js"></script>
+<script src="src/lab/module-lab-app.js"></script>
+</body>
+</html>

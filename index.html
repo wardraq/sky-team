@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天合小队 Sky Team · Web 联机</title>
+<style>
+  /* ============================================================
+     天合小队 Sky Team —— 驾驶舱仪表风格（深色）
+     ============================================================ */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg0: #0c141d;          /* 页面底色 */
+    --bg1: #141f2b;          /* 面板底色 */
+    --bg2: #1b2a39;          /* 凹槽/仪表底 */
+    --bg3: #243545;          /* 凸起 */
+    --edge: #2e4155;         /* 面板边框 */
+    --edge-hi: #3c5269;
+    --text: #dfe9f2;
+    --dim: #8193a5;
+    --blue: #4aa8ff;   --blue-glow: rgba(74,168,255,.45);
+    --orange: #ff9440; --orange-glow: rgba(255,148,64,.45);
+    --green: #3ddc84;  --green-glow: rgba(61,220,132,.5);
+    --red: #ff5a5a;    --red-glow: rgba(255,90,90,.45);
+    --amber: #ffc53d;
+    --sky: #2f6fb2; --ground: #7a5c33;
+    --mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, "Courier New", monospace;
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: radial-gradient(120% 90% at 50% 0%, #16222f 0%, var(--bg0) 60%);
+    color: var(--text); min-width: 1220px; font-size: 14px; overflow: hidden;
+  }
+  #app { display: flex; flex-direction: column; height: 100vh; }
+
+  button {
+    font: inherit; cursor: pointer; border-radius: 8px; padding: 6px 12px;
+    border: 1px solid var(--edge-hi); background: var(--bg3); color: var(--text);
+    transition: filter .15s, box-shadow .15s;
+  }
+  button:hover { filter: brightness(1.12); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-primary { background: linear-gradient(180deg, #3b5c80, #28405c); border-color: #4d7aab; box-shadow: 0 0 8px rgba(74,168,255,.25); }
+  .btn-ok { background: linear-gradient(180deg, #1e6b44, #154d30); border-color: #2ea86b; box-shadow: 0 0 8px var(--green-glow); }
+  .btn-warn { background: linear-gradient(180deg, #7a3d28, #5c2b1a); border-color: #b35a38; }
+
+  /* ============ 开始界面 ============ */
+  #lobby-screen .room-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+  }
+  #lobby-screen .room-row label { color: var(--dim); font-size: 13px; }
+  #lobby-screen .room-row input {
+    font: inherit; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--edge-hi);
+    background: var(--bg1); color: var(--text); width: 180px; font-family: var(--mono);
+  }
+  #lobby-screen {
+    position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 34px;
+    background:
+      radial-gradient(60% 45% at 50% 20%, rgba(47,111,178,.4), transparent 70%),
+      radial-gradient(120% 100% at 50% 115%, rgba(122,92,51,.35), transparent 60%),
+      linear-gradient(180deg, #1a2c44 0%, #0e1a2c 55%, #0a1119 100%);
+  }
+  #lobby-screen .logo { text-align: center; user-select: none; }
+  #lobby-screen .logo h1 {
+    font-size: 56px; letter-spacing: 10px; font-weight: 900;
+    color: #ffffff;
+    background: linear-gradient(180deg, #ffffff, #9fc4e8);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(74,168,255,.5);
+  }
+  #lobby-screen .logo .sub { color: #b8c8da; letter-spacing: 4px; margin-top: 8px; font-size: 14px; }
+  .role-cards { display: flex; gap: 22px; }
+  .role-card {
+    width: 240px; padding: 26px 20px; border-radius: 16px; text-align: center; cursor: pointer;
+    background: linear-gradient(180deg, #2a3e54, #1a2738); border: 2px solid #4a6680;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 12px 30px rgba(0,0,0,.5);
+    transition: transform .15s, border-color .15s, box-shadow .15s;
+  }
+  .role-card:hover { transform: translateY(-4px); }
+  .role-card.pilot { border-color: var(--blue); box-shadow: 0 0 24px rgba(74,168,255,.5), inset 0 1px 0 rgba(255,255,255,.1); }
+  .role-card.copilot { border-color: var(--orange); box-shadow: 0 0 24px rgba(255,148,64,.5), inset 0 1px 0 rgba(255,255,255,.1); }
+  .role-card.passenger { border-color: #d8b45a; box-shadow: 0 0 24px rgba(216,180,90,.45), inset 0 1px 0 rgba(255,255,255,.1); }
+  .role-card .icon { font-size: 44px; margin-bottom: 12px; }
+  .role-card .rname { font-size: 20px; font-weight: 800; letter-spacing: 2px; }
+  .role-card.pilot .rname { color: #7cc4ff; } .role-card.copilot .rname { color: #ffb27a; } .role-card.passenger .rname { color: #e8cd8a; }
+  .role-card .duty { font-size: 12.5px; color: #b8c8da; margin-top: 8px; line-height: 1.7; min-height: 58px; }
+  .role-card .enter { margin-top: 12px; font-size: 12px; color: var(--amber); opacity: .95; letter-spacing: 1px; font-weight: 700; }
+  #lobby-screen .tip { color: #b8c8da; font-size: 12.5px; letter-spacing: 1px; }
+  .err-box {
+    position: fixed; left: 20px; right: 20px; bottom: 20px; z-index: 400;
+    background: #3a1a1a; border: 2px solid #ff5a5a; color: #ffe2e2; border-radius: 10px;
+    padding: 14px 18px; font-family: var(--mono); font-size: 13px; line-height: 1.6;
+    box-shadow: 0 8px 24px rgba(0,0,0,.6);
+  }
+
+  /* ============ 顶栏 ============ */
+  header.topbar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 6px 12px; background: linear-gradient(180deg, var(--bg2), var(--bg1));
+    border-bottom: 2px solid var(--edge); position: relative; z-index: 5;
+  }
+  header.topbar h1 { font-size: 15px; letter-spacing: 2px; margin-right: 6px; }
+  header.topbar h1 small { font-weight: normal; color: var(--dim); font-size: 11px; margin-left: 6px; letter-spacing: 0; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--bg2); border: 1px solid var(--edge); border-radius: 6px;
+    padding: 2px 9px; font-size: 12.5px; white-space: nowrap; color: var(--dim);
+  }
+  .chip b { font-size: 14px; color: var(--text); font-family: var(--mono); }
+  .chip .warn { color: var(--red); }
+  .id-switch { display: flex; gap: 4px; margin-left: auto; }
+  .id-switch button { padding: 3px 10px; font-size: 12px; border-radius: 6px; }
+  .id-switch button.active { box-shadow: 0 0 10px var(--blue-glow); border-color: var(--blue); color: var(--blue); font-weight: 700; }
+  .id-switch button.active.co { box-shadow: 0 0 10px var(--orange-glow); border-color: var(--orange); color: var(--orange); }
+  .id-switch button.active.pa { box-shadow: 0 0 10px rgba(216,180,90,.4); border-color: #d8b45a; color: #e8cd8a; }
+
+  /* ============ 主区域 ============ */
+  main { flex: 1; display: flex; gap: 10px; padding: 10px; min-height: 0; }
+  .panel {
+    width: 318px; min-width: 318px; border-radius: 14px; overflow-y: auto;
+    background: linear-gradient(180deg, var(--bg2), var(--bg1));
+    border: 1px solid var(--edge); box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 4px 16px rgba(0,0,0,.35);
+    padding: 12px; display: flex; flex-direction: column; gap: 9px;
+  }
+  .panel h2 { font-size: 14px; display: flex; align-items: center; gap: 8px; letter-spacing: 1px; }
+  .panel.pilot { border-top: 3px solid var(--blue); }
+  .panel.copilot { border-top: 3px solid var(--orange); }
+  .panel.pilot h2 { color: var(--blue); } .panel.copilot h2 { color: var(--orange); }
+  .role-tag { font-size: 11px; color: var(--dim); font-weight: normal; }
+  .subduty { font-size: 11px; color: var(--dim); margin-top: -4px; }
+
+  /* ============ 骰子 ============ */
+  .dice-row { display: flex; gap: 8px; align-items: center; }
+  .dice-well {
+    background: var(--bg1); border: 1px solid var(--edge); border-radius: 10px;
+    padding: 8px; display: flex; flex-direction: column; gap: 6px;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,.5);
+  }
+  .die {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: linear-gradient(145deg, #fdfdfd, #cfd5dd);
+    box-shadow: inset 0 -4px 7px rgba(0,0,0,.22), 0 4px 10px rgba(0,0,0,.5);
+    display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+    padding: 6px; position: relative;
+  }
+  .die.pilot { border: 2px solid var(--blue); box-shadow: inset 0 -4px 7px rgba(0,0,0,.22), 0 0 12px var(--blue-glow); }
+  .die.copilot { border: 2px solid var(--orange); box-shadow: inset 0 -4px 7px rgba(0,0,0,.22), 0 0 12px var(--orange-glow); }
+  .die.blank { border: 2px dashed #3a4d61; background: linear-gradient(145deg, #223140, #18232f); box-shadow: inset 0 2px 8px rgba(0,0,0,.6); }
+  .die.used {
+    opacity: 0.42; filter: grayscale(0.9);
+    cursor: not-allowed; pointer-events: none;
+    border: 2px solid #3a4d61 !important;
+    background: linear-gradient(145deg, #2a323c, #1c242e) !important;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,.55) !important;
+  }
+  .die.used .pip { background: #6a7a8a !important; opacity: 0.75; }
+  .die.used.selected { outline: none; }
+  .die.selected { outline: 3px solid var(--amber); outline-offset: 2px; }
+  .die .pip { width: 7px; height: 7px; border-radius: 50%; background: var(--ink, #1a2b3c); align-self: center; justify-self: center; }
+  .die.pilot .pip { background: #1d63c8; } .die.copilot .pip { background: #c2550a; }
+  .die .q { align-self: center; justify-self: center; color: #5a6e82; font-weight: bold; font-size: 16px; }
+  .die .lock { align-self: center; justify-self: center; font-size: 16px; }
+  .dice-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .hide-banner {
+    font-size: 11px; color: var(--dim); background: var(--bg1);
+    border: 1px dashed var(--edge); border-radius: 6px; padding: 6px 8px; text-align: center;
+  }
+  .hide-banner.you { color: var(--amber); border-color: #6b5826; }
+
+  /* ============ 槽位 ============ */
+  .slot {
+    border: 2px dashed #3a4d61; border-radius: 10px; padding: 6px 9px;
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    min-height: 48px; cursor: pointer; background: var(--bg2); transition: all .12s;
+  }
+  .slot:hover:not(.disabled):not(.filled) { border-color: #5d7a99; }
+  .slot.mandatory {
+    border: 2px solid #7a2f2f;
+    background: repeating-linear-gradient(-45deg, rgba(255,90,90,.13) 0 7px, transparent 7px 14px), var(--bg2);
+    box-shadow: inset 0 0 12px rgba(255,90,90,.12);
+  }
+  .slot.filled { border-style: solid; border-color: var(--edge-hi); background: var(--bg3); cursor: default; box-shadow: 0 0 10px rgba(0,0,0,.25); }
+  .slot.disabled { opacity: .35; cursor: not-allowed; }
+  .slot .s-name { font-weight: 600; font-size: 13px; }
+  .slot .s-name .val-lim { color: var(--dim); font-weight: normal; font-size: 10.5px; margin-left: 4px; }
+  .slot .s-name .tag-mand { color: var(--red); font-size: 9.5px; border: 1px solid rgba(255,90,90,.5); border-radius: 3px; padding: 0 4px; margin-left: 4px; letter-spacing: .5px; }
+  .slot .s-status { font-size: 11px; color: var(--dim); }
+  .slot .s-status.on { color: var(--green); font-weight: 700; text-shadow: 0 0 8px var(--green-glow); }
+  .slot .s-die { display: flex; gap: 4px; align-items: center; }
+  .slot .s-die .v { font-weight: 800; font-size: 16px; width: 26px; text-align: center; font-family: var(--mono); }
+  .slot-group { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .slot-group .slot {
+    flex-direction: column; align-items: stretch; gap: 4px;
+    min-height: 52px; padding: 5px 7px;
+  }
+  .slot-group .slot .slot-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 4px; min-width: 0;
+  }
+  .slot-group .slot .s-name { font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slot-group .slot .s-die { justify-content: center; }
+  .slot .slot-head { display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0; }
+
+  /* 拨杆开关（起落架/襟翼/刹车激活状态） */
+  .lever { width: 34px; height: 16px; background: #1d2c3c; border-radius: 4px; position: relative; border: 1px solid var(--edge); flex: none; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; }
+  .lever::after { content: ""; position: absolute; left: 50%; top: 1px; width: 5px; height: 12px; background: #b9c6d4; transform: translateX(-50%); border-radius: 2px; }
+  .lever.on { background: #0f3a26; border-color: #2ea86b; box-shadow: 0 0 10px var(--green-glow), inset 0 0 4px rgba(61,220,132,.3); }
+  .lever.on::after { background: var(--green); box-shadow: 0 0 6px var(--green-glow); }
+
+  /* ============ 中央仪表区 ============ */
+  .center { flex: 1; display: flex; flex-direction: column; gap: 9px; overflow-y: auto; min-width: 0; }
+  .card {
+    background: linear-gradient(180deg, var(--bg2), var(--bg1));
+    border: 1px solid var(--edge); border-radius: 12px; padding: 9px 13px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 3px 12px rgba(0,0,0,.3);
+  }
+  .card h3 { font-size: 11.5px; color: var(--dim); margin-bottom: 6px; letter-spacing: 2px; text-transform: uppercase; }
+
+  /* 阶段横幅 */
+  .banner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-left: 4px solid var(--blue); }
+  .banner.warn { border-left-color: var(--red); }
+  .banner .phase { font-size: 14.5px; font-weight: 700; flex: 1; }
+  .banner .phase .sub { font-weight: normal; font-size: 12px; color: var(--dim); display: block; margin-top: 1px; }
+  .banner .actions { display: flex; gap: 8px; }
+
+  /* 姿态指示器（人工水平仪） */
+  .ai-wrap { display: flex; align-items: center; gap: 18px; }
+  .ai {
+    width: 128px; height: 128px; border-radius: 50%; position: relative; overflow: hidden; flex: none;
+    border: 3px solid #3d5a77; background: #000;
+    box-shadow: inset 0 0 18px rgba(0,0,0,.85), 0 0 0 1px #0c141d, 0 0 14px rgba(0,0,0,.6);
+  }
+  .ai .ai-inner { position: absolute; inset: -20%; transition: transform .35s; }
+  .ai .ai-sky { position: absolute; left: 0; right: 0; top: 0; height: 50%; background: linear-gradient(180deg, #2e6db0, #4780c0); }
+  .ai .ai-gnd { position: absolute; left: 0; right: 0; bottom: 0; height: 50%; background: linear-gradient(180deg, #6d5430, #8a6a3f); }
+  .ai .ai-hz { position: absolute; left: 0; right: 0; top: 50%; height: 3px; background: #fff; margin-top: -1.5px; box-shadow: 0 0 6px rgba(255,255,255,.8); }
+  .ai .ai-scale { position: absolute; left: 0; right: 0; top: 50%; height: 0; }
+  .ai .ai-scale i { position: absolute; width: 2px; height: 9px; background: #fff; top: -4px; }
+  .ai .ai-plane { position: absolute; inset: 0; z-index: 3; display: flex; align-items: center; justify-content: center; }
+  .ai .ai-plane .w { position: relative; width: 58px; height: 12px; background: linear-gradient(180deg,#f5f8fb,#b9c6d4); border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,.6); }
+  .ai .ai-plane .w::before { content: ""; position: absolute; left: 50%; transform: translateX(-50%); bottom: 100%; width: 4px; height: 12px; background: #f5f8fb; border-radius: 2px; }
+  .ai .ai-plane .w::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); top: 100%; width: 10px; height: 8px; background: #f5f8fb; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .ai .ai-marks { position: absolute; inset: 0; border-radius: 50%; z-index: 2; box-shadow: inset 0 0 0 2px rgba(0,0,0,.4); }
+  .ai .ai-marks::before, .ai .ai-marks::after {
+    content: ""; position: absolute; width: 8px; height: 8px; background: var(--red); border-radius: 50%; top: 8px;
+  }
+  .ai .ai-marks::before { left: 10px; } .ai .ai-marks::after { right: 10px; }
+  .ai-read { font-family: var(--mono); }
+  .ai-read .big { font-size: 34px; font-weight: 700; color: var(--text); text-shadow: 0 0 12px rgba(74,168,255,.5); line-height: 1; }
+  .ai-read .big.danger { color: var(--red); text-shadow: 0 0 12px var(--red-glow); }
+  .ai-read .lbl { font-size: 10.5px; color: var(--dim); letter-spacing: 2px; margin-top: 2px; }
+  .ai-read .bar { width: 120px; height: 8px; background: linear-gradient(90deg, #3a1616, #3a3a16 45%, #163a26); border: 1px solid var(--edge); border-radius: 4px; margin: 8px 0 2px; position: relative; }
+  .ai-read .bar i { position: absolute; top: -3px; width: 3px; height: 14px; background: #fff; left: 50%; transition: left .3s; }
+
+  /* 空气动力学条 */
+  .aero-box { position: relative; height: 30px; background: var(--bg1); border-radius: 6px; border: 1px solid var(--edge); margin-top: 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,.5); }
+  .aero-box .tick { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(223,233,242,.16); }
+  .aero-box .tick span { position: absolute; top: 2px; left: 3px; font-size: 9.5px; color: var(--dim); font-family: var(--mono); }
+  .aero-mark { position: absolute; top: -5px; width: 6px; height: 40px; border-radius: 2px; transition: left .3s; box-shadow: 0 0 10px currentColor; }
+  .aero-mark.blue { background: var(--blue); color: var(--blue-glow); }
+  .aero-mark.orange { background: var(--orange); color: var(--orange-glow); }
+  .aero-zone { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: rgba(74,168,255,.14); transition: left .3s, width .3s; }
+  .aero-legend { display: flex; gap: 14px; font-size: 11px; color: var(--dim); margin-top: 4px; flex-wrap: wrap; }
+  .aero-legend b { color: var(--text); font-family: var(--mono); }
+
+  /* 进近轨道 */
+  .approach-row { display: flex; gap: 4px; position: relative; }
+  .app-cell {
+    flex: 1; height: 54px; border: 1px solid var(--edge); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; position: relative;
+    background: var(--bg1); font-size: 11px; color: var(--dim); box-shadow: inset 0 2px 5px rgba(0,0,0,.4);
+  }
+  .app-cell .cell-no { font-size: 10px; position: absolute; top: 3px; left: 5px; color: var(--dim); font-family: var(--mono); }
+  .app-cell.plane { background: radial-gradient(circle at 50% 55%, rgba(255,90,90,.28), transparent 70%), var(--bg1); border-color: #7a2f2f; }
+  .app-cell.plane::after { content: "🛩"; font-size: 17px; filter: drop-shadow(0 0 4px rgba(255,90,90,.8)); }
+  .app-cell.me { border: 2px solid var(--blue); background: radial-gradient(circle at 50% 55%, rgba(74,168,255,.3), transparent 70%), var(--bg1); }
+  .app-cell.me::after { content: "✈️"; font-size: 18px; filter: drop-shadow(0 0 6px rgba(74,168,255,.9)); }
+  .app-cell.airport { background: radial-gradient(circle at 50% 70%, rgba(61,220,132,.25), transparent 75%), var(--bg1); border-color: #1f7a48; }
+  .app-cell.airport::after { content: "🛬"; font-size: 17px; }
+  .app-cell.airport::before {
+    content: ""; position: absolute; bottom: 4px; left: 8px; right: 8px; height: 3px;
+    background: repeating-linear-gradient(90deg, var(--amber) 0 6px, transparent 6px 12px);
+    border-radius: 2px;
+  }
+  .app-cell.waiting { box-shadow: inset 0 0 0 2px var(--amber), 0 0 12px rgba(255,197,61,.35); }
+
+  /* 高度轨 */
+  .alt-row { display: flex; gap: 4px; }
+  .alt-cell { flex: 1; height: 26px; border: 1px solid var(--edge); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--dim); background: var(--bg1); font-family: var(--mono); box-shadow: inset 0 2px 4px rgba(0,0,0,.4); }
+  .alt-cell.cur { background: linear-gradient(180deg, #3b5c80, #28405c); color: #fff; font-weight: 700; box-shadow: 0 0 10px rgba(74,168,255,.4); }
+
+  /* 日志 */
+  .log { max-height: 130px; overflow-y: auto; font-size: 12px; line-height: 1.7; }
+  .log .log-item { border-bottom: 1px dashed rgba(46,65,85,.7); padding: 2px 0; color: var(--text); }
+  .log .log-item.lose { color: var(--red); font-weight: 600; }
+  .log .log-item.win { color: var(--green); font-weight: 700; }
+  .log .log-item .rd { color: var(--dim); margin-right: 6px; font-size: 10.5px; font-family: var(--mono); }
+
+  /* 揭示区 */
+  .reveal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .reveal-col { border: 1px solid var(--edge); border-radius: 10px; padding: 8px 10px; background: var(--bg1); }
+  .reveal-col h4 { font-size: 12.5px; margin-bottom: 6px; }
+  .reveal-col.pilot h4 { color: var(--blue); } .reveal-col.copilot h4 { color: var(--orange); }
+  .r-slot { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; border-bottom: 1px dashed rgba(46,65,85,.7); font-size: 13px; }
+  .r-slot:last-child { border-bottom: none; }
+  .r-slot .rv { display: flex; align-items: center; gap: 6px; font-weight: 700; font-family: var(--mono); font-size: 15px; }
+  .r-slot .rv button { padding: 0 7px; font-size: 12px; line-height: 20px; font-family: system-ui, sans-serif; }
+  .r-slot .rv .mod { color: var(--amber); }
+  .r-slot .empty { color: #45576a; }
+
+  /* 终局 */
+  .final { text-align: center; padding: 16px; }
+  .final h2 { font-size: 24px; margin-bottom: 8px; letter-spacing: 2px; }
+  .final.win { border-color: #1f7a48; box-shadow: 0 0 24px rgba(61,220,132,.25); }
+  .final.win h2 { color: var(--green); text-shadow: 0 0 16px var(--green-glow); }
+  .final.lose { border-color: #7a2f2f; box-shadow: 0 0 24px rgba(255,90,90,.2); }
+  .final.lose h2 { color: var(--red); text-shadow: 0 0 16px var(--red-glow); }
+  .final .reason { color: var(--dim); margin-bottom: 10px; }
+  .final .stats { display: flex; gap: 16px; justify-content: center; margin-bottom: 12px; font-size: 13px; color: var(--text); }
+  .final .stats span { background: var(--bg2); border: 1px solid var(--edge); border-radius: 6px; padding: 3px 10px; font-family: var(--mono); }
+
+  /* 规则弹窗 */
+  .modal-mask { position: fixed; inset: 0; background: rgba(5,10,16,.7); display: none; align-items: center; justify-content: center; z-index: 200; }
+  .modal-mask.show { display: flex; }
+  .modal { background: linear-gradient(180deg, #1b2a39, #131e2a); border: 1px solid var(--edge-hi); border-radius: 14px; max-width: 660px; width: 92%; max-height: 84vh; overflow-y: auto; padding: 18px 22px; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+  .modal h2 { margin-bottom: 10px; font-size: 18px; color: var(--text); }
+  .modal h4 { margin: 12px 0 4px; color: var(--blue); }
+  .modal p, .modal li { font-size: 13.5px; line-height: 1.75; color: #c3d0dd; }
+  .modal ul { padding-left: 20px; }
+  .modal .close-x { float: right; border: none; background: none; font-size: 20px; color: var(--dim); }
+  .modal .diff { background: var(--bg1); border-radius: 8px; padding: 8px 12px; font-size: 12.5px; color: var(--dim); }
+  .modal code { color: var(--amber); }
+
+  .stamp { font-size: 11px; color: #45576a; text-align: center; padding: 4px 0 8px; }
+
+  /* v0.3.5 视觉强化 */
+  .app-cell { transition: background .35s ease, border-color .35s ease, transform .35s ease, box-shadow .35s ease !important; }
+  .app-cell.plane { animation: planePulse 1.6s ease-in-out infinite !important; }
+  @keyframes planePulse { 0%,100% { box-shadow: inset 0 2px 5px rgba(0,0,0,.4), 0 0 0 rgba(255,90,90,0); } 50% { box-shadow: inset 0 2px 5px rgba(0,0,0,.4), 0 0 12px rgba(255,90,90,.35); } }
+
+  /* ============ 联机 / 等待 / 提示（v0.3） ============ */
+  .panel.highlight { box-shadow: 0 0 20px rgba(74,168,255,.45), inset 0 1px 0 rgba(255,255,255,.05); }
+  .panel.highlight.co { box-shadow: 0 0 20px rgba(255,148,64,.45), inset 0 1px 0 rgba(255,255,255,.05); }
+  #toast {
+    position: fixed; top: 58px; left: 50%; transform: translateX(-50%) translateY(-16px);
+    background: rgba(10,18,28,.96); border: 1px solid var(--edge-hi); color: var(--text);
+    padding: 9px 18px; border-radius: 10px; font-size: 13.5px; z-index: 300;
+    opacity: 0; pointer-events: none; transition: all .25s; box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .waiting-card { text-align: center; padding: 26px 18px; }
+  .waiting-card .big { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+  .waiting-card .sub { color: var(--dim); font-size: 13px; line-height: 1.9; }
+  .waiting-card .url {
+    background: var(--bg1); border: 1px dashed var(--edge-hi); border-radius: 8px;
+    padding: 10px 14px; font-family: var(--mono); font-size: 12.5px; color: var(--blue);
+    word-break: break-all; margin: 12px 0; user-select: all;
+  }
+  .room-row select {
+    flex: 1; min-width: 0; background: var(--bg1); border: 1px solid var(--edge);
+    border-radius: 8px; color: var(--text); font: inherit; padding: 10px 12px;
+  }
+  .room-row select:focus { outline: none; border-color: var(--blue); }
+  .scenario-hint { font-size: 12px; color: var(--dim); margin: -6px 0 14px 0; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ 联机大厅 ============ -->
+  <div id="lobby-screen">
+    <div class="logo">
+      <h1>SKY&nbsp;TEAM</h1>
+      <div class="sub">天合小队 · 双人联机合作降落</div>
+    </div>
+    <div class="room-row">
+      <label for="room-input">房间号</label>
+      <input id="room-input" type="text" value="sky" maxlength="32" placeholder="sky">
+    </div>
+    <div class="room-row">
+      <label for="scenario-select">关卡</label>
+      <select id="scenario-select" aria-label="选择关卡"></select>
+    </div>
+    <p class="scenario-hint" id="scenario-hint"></p>
+    <div class="role-cards">
+      <div class="role-card pilot" data-join="pilot">
+        <div class="icon">👨‍✈️</div>
+        <div class="rname">机长 PILOT</div>
+        <div class="duty">蓝骰 · 起落架与刹车<br>与副驾各开一页联机</div>
+        <div class="enter">进入房间 ▶</div>
+      </div>
+      <div class="role-card copilot" data-join="copilot">
+        <div class="icon">👩‍✈️</div>
+        <div class="rname">副驾 CO-PILOT</div>
+        <div class="duty">橙骰 · 襟翼<br>与机长各开一页联机</div>
+        <div class="enter">进入房间 ▶</div>
+      </div>
+      <div class="role-card passenger" data-join="passenger">
+        <div class="icon">🧐</div>
+        <div class="rname">乘客 PASSENGER</div>
+        <div class="duty">观战 · 上帝视角<br>只读，不可操作</div>
+        <div class="enter">进入观战 ▶</div>
+      </div>
+    </div>
+    <div class="tip">需两人：机长 + 副驾各开一个标签页 · <a href="/module-lab.html" style="color:var(--amber)">🧪 模块实验室</a></div>
+  </div>
+
+  <!-- 兼容旧 id（隐藏） -->
+  <div id="start-screen" style="display:none"></div>
+
+  <!-- ============ 游戏界面 ============ -->
+  <header class="topbar" id="topbar" style="display:none">
+    <button onclick="UI.leaveRoom()" title="离开房间">◀</button>
+    <h1>🛫 天合小队 <small>Sky Team · 联机</small></h1>
+    <span class="chip">房间 <b id="chip-room">sky</b></span>
+    <span class="chip" id="chip-scenario-wrap">关卡 <b id="chip-scenario">—</b></span>
+    <span class="chip">轮次 <b id="chip-round">1/7</b></span>
+    <span class="chip">高度 <b id="chip-alt">7</b></span>
+    <span class="chip">距机场 <b id="chip-dist">6</b></span>
+    <span class="chip">姿态 <b id="chip-axis">0</b></span>
+    <span class="chip">刹车值 <b id="chip-brake">2</b></span>
+    <span class="chip">☕ <b id="chip-coffee">0/3</b></span>
+    <span class="chip" id="mode-tag">联机</span>
+    <span class="chip" id="peer-chip" style="display:none"></span>
+    <span class="chip">🔄 <b id="chip-reroll">0</b></span>
+    <button class="btn-rule" onclick="UI.openRules()">📖 规则</button>
+  </header>
+
+  <main style="display:none">
+    <section class="panel pilot" id="panel-pilot"></section>
+    <section class="center" id="center"></section>
+    <section class="panel copilot" id="panel-copilot"></section>
+  </main>
+</div>
+
+<!-- 规则弹窗 -->
+<div class="modal-mask" id="rules-mask">
+  <div class="modal">
+    <button class="close-x" onclick="UI.closeRules()">✕</button>
+    <h2>📖 天合小队 · 规则说明</h2>
+    <p>双人<b>联机</b>合作桌游。机长与副驾各开一个页面，在 7 轮内把客机安全降落。核心张力：<b>掷骰之后禁止交流具体点数</b>，只能靠放置位置和顺序传递信息。乘客位为观战（只读）。</p>
+    <h4>每轮流程</h4>
+    <ul>
+      <li><b>策略讨论</b>：可公开讨论策略，但不能提骰子点数。</li>
+      <li><b>掷骰</b>：各自秘密掷 4 个骰子（对方看不到点数）。</li>
+      <li><b>放置</b>：轮流放骰子；<b>放置当下</b>可用 ☕ 修正该骰（±1/枚）。姿态/引擎第二颗放上即结算；每轮须在「姿态」「引擎」各放 1 颗。</li>
+      <li><b>轮末</b>：8 颗放完后确认结算（降低高度等）。</li>
+    </ul>
+    <h4>槽位一览</h4>
+    <ul>
+      <li><b>姿态（强制）</b>：双方骰子比较，差值使水平仪向点数大的一方倾斜；到 ±3 即尾旋坠毁。终局必须完全水平（0）。</li>
+      <li><b>引擎（强制）</b>：第二颗放上时，两骰之和 vs 蓝/橙标记——和 &lt; 蓝悬停；蓝~橙前进 1；≥ 橙前进 2。当前位置或路径上有飞机则撞机。到达机场后进入等待模式（再推进即坠毁）。</li>
+      <li><b>无线电</b>：机长 1 槽、副驾 2 槽；任意点数。<b>1=当前位置，2=前方第一格</b>，放置当下清除该格飞机。</li>
+      <li><b>集中精力</b>：放置获得 ☕（上限 3）；<b>放置任意骰时</b>可消耗 ☕ 修正该骰 ±1（不越 1~6，不循环）。</li>
+      <li><b>起落架（机长）×4</b>：限 1/2、2/3、3/4、4/5，任意顺序；每激活蓝标记 +1（初始 5，满档 9）。</li>
+      <li><b>襟翼（副驾）×4</b>：限 1/2→2/3→4/5→5/6 按序；每激活橙标记 +1（初始 9，与起落架独立）。</li>
+      <li><b>刹车（机长）×3</b>：按序 2→4→6；每激活刹车值 +2（初始 2）。<b>着陆轮</b>（到机场且高度≤1）引擎和须 &lt; 刹车值。</li>
+    </ul>
+    <h4>轨道</h4>
+    <ul>
+      <li><b>进近轨道</b>：从距离 6 推进到机场（0）。过早到达进入等待模式；高度与位置同步后进入着陆轮。</li>
+      <li>终局：距离 = 0、姿态 = 0、起落架/襟翼全激活、无飞机、着陆轮速度 &lt; 刹车值 → 胜利。</li>
+    </ul>
+    <h4>其他</h4>
+    <ul>
+      <li><b>重掷标记</b>：高度轨 🔄 格（7、4）轮初自动收入供应；<b>轮内任意时刻</b>可消耗，双方重掷（放置阶段仅未用骰）。</li>
+      <li>进近转弯：若场景配置了姿态要求，前进时经过格须满足（见进近轨说明）。</li>
+      <li>即时失败：姿态 ±3、撞机、冲出、等待模式推进、高度归零未到机场、进近转弯失败、着陆轮超速。</li>
+    </ul>
+    <div class="diff"><b>与原版差异</b>：仅 1 个训练场景可玩；蒙特利尔基础进近无转弯约束（其他机场通过场景 APPROACH_AXIS 配置）。</div>
+  </div>
+</div>
+
+
+<script src="src/logic/game-logic.js"></script>
+<script src="src/scenarios/scenario-registry.js"></script>
+<script src="src/scenarios/module-registry.js"></script>
+<script src="src/core/view-context.js"></script>
+<script src="src/core/game-session.js"></script>
+<script src="src/core/game-controller.js"></script>
+<script src="src/widgets/placement-preview.js"></script>
+<script src="src/widgets/phase-banner.js"></script>
+<script src="src/widgets/attitude.js"></script>
+<script src="src/widgets/engine-bar.js"></script>
+<script src="src/widgets/equipment.js"></script>
+<script src="src/widgets/approach.js"></script>
+<script src="src/widgets/altitude.js"></script>
+<script src="src/widgets/reveal.js"></script>
+<script src="src/widgets/final.js"></script>
+<script src="src/widgets/log.js"></script>
+<script src="src/widgets/center-dashboard.js"></script>
+<script src="src/widgets/player-panel.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>
