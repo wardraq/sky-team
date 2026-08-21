@@ -137,11 +137,12 @@ var PlayerPanel = {
             var pc = ctx.pendingCoffee;
             var spent = pc.plus + pc.minus;
             if (pv !== null && (spent > 0 || state.coffee > 0)) {
-              h.push('<div class="hide-banner" style="border-color:var(--amber);color:#ffc53d">☕ 修正预览：' +
-                state.dice[role][selected.idx].v + ' → <b>' + pv + '</b>（+' + pc.plus + '/−' + pc.minus + '，剩 ' + state.coffee + '） ' +
-                (state.coffee > spent ? '<button data-act="coffee-plus" style="margin-left:6px">+1</button><button data-act="coffee-minus">−1</button>' : '') +
-                (spent > 0 ? ' <button data-act="coffee-clear">清除</button>' : '') +
-                '</div>');
+              h.push('<div class="hide-banner coffee-preview"><span class="coffee-preview-text">☕ 修正预览：' +
+                state.dice[role][selected.idx].v + ' → <b>' + pv + '</b>（+' + pc.plus + '/−' + pc.minus + '，剩 ' + state.coffee + '）</span>' +
+                '<span class="coffee-preview-actions">' +
+                (state.coffee > spent ? '<button type="button" data-act="coffee-plus">+1</button><button type="button" data-act="coffee-minus">−1</button>' : '') +
+                (spent > 0 ? '<button type="button" data-act="coffee-clear">清除</button>' : '') +
+                '</span></div>');
             }
           }
         } else if (viewCtx.canOperate(role)) {

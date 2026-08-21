@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模块预览 · Sky Team</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<header class="page-header">
+  <h1 id="page-title">🧩 模块预览</h1>
+  <span class="sub" id="page-sub"></span>
+  <nav>
+    <a href="index.html">← 模块索引</a>
+    <a href="/test/module-lab.html">模块实验室</a>
+    <a href="/">游戏</a>
+  </nav>
+</header>
+<p class="module-intro" id="module-desc"></p>
+<div class="grid" id="scenarios"></div>
+
+<script src="/src/logic/game-logic.js"></script>
+<script src="/src/scenarios/scenario-registry.js"></script>
+<script src="/src/scenarios/module-registry.js"></script>
+<script src="module-scenes.js"></script>
+<script>
+'use strict';
+
+function moduleIdFromPath() {
+  var q = new URLSearchParams(location.search).get('m');
+  if (q) return q;
+  var file = location.pathname.split('/').pop() || '';
+  if (file.endsWith('.html') && file !== 'preview.html' && file !== 'index.html') {
+    return file.replace(/\.html$/, '');
+  }
+  return 'traffic';
+}
+
+function makeState(moduleId, patch, modulePatch) {
+  var base = GameLogic.newGame('yul');
+  GameLogic.beginRound(base);
+  base.activeModules = [moduleId];
+  base.moduleState = base.moduleState || {};
+  if (modulePatch) {
+    Object.keys(modulePatch).forEach(function (k) {
+      base.moduleState[k] = modulePatch[k];
+    });
+  }
+  var mod = ModuleRegistry.get(moduleId);
+  if (mod && mod.initState && !modulePatch) {
+    base.moduleState[moduleId] = mod.initState(base, GameLogic.mergeConfig({}));
+  }
+  if (patch) {
+    Object.keys(patch).forEach(function (k) { base[k] = patch[k]; });
+  }
+  return base;
+}
+
+function statusBadge(status, label) {
+  var cls = status === 'core' ? 'core' : (status === 'impl' ? 'impl' : 'stub');
+  return '<span class="badge ' + cls + '">' + label + '</span>';
+}
+
+function placeholderCard(cfg) {
+  var ph = cfg.placeholder;
+  var hooks = (ph.hooks || []).map(function (h) { return '<li>' + h + '</li>'; }).join('');
+  return '<div class="card placeholder"><div class="icon">' + ph.icon + '</div>' +
+    '<h3>Widget 预留</h3><p>' + ph.hint + '</p>' +
+    (hooks ? '<ul class="hook-list">' + hooks + '</ul>' : '') + '</div>';
+}
+
+function renderWidget(cfg, state) {
+  if (cfg.widget) {
+    var W = window[cfg.widget.global];
+    if (W && W.render) {
+      return W.render({ state: state, logic: GameLogic, ui: { mode: 'local' } });
+    }
+    return '<div class="card placeholder"><p>Widget 脚本未加载：' + cfg.widget.global + '</p></div>';
+  }
+  return placeholderCard(cfg);
+}
+
+function snippetFor(state, moduleId) {
+  var view = {
+    moduleId: moduleId,
+    phase: state.phase,
+    round: state.round,
+    distance: state.distance,
+    traffic: state.traffic,
+    moduleState: state.moduleState
+  };
+  return JSON.stringify(view, null, 2);
+}
+
+function loadWidgetScript(cfg, done) {
+  if (!cfg.widget) return done();
+  if (window[cfg.widget.global]) return done();
+  var s = document.createElement('script');
+  s.src = cfg.widget.script;
+  s.onload = done;
+  s.onerror = done;
+  document.body.appendChild(s);
+}
+
+function renderPage() {
+  var moduleId = moduleIdFromPath();
+  var mod = ModuleRegistry.get(moduleId);
+  var cfg = ModulePreviewCatalog[moduleId];
+  if (!mod || !cfg) {
+    document.body.innerHTML = '<p style="padding:40px;color:#ffb4b4">未知模块：' + moduleId + ' · <a href="index.html">返回索引</a></p>';
+    return;
+  }
+
+  document.title = mod.name + ' · 模块预览';
+  document.getElementById('page-title').innerHTML = mod.name +
+    statusBadge(cfg.status, cfg.statusLabel);
+  document.getElementById('page-sub').textContent = moduleId + ' · ' + (mod.logicOwner === 'core' ? 'core 逻辑' : 'module Hook');
+  document.getElementById('module-desc').textContent = mod.description || '';
+
+  loadWidgetScript(cfg, function () {
+    var html = (cfg.scenes || []).map(function (scene) {
+      var state = makeState(moduleId, scene.patch, scene.modulePatch);
+      return '<section class="scenario" id="' + scene.id + '">' +
+        '<h2>' + scene.title + '</h2>' +
+        '<p>' + scene.desc + '</p>' +
+        renderWidget(cfg, state) +
+        '<pre class="state-snippet">' + snippetFor(state, moduleId) + '</pre></section>';
+    }).join('');
+    document.getElementById('scenarios').innerHTML = html || '<p class="module-intro">暂无场景配置。</p>';
+  });
+}
+
+renderPage();
+</script>
+</body>
+</html>

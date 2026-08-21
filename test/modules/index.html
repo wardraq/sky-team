@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模块预览索引 · Sky Team</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<header class="page-header">
+  <h1>🧩 模块预览索引</h1>
+  <span class="sub">每个玩法模块的 UI 预留页 · 类似航道测试</span>
+  <nav>
+    <a href="/test/module-lab.html">模块实验室</a>
+    <a href="/">游戏</a>
+  </nav>
+</header>
+<p class="module-intro">点击下方卡片进入各模块预览页。已实现 Widget 的模块展示真实渲染，其余为占位场景 + 状态 JSON，供后续 UI 开发对照。</p>
+<div class="grid index" id="module-list"></div>
+
+<script src="/src/scenarios/module-registry.js"></script>
+<script src="module-scenes.js"></script>
+<script>
+'use strict';
+
+var ORDER = [
+  'traffic', 'turbulence', 'visibility', 'alarms', 'wind',
+  'kerosene', 'interns', 'penguins', 'ice-brakes'
+];
+
+function badge(status, label) {
+  var cls = status === 'core' ? 'core' : (status === 'impl' ? 'impl' : 'stub');
+  return '<span class="badge ' + cls + '">' + label + '</span>';
+}
+
+document.getElementById('module-list').innerHTML = ORDER.map(function (id) {
+  var mod = ModuleRegistry.get(id);
+  var cfg = ModulePreviewCatalog[id];
+  if (!mod || !cfg) return '';
+  var scenes = (cfg.scenes || []).length;
+  return '<a class="mod-card" href="' + id + '.html">' +
+    '<h2>' + mod.name + badge(cfg.status, cfg.statusLabel) + '</h2>' +
+    '<p>' + (mod.description || '') + '</p>' +
+    '<div class="meta">' + id + ' · ' + scenes + ' 场景 · ' +
+    (cfg.widget ? '有 Widget' : '占位 UI') + '</div></a>';
+}).join('');
+</script>
+</body>
+</html>

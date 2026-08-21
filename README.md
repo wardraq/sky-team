@@ -106,7 +106,11 @@ sky-squad/
 │   ├── test-scenarios.js   # 可玩关卡冒烟
 │   ├── test-online.js      # 联机 E2E 测试
 │   ├── module-lab.html     # 模块/规则实验室（浏览器）
-│   └── approach-lab.html   # 航道渲染可视化测试
+│   ├── approach-lab.html   # → 重定向至 modules/traffic.html
+│   └── modules/            # 各模块 UI 预览页
+│       ├── index.html      # 模块索引
+│       ├── traffic.html    # 空中交通（航道 Widget）
+│       └── …               # 其余模块占位预览
 └── src/
     ├── logic/
     │   ├── game-logic.js   # 纯规则层（无 DOM，Node/浏览器共用）
@@ -141,8 +145,9 @@ node test/test-scenarios.js    # 可玩关卡冒烟（yul / lhr / hnd）
 node test/test-online.js       # 需先启动 server.js
 
 # 浏览器开发工具
-#   http://localhost:8080/test/module-lab.html    模块实验室
-#   http://localhost:8080/test/approach-lab.html  航道渲染测试
+#   http://localhost:8080/test/module-lab.html       模块实验室
+#   http://localhost:8080/test/modules/index.html    模块 UI 预览索引
+#   http://localhost:8080/test/modules/traffic.html  航道（空中交通）
 ```
 
 ---
