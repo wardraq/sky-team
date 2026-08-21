@@ -377,6 +377,6 @@ server.listen(PORT, () => {
   console.log('  机长:  http://localhost:' + PORT + '/?room=sky&role=pilot');
   console.log('  副驾:  http://localhost:' + PORT + '/?room=sky&role=copilot');
   console.log('  乘客:  http://localhost:' + PORT + '/?room=sky&role=passenger');
-  console.log('  实验室: http://localhost:' + PORT + '/module-lab.html');
+  console.log('  模块实验室: http://localhost:' + PORT + '/test/module-lab.html');
   console.log('==============================================');
 });

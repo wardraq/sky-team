@@ -3,9 +3,10 @@
 
 var path = require('path');
 var fs = require('fs');
-var { loadGameLogic, loadRegistries } = require('./src/logic/load-logic');
+var ROOT = path.join(__dirname, '..');
+var { loadGameLogic, loadRegistries } = require(path.join(ROOT, 'src/logic/load-logic'));
 
-var baseDir = __dirname;
+var baseDir = ROOT;
 var Logic = loadGameLogic(baseDir);
 var reg = loadRegistries(baseDir);
 var ScenarioRegistry = reg.ScenarioRegistry;

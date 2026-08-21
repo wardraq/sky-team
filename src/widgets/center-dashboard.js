@@ -8,11 +8,11 @@ var CenterDashboard = {
 
   WIDGETS: [
     { id: 'phase-banner', render: function (ctx, preview) { return PhaseBannerWidget.render(ctx); } },
+    { id: 'approach', render: function (ctx, preview) { return ApproachWidget.render(ctx); } },
+    { id: 'altitude', render: function (ctx, preview) { return AltitudeWidget.render(ctx); } },
     { id: 'attitude', render: function (ctx, preview) { return AttitudeWidget.render(ctx, preview); } },
     { id: 'engine-bar', render: function (ctx, preview) { return EngineBarWidget.render(ctx, preview); } },
-    { id: 'equipment', render: function (ctx, preview) { return EquipmentWidget.render(ctx); } },
-    { id: 'approach', render: function (ctx, preview) { return ApproachWidget.render(ctx); } },
-    { id: 'altitude', render: function (ctx, preview) { return AltitudeWidget.render(ctx); } }
+    { id: 'equipment', render: function (ctx, preview) { return EquipmentWidget.render(ctx); } }
   ],
 
   safeRender: function (id, fn) {

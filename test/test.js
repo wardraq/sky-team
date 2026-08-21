@@ -1,11 +1,12 @@
 /* 天合小队 Sky Team 逻辑层冒烟测试 */
 'use strict';
 const path = require('path');
-const { loadGameLogic } = require('./src/logic/load-logic');
+const ROOT = path.join(__dirname, '..');
+const { loadGameLogic } = require(path.join(ROOT, 'src/logic/load-logic'));
 const isNum = (s) => /^\d+$/.test(s || '');
 const N = isNum(process.argv[2]) ? parseInt(process.argv[2], 10)
        : isNum(process.argv[3]) ? parseInt(process.argv[3], 10) : 500;
-const baseDir = __dirname;
+const baseDir = ROOT;
 const Logic = loadGameLogic(baseDir);
 let wins = 0, loses = 0, errors = 0, stuck = 0;
 const loseReasons = {};
@@ -180,8 +181,8 @@ function failTest(name, setup, expectInReason) {
   console.log((ok ? '  ✓ ' : '  ✗ ') + name + ' → ' + (s.phase === 'lose' ? s.loseReason : 'phase=' + s.phase));
   if (!ok) process.exitCode = 1;
 }
-failTest('碰撞（未驱离+高推进）', s => {
-  s.distance = 5; s.traffic = [4];
+failTest('碰撞（当前位置有飞机+须前进）', s => {
+  s.distance = 5; s.traffic = [5];
   s.placements.pilot.axis = {v: 3, mod: 0}; s.placements.copilot.axis = {v: 3, mod: 0};
   s.placements.pilot.engine = {v: 6, mod: 0}; s.placements.copilot.engine = {v: 6, mod: 0};
 }, '碰撞');
@@ -206,7 +207,7 @@ failTest('冲出跑道', s => {
   Logic.beginRound(s);
   s.phase = 'place';
   s.distance = 5;
-  s.traffic = [4];
+  s.traffic = [5];
   s.placements.pilot.axis = { v: 3, mod: 0 };
   s.placements.copilot.axis = { v: 3, mod: 0 };
   s.placements.pilot.engine = { v: 6, mod: 0 };

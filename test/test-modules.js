@@ -2,9 +2,10 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { loadGameLogic } = require('./src/logic/load-logic');
+const ROOT = path.join(__dirname, '..');
+const { loadGameLogic } = require(path.join(ROOT, 'src/logic/load-logic'));
 
-const baseDir = __dirname;
+const baseDir = ROOT;
 const Logic = loadGameLogic(baseDir);
 
 function loadScript(relativePath) {
@@ -73,7 +74,7 @@ console.log('[traffic] 空中交通（logicOwner: core）');
   fillReveal(s2);
   s2.placements.pilot.radio = { v: 2, mod: 0 };
   Logic.applyPlacementEffect(s2, 'pilot', 'radio');
-  assert(!Logic.hasTraffic(s2, 3), '无线电 2 清除前方第一格（距 3）飞机');
+  assert(!Logic.hasTraffic(s2, 3), '无线电骰点 2 清除前方第一格（距 3）飞机');
   assert(Logic.hasTraffic(s2, 2), '更远的飞机（距 2）仍在');
 
   const s2b = Logic.newGame('training');
@@ -81,7 +82,17 @@ console.log('[traffic] 空中交通（logicOwner: core）');
   s2b.traffic = [4, 2];
   s2b.placements.pilot.radio = { v: 1, mod: 0 };
   Logic.applyPlacementEffect(s2b, 'pilot', 'radio');
-  assert(!Logic.hasTraffic(s2b, 4), '无线电 1 清除当前位置（距 4）飞机');
+  assert(!Logic.hasTraffic(s2b, 4), '无线电骰点 1 清除当前位置（距 4）飞机');
+
+  const s2c = Logic.newGame('training');
+  s2c.distance = 4;
+  s2c.traffic = [3];
+  s2c.placements.copilot.radio = { v: 1, mod: 0 };
+  Logic.applyPlacementEffect(s2c, 'copilot', 'radio');
+  assert(Logic.hasTraffic(s2c, 3), '骰点 1 不能清除前方（距 3）飞机，只清当前位置');
+  s2c.placements.copilot.radio2 = { v: 2, mod: 0 };
+  Logic.applyPlacementEffect(s2c, 'copilot', 'radio2');
+  assert(!Logic.hasTraffic(s2c, 3), '骰点 2 清除前方第一格（距 3）飞机');
   assert(Logic.hasTraffic(s2b, 2), '更远的飞机仍在');
 
   const s3 = Logic.newGame('training');
@@ -89,13 +100,24 @@ console.log('[traffic] 空中交通（logicOwner: core）');
   s3.distance = 4;
   s3.traffic = [3];
   fillReveal(s3);
-  s3.placements.pilot.engine = { v: 6, mod: 0 };
-  s3.placements.copilot.engine = { v: 6, mod: 0 };
+  s3.placements.pilot.engine = { v: 3, mod: 0 };
+  s3.placements.copilot.engine = { v: 4, mod: 0 };
   s3.gearAct = 4;
   s3.flapsAct = 4;
   s3.blueMark = 6;
   Logic.resolveRound(s3);
-  assert(s3.phase === 'lose' && s3.loseReason.indexOf('碰撞') !== -1, '推进路径撞机坠毁');
+  assert(s3.phase !== 'lose' && s3.distance === 3, '前方有飞机时可前进 1 格落到该格（官方：仅当前位置有飞机且须前进才撞）');
+
+  const s3b = Logic.newGame('training');
+  s3b.phase = 'reveal';
+  s3b.distance = 4;
+  s3b.traffic = [4];
+  fillReveal(s3b);
+  s3b.placements.pilot.engine = { v: 4, mod: 0 };
+  s3b.placements.copilot.engine = { v: 4, mod: 0 };
+  s3b.blueMark = 5;
+  Logic.resolveRound(s3b);
+  assert(s3b.phase === 'lose' && s3b.loseReason.indexOf('碰撞') !== -1, '当前位置有飞机且须前进 → 撞机');
 
   const mod = ModuleRegistry.get('traffic');
   assert(mod.logicOwner === 'core', 'Registry 标记 logicOwner=core');

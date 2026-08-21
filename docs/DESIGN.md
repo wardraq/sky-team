@@ -196,9 +196,9 @@ CONFIG = {
   - `<script id="game-logic">`：纯逻辑层（不碰 DOM，可被 node 测试）
   - `<script id="app">`：UI 层（渲染 + 事件）
 - `server.js`：**零依赖**手写 WebSocket（RFC 6455，约 100 行）
-- `test.js`：逻辑层冒烟测试（node 跑 2000 局）
-- `test-online.js`：联机冒烟测试（手写 WS 客户端模拟三连接）
-- `DESIGN.md`：本文件
+- `test/test.js`：逻辑层冒烟测试（node 跑 2000 局）
+- `test/test-online.js`：联机冒烟测试（手写 WS 客户端模拟三连接）
+- `docs/DESIGN.md`：本文件
 
 ### 6.2 服务端单点逻辑
 服务端启动时**从 `index.html` 提取 `<script id="game-logic">` 内容**，用 `new Function` 执行拿到 `GameLogic` 对象。客户端也跑同一份 logic。**不存在规则不同步问题**。
@@ -276,10 +276,10 @@ cd sky-squad
 node server.js                          # 默认 8080，PORT=xxx 可改
 
 # 跑逻辑回归测试（2000 局启发式模拟）
-node test.js 2000
+node test/test.js 2000
 
 # 跑联机冒烟测试（手写 WS 客户端，需要 server 在跑）
-node test-online.js
+node test/test-online.js
 
 # 浏览器打开（本地模式）
 http://localhost:8080/
@@ -299,5 +299,5 @@ http://localhost:8080/?room=sky&role=passenger   # 观战
 - **新增槽位**改 `SLOTS`（机长/副驾各自的槽位定义）
 - **新增结算规则**改 `resolveRound` 函数
 - **UI 调整**改 `<script id="app">` 内的 `render*` 函数
-- **每次改 game-logic 后**跑 `node test.js 1000` 确认无回归
+- **每次改 game-logic 后**跑 `node test/test.js 1000` 确认无回归
 - **每次改 server.js 后**重启 server（`pkill -f "node server.js"` 后再 `node server.js &`）

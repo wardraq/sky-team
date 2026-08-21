@@ -45,13 +45,8 @@ var PlacementPreview = {
       else result.engineLabel = '悬停（不动）';
       result.isPreview = true;
       var k = result.engine >= orange ? 2 : (result.engine >= blue ? 1 : 0);
-      if (k > 0 && state.traffic.length > 0) {
-        for (var step = 1; step <= k; step++) {
-          if (logic.hasTraffic(state, state.distance - step)) {
-            result.collisionWarn = '⚠ 会撞！距离 ' + (state.distance - step) + ' 有飞机';
-            break;
-          }
-        }
+      if (k > 0 && logic.hasTraffic(state, state.distance)) {
+        result.collisionWarn = '⚠ 当前位置有飞机，前进将撞机';
       }
     } else if (pe !== null || ce !== null) {
       result.engineLabel = '等待对方引擎骰';

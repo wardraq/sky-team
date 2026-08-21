@@ -9,7 +9,7 @@ var LabApp = {
 
   init: function () {
     if (!window.GameLogic || !window.ModuleRegistry) {
-      document.body.innerHTML = '<div class="lab-err">请通过 node server.js 启动后访问 /module-lab.html</div>';
+      document.body.innerHTML = '<div class="lab-err">请通过 node server.js 启动后访问 /test/module-lab.html</div>';
       return;
     }
     this.renderModuleList();

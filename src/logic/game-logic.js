@@ -46,8 +46,8 @@ var SLOTS = {
   copilot: {
     axis:    { name: '姿态',  mandatory: true },
     engine:  { name: '引擎',  mandatory: true },
-    radio:   { name: '无线电 1' },
-    radio2:  { name: '无线电 2' },
+    radio:   { name: '无线电·左' },
+    radio2:  { name: '无线电·右' },
     coffee:  { name: '集中精力 ☕' },
     flap1:   { name: '襟翼 1/2', order: 'flap', limit: [1, 2] },
     flap2:   { name: '襟翼 2/3', order: 'flap', limit: [2, 3] },
@@ -166,8 +166,9 @@ function getOrangeMark(s) { return s.orangeMark; }
 function isLandingRound(s) { return !!s.landingRound; }
 function isWaitingMode(s) { return s.distance === 0 && !s.landingRound; }
 
-/** 无线电：点数 N = 从当前位置起第 N 格（1=当前位置，2=前方第一格） */
+/** 无线电：骰点 N = 从当前位置起第 N 格（1=当前位置，2=前方第一格） */
 function radioTarget(s, val) { return s.distance - (val - 1); }
+function radioDieForDistance(s, targetDist) { return s.distance - targetDist + 1; }
 
 function getApproachAxisRules(s) {
   var scenario = resolveScenario(s.scenarioId);
@@ -252,15 +253,9 @@ function tryResolveEngineImmediate(s) {
     var orange = getOrangeMark(s);
     var k = es < s.blueMark ? 0 : (es < orange ? 1 : 2);
     if (k > 0) {
-      var crash = false, crashD = null;
-      if (hasTraffic(s, s.distance)) { crash = true; crashD = s.distance; }
-      for (var step = 1; !crash && step <= k; step++) {
-        var d = s.distance - step;
-        if (hasTraffic(s, d)) { crash = true; crashD = d; break; }
-      }
-      if (crash) {
+      if (hasTraffic(s, s.distance)) {
         s.phase = 'lose';
-        s.loseReason = '碰撞！距离 ' + crashD + ' 处有飞机（引擎和 ' + es + '）';
+        s.loseReason = '碰撞！当前位置（距离 ' + s.distance + '）有飞机，必须前进（引擎和 ' + es + '）';
         logPush(s, '💥 ' + s.loseReason, 'lose');
         return true;
       }
@@ -311,9 +306,18 @@ function applyPlacementEffect(s, role, slotName) {
     var target = radioTarget(s, val);
     if (hasTraffic(s, target)) {
       clearTraffic(s, target);
-      logPush(s, ROLES[role] + ' ' + def.name + '：清除距离 ' + target + ' 的飞机 ✂');
+      logPush(s, ROLES[role] + ' ' + def.name + '（骰点 ' + val + '）：清除距离 ' + target + ' 的飞机 ✂');
     } else {
-      logPush(s, ROLES[role] + ' ' + def.name + '：距离 ' + target + ' 无飞机');
+      var hint = '';
+      var ahead = s.traffic.filter(function (d) { return d < s.distance; }).sort(function (a, b) { return b - a; });
+      if (ahead.length > 0) {
+        var nearest = ahead[0];
+        var need = radioDieForDistance(s, nearest);
+        if (need >= 1 && need <= 6 && need !== val) {
+          hint = '（最近前方飞机在距 ' + nearest + '，需骰点 ' + need + '，不是 ' + val + '）';
+        }
+      }
+      logPush(s, ROLES[role] + ' ' + def.name + '（骰点 ' + val + '）：距离 ' + target + ' 无飞机' + hint);
     }
     applied = true;
   } else if (slotName === 'coffee') {
@@ -590,7 +594,7 @@ var GameLogic = {
   applyPlacementEffect: applyPlacementEffect, applyAllPlacementEffects: applyAllPlacementEffects,
   tryResolveAxisImmediate: tryResolveAxisImmediate, tryResolveEngineImmediate: tryResolveEngineImmediate,
   effVal: effVal, brakeValue: brakeValue, orangeMark: getOrangeMark, getOrangeMark: getOrangeMark,
-  radioTarget: radioTarget, isLandingRound: isLandingRound, isWaitingMode: isWaitingMode,
+  radioTarget: radioTarget, radioDieForDistance: radioDieForDistance, isLandingRound: isLandingRound, isWaitingMode: isWaitingMode,
   checkApproachAxis: checkApproachAxis, collectAltitudeReroll: collectAltitudeReroll,
   getApproachAxisRules: getApproachAxisRules,
   hasTraffic: hasTraffic, slotAllowed: slotAllowed, radioSlots: radioSlots

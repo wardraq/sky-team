@@ -75,9 +75,14 @@ var PlayerPanel = {
       return '<div class="' + cls.join(' ') + '" data-act="slot" data-role="' + role + '" data-slot="' + slotName + '">' +
         '<div class="slot-head">' + nameHtml + lever + '</div>' + extra + '</div>';
     }
+    var isRadio = L.radioSlots(role).indexOf(slotName) !== -1;
     var nameHtml = '<span class="s-name">' + def.name +
       (def.mandatory ? '<span class="tag-mand">强制</span>' : '') +
       (def.limit ? '<span class="val-lim">限 ' + def.limit.join('/') + '</span>' : '') + '</span>';
+    if (isRadio && p === null && state.phase === 'place') {
+      var d0 = state.distance;
+      nameHtml += '<span class="radio-hint" style="font-size:10px;color:var(--dim);font-weight:normal;display:block;margin-top:2px;line-height:1.35">骰点 1→距' + d0 + ' · 2→距' + (d0 - 1) + ' · 3→距' + (d0 - 2) + '</span>';
+    }
     return '<div class="' + cls.join(' ') + '" data-act="slot" data-role="' + role + '" data-slot="' + slotName + '">' +
       '<div class="slot-head">' + nameHtml + '</div>' + extra + '</div>';
   },

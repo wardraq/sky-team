@@ -3,15 +3,15 @@
 'use strict';
 const net = require('net');
 const crypto = require('crypto');
-const fs = require('fs');
 const path = require('path');
+const ROOT = path.join(__dirname, '..');
 
 const HOST = '127.0.0.1';
 const PORT = parseInt(process.argv[2] || '8080', 10);
 
 /* 逻辑层（用于决策） */
-const { loadGameLogic } = require('./src/logic/load-logic');
-const Logic = loadGameLogic(__dirname);
+const { loadGameLogic } = require(path.join(ROOT, 'src/logic/load-logic'));
+const Logic = loadGameLogic(ROOT);
 
 function clientFrame(str) {
   const payload = Buffer.from(str, 'utf8');

@@ -14,11 +14,39 @@
 # 启动服务（默认端口 8080）
 node server.js
 
-# 静默模式（不打印启动横幅，适合后台跑）
+# 静默模式（不打印启动横幅）
 QUIET=1 node server.js
 
 # 自定义端口
 PORT=3000 node server.js
+```
+
+**后台运行**（关闭终端后仍继续服务，日志写入 `server.log`）：
+
+```bash
+# 推荐：静默 + 后台 + 日志重定向
+nohup QUIET=1 node server.js > server.log 2>&1 &
+
+# 自定义端口
+nohup QUIET=1 PORT=3000 node server.js > server.log 2>&1 &
+```
+
+查看是否在跑：`lsof -i :8080` 或 `tail -f server.log`
+
+**停止服务**：
+
+```bash
+# 前台运行时，在启动服务的终端按 Ctrl+C
+```
+
+若服务在后台运行，可按端口查找并结束进程：
+
+```bash
+# 默认端口 8080
+lsof -ti :8080 | xargs kill
+
+# 或按进程名
+pkill -f "node server.js"
 ```
 
 浏览器访问：
@@ -29,7 +57,7 @@ PORT=3000 node server.js
 | 机长 | http://localhost:8080/?room=sky&role=pilot&scenario=yul |
 | 副驾 | http://localhost:8080/?room=sky&role=copilot&scenario=yul |
 | 观战（只读） | http://localhost:8080/?room=sky&role=passenger |
-| 模块实验室 | http://localhost:8080/module-lab.html |
+| 模块实验室 | http://localhost:8080/test/module-lab.html |
 
 **本地双人测试**：同一浏览器开两个标签页，分别打开机长与副驾链接，`room` 参数保持一致即可。
 
@@ -45,7 +73,7 @@ PORT=3000 node server.js
 4. 掷骰完成后至放置结束前，对方看不到你的骰子点数（服务端过滤）。
 5. 第 7 轮结束时满足全部降落条件即胜利，否则坠机。
 
-详细规则见游戏内 **📖 规则** 弹窗，或阅读 [`DESIGN.md`](DESIGN.md)。
+详细规则见游戏内 **📖 规则** 弹窗，或阅读 [`docs/DESIGN.md`](docs/DESIGN.md)。
 
 ### 与 Sky Team 对齐的槽位规则（摘要）
 
@@ -67,12 +95,18 @@ PORT=3000 node server.js
 ```
 sky-squad/
 ├── index.html              # 游戏主页面（联机大厅 + 驾驶舱 UI）
-├── module-lab.html         # 模块/规则实验室（开发用）
 ├── server.js               # HTTP 静态服务 + WebSocket 房间 + 规则仲裁
-├── test.js                 # 逻辑层蒙特卡洛冒烟
-├── test-modules.js         # 玩法模块单元测试
-├── test-online.js          # 联机 E2E 测试
-├── DESIGN.md               # 完整设计文档与踩坑记录
+├── docs/                   # 文档
+│   ├── DESIGN.md           # 项目设计、架构与踩坑记录
+│   ├── SkyTeam.zh.md       # 原版规则（中文）
+│   └── SkyTeam.en.md       # 原版规则（英文）
+├── test/                   # 测试与开发工具
+│   ├── test.js             # 逻辑层蒙特卡洛冒烟
+│   ├── test-modules.js     # 玩法模块单元测试
+│   ├── test-scenarios.js   # 可玩关卡冒烟
+│   ├── test-online.js      # 联机 E2E 测试
+│   ├── module-lab.html     # 模块/规则实验室（浏览器）
+│   └── approach-lab.html   # 航道渲染可视化测试
 └── src/
     ├── logic/
     │   ├── game-logic.js   # 纯规则层（无 DOM，Node/浏览器共用）
@@ -101,10 +135,14 @@ sky-squad/
 ## 测试
 
 ```bash
-node test.js              # 默认模拟 500 局，可传 node test.js 100
-node test-modules.js      # 模块与槽位规则测试（36+ 项）
-node test-scenarios.js    # 可玩关卡冒烟（yul / lhr / hnd）
-node test-online.js       # 需先启动 server.js
+node test/test.js              # 默认模拟 500 局，可传 node test/test.js 100
+node test/test-modules.js      # 模块与槽位规则测试（50+ 项）
+node test/test-scenarios.js    # 可玩关卡冒烟（yul / lhr / hnd）
+node test/test-online.js       # 需先启动 server.js
+
+# 浏览器开发工具
+#   http://localhost:8080/test/module-lab.html    模块实验室
+#   http://localhost:8080/test/approach-lab.html  航道渲染测试
 ```
 
 ---
@@ -127,7 +165,7 @@ node test-online.js       # 需先启动 server.js
 
 ### 更多文档
 
-- [`DESIGN.md`](DESIGN.md) — 机制说明、结算顺序、与原版差异、历史决策
+- [`docs/DESIGN.md`](docs/DESIGN.md) — 机制说明、结算顺序、与原版差异、历史决策
 - 页面右下角 **dbg-badge** — 联机调试信息（角色、轮次、阶段）
 
 ---

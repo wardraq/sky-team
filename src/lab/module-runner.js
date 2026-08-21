@@ -201,6 +201,28 @@ var ModuleRunner = {
         s.placements.copilot.engine = { v: 2, mod: 0 };
       }
     },
+    'traffic-same-cell': {
+      label: '交通 · 场景一 同格共存',
+      moduleId: 'traffic',
+      apply: function (s) {
+        s.phase = 'place';
+        s.round = 1;
+        s.distance = 3;
+        s.traffic = [3];
+        s.currentPlayer = 'pilot';
+      }
+    },
+    'traffic-multi-ahead': {
+      label: '交通 · 场景二 前方多机',
+      moduleId: 'traffic',
+      apply: function (s) {
+        s.phase = 'place';
+        s.round = 1;
+        s.distance = 4;
+        s.traffic = [3, 3, 3];
+        s.currentPlayer = 'pilot';
+      }
+    },
     'landing-final': {
       label: '终局 · 第 7 轮揭示',
       moduleId: 'traffic',
@@ -234,6 +256,10 @@ var ModuleRunner = {
   },
 
   renderWidgetPreview: function (state, moduleId) {
+    if (moduleId === 'traffic' && typeof ApproachWidget !== 'undefined') {
+      var ctx = { state: state, logic: window.GameLogic, ui: { mode: 'local' } };
+      return '<div class="lab-widget-preview">' + ApproachWidget.render(ctx) + '</div>';
+    }
     var mod = ModuleRegistry.get(moduleId);
     if (!mod || !mod.getWidgets) return '<div class="lab-muted">该模块无 getWidgets</div>';
     var widgets = mod.getWidgets(state, { state: state, logic: window.GameLogic, ui: { mode: 'local' } });
