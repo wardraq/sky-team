@@ -76,7 +76,8 @@ var PlayerPanel = {
         '<div class="slot-head">' + nameHtml + lever + '</div>' + extra + '</div>';
     }
     var isRadio = L.radioSlots(role).indexOf(slotName) !== -1;
-    var nameHtml = '<span class="s-name">' + def.name +
+    var isCoffee = def.coffee;
+    var nameHtml = '<span class="s-name">' + (isCoffee ? '☕ ' : '') + def.name.replace('集中精力 ☕', '放骰') +
       (def.mandatory ? '<span class="tag-mand">强制</span>' : '') +
       (def.limit ? '<span class="val-lim">限 ' + def.limit.join('/') + '</span>' : '') + '</span>';
     if (isRadio && p === null && state.phase === 'place') {
@@ -87,18 +88,6 @@ var PlayerPanel = {
       '<div class="slot-head">' + nameHtml + '</div>' + extra + '</div>';
   },
 
-  sharedCoffeeHTML: function (ctx, role) {
-    var L = ctx.logic;
-    var slots = L.SHARED_SLOTS ? Object.keys(L.SHARED_SLOTS) : [];
-    if (!slots.length) return '';
-    var h = ['<div class="slot-group coffee-slots"><div class="slot-group-label" style="font-size:11px;color:var(--dim);margin:4px 0 2px">☕ 集中精力（共用 · ' + slots.length + '）</div>'];
-    slots.forEach(function (slotName) {
-      h.push(PlayerPanel.slotHTML(ctx, role, slotName));
-    });
-    h.push('</div>');
-    return h.join('');
-  },
-
   render: function (role, ctx) {
     var el = document.getElementById(this.panelId(role));
     var L = ctx.logic;
@@ -107,7 +96,7 @@ var PlayerPanel = {
     var viewCtx = ctx.viewCtx;
     var selected = ctx.selected;
     var isPilot = role === 'pilot';
-    var duty = isPilot ? '起落架 · 刹车 · 无线电' : '襟翼 · 无线电 ×2';
+    var duty = isPilot ? '起落架 · 无线电 · 刹车/☕（中栏）' : '襟翼 · 无线电 ×2 · ☕（中栏）';
 
     try {
       if (!state) {
@@ -170,16 +159,18 @@ var PlayerPanel = {
 
       var order = ['axis', 'engine', 'radio'];
       if (role === 'copilot') order.push('radio2');
-      Object.keys(L.SLOTS[role]).forEach(function (s) { if (order.indexOf(s) === -1) order.push(s); });
+      Object.keys(L.SLOTS[role]).forEach(function (s) {
+        if (order.indexOf(s) === -1 && s.indexOf('brake') !== 0) order.push(s);
+      });
       var single = [], grid = [];
       order.forEach(function (s) {
         var def = L.SLOTS[role][s];
-        if (def.gear || def.order) grid.push(s); else single.push(s);
+        if (def.gear || (def.order && def.order !== 'brake')) grid.push(s);
+        else if (!def.order) single.push(s);
       });
       h.push('<div style="display:flex;flex-direction:column;gap:6px">');
       single.forEach(function (s) { h.push(PlayerPanel.slotHTML(ctx, role, s)); });
       h.push('</div>');
-      h.push(PlayerPanel.sharedCoffeeHTML(ctx, role));
       if (grid.length) {
         h.push('<div class="slot-group">');
         grid.forEach(function (s) { h.push(PlayerPanel.slotHTML(ctx, role, s)); });

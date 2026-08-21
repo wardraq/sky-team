@@ -216,6 +216,48 @@
   .slot-group .slot .s-die { justify-content: center; }
   .slot .slot-head { display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0; }
 
+  /* 中央 · 刹车 & 集中精力（对齐实体面板底栏） */
+  .brakes-board { padding-bottom: 11px; }
+  .brake-track {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    padding: 6px 8px; margin-bottom: 8px;
+    background: var(--bg1); border: 1px solid var(--edge); border-radius: 8px;
+    font-size: 11px; color: var(--dim);
+  }
+  .brake-track-label { font-weight: 700; color: var(--red); letter-spacing: .5px; margin-right: 4px; }
+  .brake-tick {
+    min-width: 22px; text-align: center; padding: 2px 4px; border-radius: 4px;
+    font-family: var(--mono); font-size: 11px; border: 1px solid var(--edge); color: #5a6d82;
+  }
+  .brake-tick.past { border-color: #7a3a3a; color: #ffb4b4; background: rgba(255,90,90,.08); }
+  .brake-tick.cur { border-color: var(--red); color: #fff; background: rgba(255,90,90,.35); box-shadow: 0 0 8px rgba(255,90,90,.35); }
+  .brake-track-val { margin-left: auto; font-family: var(--mono); color: var(--text); }
+  .brake-track-val b { color: var(--red); }
+  .brake-slots-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px;
+  }
+  .brake-slots-row .slot { min-height: 58px; }
+  .concentration-block {
+    border-top: 1px dashed rgba(46,65,85,.75); padding-top: 10px; margin-top: 2px;
+  }
+  .concentration-label {
+    font-size: 11px; color: var(--dim); letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase;
+  }
+  .coffee-slots-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 6px;
+  }
+  .coffee-slots-row .slot {
+    border-style: dashed; min-height: 52px;
+    background: linear-gradient(135deg, rgba(74,168,255,.06) 0 50%, rgba(255,148,64,.06) 50% 100%);
+  }
+  .coffee-tokens { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 0 2px; }
+  .coffee-token {
+    width: 28px; height: 28px; border-radius: 50%; border: 1px dashed var(--edge);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 14px; opacity: .35;
+  }
+  .coffee-token.filled { opacity: 1; border-style: solid; border-color: var(--amber); background: rgba(255,197,61,.12); }
+  .coffee-token-hint { font-size: 10.5px; color: var(--dim); margin-left: 4px; }
+
   /* 拨杆开关（起落架/襟翼/刹车激活状态） */
   .lever { width: 34px; height: 16px; background: #1d2c3c; border-radius: 4px; position: relative; border: 1px solid var(--edge); flex: none; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; }
   .lever::after { content: ""; position: absolute; left: 50%; top: 1px; width: 5px; height: 12px; background: #b9c6d4; transform: translateX(-50%); border-radius: 2px; }
@@ -516,7 +558,7 @@
 <script src="src/widgets/phase-banner.js"></script>
 <script src="src/widgets/attitude.js"></script>
 <script src="src/widgets/engine-bar.js"></script>
-<script src="src/widgets/equipment.js"></script>
+<script src="src/widgets/brakes-board.js"></script>
 <script src="src/widgets/approach.js"></script>
 <script src="src/widgets/altitude.js"></script>
 <script src="src/widgets/reveal.js"></script>

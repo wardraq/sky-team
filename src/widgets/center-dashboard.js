@@ -12,7 +12,7 @@ var CenterDashboard = {
     { id: 'altitude', render: function (ctx, preview) { return AltitudeWidget.render(ctx); } },
     { id: 'attitude', render: function (ctx, preview) { return AttitudeWidget.render(ctx, preview); } },
     { id: 'engine-bar', render: function (ctx, preview) { return EngineBarWidget.render(ctx, preview); } },
-    { id: 'equipment', render: function (ctx, preview) { return EquipmentWidget.render(ctx); } }
+    { id: 'brakes-board', render: function (ctx, preview) { return BrakesBoardWidget.render(ctx); } }
   ],
 
   safeRender: function (id, fn) {
