@@ -12,14 +12,40 @@ function createGameController(options) {
   var state = null;
   var selected = null;
   var pendingCoffee = { plus: 0, minus: 0 };
+  var rerollSelected = {};
+  var localRerollMode = false;
   var flashFn = options.flash || function () {};
+  var toastFn = options.toast || function () {};
 
   function notify() {
     listeners.forEach(function (fn) { fn(); });
   }
 
+  function clearRerollSelected() {
+    rerollSelected = {};
+  }
+
+  function clearRerollMode() {
+    localRerollMode = false;
+    clearRerollSelected();
+  }
+
+  function isRerollPicking(s) {
+    s = s || state;
+    return !!(s && ((s.rerollPick && s.rerollPick.active) || localRerollMode));
+  }
+
+  function normalizeState(s) {
+    if (!s) return s;
+    if (logic.ensureRerollPick) logic.ensureRerollPick(s);
+    else if (!s.rerollPick) s.rerollPick = { active: false, pilot: null, copilot: null };
+    return s;
+  }
+
   function setState(s) {
-    state = s;
+    state = normalizeState(s);
+    if (state && state.rerollPick && state.rerollPick.active) localRerollMode = false;
+    if (!isRerollPicking(state)) clearRerollSelected();
   }
 
   function getState() {
@@ -67,7 +93,6 @@ function createGameController(options) {
     var role = payload.role;
     var idx = payload.idx;
     var slot = payload.slot;
-    var delta = payload.delta;
 
     switch (action) {
       case 'begin-roll':
@@ -80,9 +105,41 @@ function createGameController(options) {
         if (viewCtx.canOperate(role)) session.sendAction('roll');
         return;
 
+      case 'begin-reroll':
       case 'reroll':
         if (!state || (state.phase !== 'roll' && state.phase !== 'place')) return;
-        if (isPlayer()) session.sendAction('reroll');
+        if (!isPlayer()) return;
+        if (state.reroll <= 0) {
+          toastFn('⚠ 无重掷标记');
+          return;
+        }
+        if (state.rerollPick && state.rerollPick.active) {
+          toastFn('⚠ 已在选骰重掷中');
+          return;
+        }
+        localRerollMode = true;
+        notify();
+        session.sendAction('begin-reroll');
+        toastFn('🔄 点选要重掷的骰子，再点「确认重掷」');
+        return;
+
+      case 'reroll-pick-die':
+        if (!isRerollPicking()) return;
+        if (ui.viewer !== role || !isPlayer()) return;
+        if (state.rerollPick && state.rerollPick[role] != null) return;
+        rerollSelected[idx] = !rerollSelected[idx];
+        if (!rerollSelected[idx]) delete rerollSelected[idx];
+        notify();
+        return;
+
+      case 'reroll-confirm':
+        if (!isRerollPicking()) return;
+        if (!isPlayer()) return;
+        if (state.rerollPick && state.rerollPick[ui.viewer] != null) return;
+        var pickIdx = Object.keys(rerollSelected).map(Number).filter(function (i) { return rerollSelected[i]; });
+        session.sendAction('reroll-pick', pickIdx);
+        clearRerollSelected();
+        toastFn('✓ 已重掷' + (pickIdx.length ? ' ' + pickIdx.length + ' 颗骰' : '（未选骰）') + '，等待对方确认或继续');
         return;
 
       case 'coffee-plus':
@@ -171,6 +228,8 @@ function createGameController(options) {
       state: state,
       selected: selected,
       pendingCoffee: pendingCoffee,
+      rerollSelected: rerollSelected,
+      isRerollPicking: isRerollPicking(),
       pendingCoffeePreview: pendingCoffeePreview,
       emit: dispatch
     };
@@ -184,6 +243,7 @@ function createGameController(options) {
     getSelected: getSelected,
     getPendingCoffee: function () { return pendingCoffee; },
     clearSelected: clearSelected,
+    clearRerollMode: clearRerollMode,
     getContext: getContext,
     notify: notify
   };

@@ -68,6 +68,7 @@ function createGameSession(ui, handlers) {
         break;
       case 'err':
         if (handlers.toast) handlers.toast('⚠ ' + m.msg);
+        if (controller && controller.clearRerollMode) controller.clearRerollMode();
         break;
     }
   }

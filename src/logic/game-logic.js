@@ -7,10 +7,12 @@
 var CONFIG = {
   ROUNDS: 7,
   DICE_PER_PLAYER: 4,
-  ALTITUDE_START: 7,
-  DISTANCE_START: 6,
+  ALTITUDE_START: 6000,
+  ALTITUDE_STEP: 1000,
+  ALTITUDE_MIN: 0,
+  DISTANCE_START: 7,
   AXIS_LIMIT: 3,
-  TRAFFIC_START: [3],
+  TRAFFIC_START: [4, 3, 3, 2, 1, 1, 1, 0, 0],
   BLUE_START: 5,
   BLUE_MAX: 8,
   ORANGE_START: 8,
@@ -20,7 +22,7 @@ var CONFIG = {
   COFFEE_MAX: 3,
   COFFEE_SLOT_COUNT: 3,
   REROLL_START: 0,
-  ALTITUDE_REROLL_SPACES: [7, 4],
+  ALTITUDE_REROLL_SPACES: [6000, 2000],
   APPROACH_AXIS: {},
   GEAR_COUNT: 3,
   FLAP_COUNT: 4,
@@ -111,6 +113,17 @@ function mergeConfig(overrides) {
   return cfg;
 }
 
+/** 读取对局所属场景的完整配置（航道/高度/轮数等） */
+function getScenarioConfig(stateOrScenarioId) {
+  var scenario;
+  if (stateOrScenarioId && typeof stateOrScenarioId === 'object' && stateOrScenarioId.scenarioId) {
+    scenario = resolveScenario(stateOrScenarioId.scenarioId);
+  } else {
+    scenario = resolveScenario(stateOrScenarioId);
+  }
+  return mergeConfig(scenario.config);
+}
+
 /** 解析场景；浏览器端读 ScenarioRegistry，Node 测试回退内置默认 */
 function resolveScenario(scenarioId) {
   if (typeof ScenarioRegistry !== 'undefined') {
@@ -154,6 +167,7 @@ function newGame(scenarioId) {
     coffee: 0,
     reroll: cfg.REROLL_START,
     rerollOnTrack: (cfg.ALTITUDE_REROLL_SPACES || CONFIG.ALTITUDE_REROLL_SPACES).slice(),
+    rerollPick: { active: false, pilot: null, copilot: null },
     coffeeUsed: {},
     roundResolved: { axis: false, engine: false },
     log: [],
@@ -183,20 +197,95 @@ function emptyPlacements() {
 }
 function effVal(s) { return s ? clamp(s.v + (s.mod || 0), 1, 6) : null; }
 function hasTraffic(s, d) { return s.traffic.indexOf(d) !== -1; }
-function clearTraffic(s, d) { s.traffic = s.traffic.filter(function (x) { return x !== d; }); }
+function clearTraffic(s, d) {
+  var idx = s.traffic.indexOf(d);
+  if (idx !== -1) s.traffic.splice(idx, 1);
+}
 function brakeValue(s) { return CONFIG.BRAKE_BASE + CONFIG.BRAKE_STEP * s.brakesAct; }
 function getOrangeMark(s) { return s.orangeMark; }
 
 function isLandingRound(s) { return !!s.landingRound; }
 function isWaitingMode(s) { return s.distance === 0 && !s.landingRound; }
 
+/** 高度轨刻度（英尺）：6000 → 0 */
+function altitudeTrackSteps(cfg) {
+  cfg = cfg || CONFIG;
+  var start = cfg.ALTITUDE_START != null ? cfg.ALTITUDE_START : CONFIG.ALTITUDE_START;
+  var step = cfg.ALTITUDE_STEP != null ? cfg.ALTITUDE_STEP : CONFIG.ALTITUDE_STEP;
+  var min = cfg.ALTITUDE_MIN != null ? cfg.ALTITUDE_MIN : CONFIG.ALTITUDE_MIN;
+  var steps = [];
+  for (var a = start; a >= min; a -= step) steps.push(a);
+  return steps;
+}
+
+/** 该高度窗格对应的先手角色（起始高度机长蓝、下一格副驾橙…含 0ft） */
+function altitudeStartRole(alt, cfg) {
+  cfg = cfg || CONFIG;
+  var start = cfg.ALTITUDE_START != null ? cfg.ALTITUDE_START : CONFIG.ALTITUDE_START;
+  var step = cfg.ALTITUDE_STEP != null ? cfg.ALTITUDE_STEP : CONFIG.ALTITUDE_STEP;
+  var idx = Math.round((start - alt) / step);
+  return idx % 2 === 0 ? 'pilot' : 'copilot';
+}
+
+function approachTrackCellCount(cfg) {
+  cfg = cfg || CONFIG;
+  var start = cfg.DISTANCE_START != null ? cfg.DISTANCE_START : CONFIG.DISTANCE_START;
+  return start + 1;
+}
+
+function approachTrackOffset(state, cfg) {
+  cfg = cfg || CONFIG;
+  var start = cfg.DISTANCE_START != null ? cfg.DISTANCE_START : CONFIG.DISTANCE_START;
+  return start - state.distance;
+}
+
+function altitudeTrackOffset(state, cfg) {
+  cfg = cfg || CONFIG;
+  var start = cfg.ALTITUDE_START != null ? cfg.ALTITUDE_START : CONFIG.ALTITUDE_START;
+  var step = cfg.ALTITUDE_STEP != null ? cfg.ALTITUDE_STEP : CONFIG.ALTITUDE_STEP;
+  return Math.round((start - state.altitude) / step);
+}
+
+function checkLandingWin(s) {
+  var fails = [];
+  if (s.distance !== 0) fails.push('未到达机场（距 ' + s.distance + '）');
+  if (s.axis !== 0) fails.push('姿态未水平（' + s.axis + '）');
+  if (s.gearAct < CONFIG.GEAR_COUNT) fails.push('起落架未全部激活（' + s.gearAct + '/' + CONFIG.GEAR_COUNT + '）');
+  if (s.flapsAct < CONFIG.FLAP_COUNT) fails.push('襟翼未全部激活（' + s.flapsAct + '/' + CONFIG.FLAP_COUNT + '）');
+  if (s.traffic.length > 0) fails.push('路径仍有 ' + s.traffic.length + ' 架飞机');
+  var pe = effVal(s.placements.pilot.engine), ce = effVal(s.placements.copilot.engine);
+  if (pe === null || ce === null) {
+    fails.push('着陆轮须放置引擎骰');
+  } else {
+    var es = pe + ce;
+    if (es >= brakeValue(s)) fails.push('着陆速度过快（引擎和 ' + es + ' ≥ 刹车 ' + brakeValue(s) + '）');
+  }
+  if (typeof ModuleRegistry !== 'undefined') {
+    s.activeModules.forEach(function (mid) {
+      var mod = ModuleRegistry.get(mid);
+      if (mod && mod.checkWin) {
+        var extra = mod.checkWin(s);
+        if (extra && extra.length) fails = fails.concat(extra);
+      }
+    });
+  }
+  if (fails.length === 0) {
+    s.phase = 'win';
+    s.finalStats = { rounds: s.round, axis: s.axis, gear: s.gearAct, flaps: s.flapsAct, coffee: s.coffee, reroll: s.reroll };
+    logPush(s, '🏆 降落成功！欢迎抵达蒙特利尔。', 'win');
+  } else {
+    s.phase = 'lose';
+    s.loseReason = '着陆条件未满足：' + fails.join('；');
+    logPush(s, '💥 ' + s.loseReason, 'lose');
+  }
+}
+
 /** 无线电：骰点 N = 从当前位置起第 N 格（1=当前位置，2=前方第一格） */
 function radioTarget(s, val) { return s.distance - (val - 1); }
 function radioDieForDistance(s, targetDist) { return s.distance - targetDist + 1; }
 
 function getApproachAxisRules(s) {
-  var scenario = resolveScenario(s.scenarioId);
-  var cfg = mergeConfig(scenario.config);
+  var cfg = getScenarioConfig(s);
   return cfg.APPROACH_AXIS || CONFIG.APPROACH_AXIS || {};
 }
 
@@ -219,7 +308,7 @@ function collectAltitudeReroll(s) {
   if (i === -1) return;
   s.rerollOnTrack.splice(i, 1);
   s.reroll++;
-  logPush(s, '🔄 高度 ' + s.altitude + ' 获得重掷标记（供应 ×' + s.reroll + '）');
+  logPush(s, '🔄 高度 ' + s.altitude + ' 英尺获得重掷标记（供应 ×' + s.reroll + '）');
 }
 
 /** 双方姿态骰都放满 → 立即比较并倾斜（官方：As soon as the second die is placed） */
@@ -233,8 +322,10 @@ function tryResolveAxisImmediate(s) {
 
   var diff = Math.abs(pa - ca);
   if (diff > 0) {
-    s.axis += (pa > ca) ? diff : -diff;
-    logPush(s, '⚡ 姿态 ' + pa + ' vs ' + ca + ' → 盘 ' + (s.axis > 0 ? '+' : '') + s.axis);
+    /* 机长左、副驾右：大点一方一侧倾斜 */
+    s.axis += (pa > ca) ? -diff : diff;
+    var toward = pa > ca ? ROLES.pilot : ROLES.copilot;
+    logPush(s, '⚡ 姿态 ' + pa + ' vs ' + ca + ' → 向' + toward + '偏 ' + (s.axis > 0 ? '+' : '') + s.axis);
     if (Math.abs(s.axis) >= CONFIG.AXIS_LIMIT) {
       s.phase = 'lose';
       s.loseReason = '姿态失衡（' + s.axis + '），飞机进入尾旋坠毁！';
@@ -416,10 +507,18 @@ function beginRound(s) {
   s.startPlayer = (s.round % 2 === 1) ? 'pilot' : 'copilot';
   s.currentPlayer = null;
   s.phase = 'discuss';
-  s.landingRound = (s.distance === 0 && s.altitude <= 1);
+  s.landingRound = (s.distance === 0 && s.altitude === 0);
   s.waiting = (s.distance === 0 && !s.landingRound);
   s.roundResolved = { axis: false, engine: false };
-  logPush(s, '—— 第 ' + s.round + ' 轮开始 ——');
+  ensureRerollPick(s);
+  s.rerollPick.active = false;
+  s.rerollPick.pilot = null;
+  s.rerollPick.copilot = null;
+  if (s.landingRound) {
+    logPush(s, '🛬 着陆轮开始 — 须完成 8 骰放置并满足胜利 A–D');
+  } else {
+    logPush(s, '—— 第 ' + s.round + ' 轮开始 ——（高度 ' + s.altitude + ' 英尺）');
+  }
   collectAltitudeReroll(s);
   callModuleHook('onBeginRound', s);
 }
@@ -431,22 +530,84 @@ function rollDice(s, role) {
   callModuleHook('onRollDice', s, role);
   return true;
 }
-function rerollAll(s) {
-  if (s.reroll <= 0) return false;
-  if (s.phase !== 'roll' && s.phase !== 'place') return false;
-  s.reroll--;
-  if (s.phase === 'roll') {
-    s.rolled = { pilot: false, copilot: false };
-    logPush(s, '使用重掷标记，双方全部骰子重掷！');
-  } else {
-    ['pilot', 'copilot'].forEach(function (r) {
-      s.dice[r].forEach(function (d) {
-        if (!d.used) d.v = d6();
-      });
-    });
-    logPush(s, '使用重掷标记，双方未用骰子重掷！');
+function ensureRerollPick(s) {
+  if (!s) return;
+  if (!s.rerollPick || typeof s.rerollPick !== 'object') {
+    s.rerollPick = { active: false, pilot: null, copilot: null };
+    return;
   }
+  if (s.rerollPick.pilot === undefined) s.rerollPick.pilot = null;
+  if (s.rerollPick.copilot === undefined) s.rerollPick.copilot = null;
+  if (!s.rerollPick.active) s.rerollPick.active = false;
+}
+
+function beginReroll(s) {
+  ensureRerollPick(s);
+  if (s.reroll <= 0) return { ok: false, why: '无重掷标记' };
+  if (s.phase !== 'roll' && s.phase !== 'place') return { ok: false, why: '当前阶段不可用' };
+  if (s.rerollPick.active) return { ok: false, why: '重掷选择进行中' };
+  s.reroll--;
+  s.rerollPick.active = true;
+  s.rerollPick.pilot = null;
+  s.rerollPick.copilot = null;
+  logPush(s, '🔄 使用重掷标记——请选择要重掷的骰子（双方各可选任意颗，各一次）');
+  return { ok: true };
+}
+
+function submitRerollPick(s, role, indices) {
+  ensureRerollPick(s);
+  if (!s.rerollPick.active) return { ok: false, why: '未在重掷选择中' };
+  if (s.rerollPick[role] != null) return { ok: false, why: '已确认重掷' };
+  if (!Array.isArray(indices)) indices = [];
+  if (s.phase === 'roll' && !s.rolled[role]) return { ok: false, why: '请先掷骰' };
+  var uniq = [];
+  for (var i = 0; i < indices.length; i++) {
+    var idx = indices[i] | 0;
+    if (idx < 0 || idx >= CONFIG.DICE_PER_PLAYER) continue;
+    if (uniq.indexOf(idx) !== -1) continue;
+    var d = s.dice[role][idx];
+    if (!d) continue;
+    if (s.phase === 'place' && d.used) continue;
+    uniq.push(idx);
+  }
+  uniq.sort(function (a, b) { return a - b; });
+  s.rerollPick[role] = uniq;
+  uniq.forEach(function (idx) {
+    s.dice[role][idx].v = d6();
+  });
+  if (uniq.length) {
+    logPush(s, ROLES[role] + ' 重掷 ' + uniq.map(function (n) { return n + 1; }).join('、') + ' 号骰');
+  } else {
+    logPush(s, ROLES[role] + ' 跳过重掷');
+  }
+  if (s.rerollPick.pilot != null && s.rerollPick.copilot != null) {
+    logPush(s, '🔄 双方重掷选择完毕');
+    s.rerollPick = { active: false, pilot: null, copilot: null };
+    callModuleHook('onRerollAll', s);
+  }
+  return { ok: true };
+}
+
+function applyRerollPicks(s) {
+  /* 兼容 rerollAll：批量重掷后收尾 */
+  s.rerollPick = { active: false, pilot: null, copilot: null };
   callModuleHook('onRerollAll', s);
+}
+
+function rerollAll(s) {
+  var b = beginReroll(s);
+  if (!b.ok) return false;
+  ['pilot', 'copilot'].forEach(function (r) {
+    var indices = [];
+    s.dice[r].forEach(function (d, i) {
+      if (s.phase === 'roll' && s.rolled[r]) indices.push(i);
+      else if (s.phase === 'place' && !d.used) indices.push(i);
+    });
+    indices.forEach(function (idx) { s.dice[r][idx].v = d6(); });
+    s.rerollPick[r] = indices;
+  });
+  logPush(s, '🔄 重掷完成');
+  applyRerollPicks(s);
   return true;
 }
 
@@ -571,8 +732,14 @@ function resolveRound(s) {
     return true;
   }
 
-  s.altitude--;
-  logPush(s, '高度下降 → ' + s.altitude);
+  if (s.landingRound) {
+    checkLandingWin(s);
+    return true;
+  }
+
+  var cfg = getScenarioConfig(s);
+  s.altitude -= cfg.ALTITUDE_STEP;
+  logPush(s, '高度下降 → ' + s.altitude + ' 英尺');
   callModuleHook('afterResolveRound', s);
 
   if (s.altitude === 0 && s.distance !== 0) {
@@ -582,35 +749,14 @@ function resolveRound(s) {
     return true;
   }
 
-  var isGameEnd = (s.altitude === 0 && s.distance === 0) || s.round === CONFIG.ROUNDS;
-  if (isGameEnd) {
-    var fails = [];
-    if (s.distance !== 0) fails.push('未到达机场（距 ' + s.distance + '）');
-    if (s.axis !== 0) fails.push('姿态未水平（' + s.axis + '）');
-    if (s.gearAct < CONFIG.GEAR_COUNT) fails.push('起落架未全部激活（' + s.gearAct + '/' + CONFIG.GEAR_COUNT + '）');
-    if (s.flapsAct < CONFIG.FLAP_COUNT) fails.push('襟翼未全部激活（' + s.flapsAct + '/' + CONFIG.FLAP_COUNT + '）');
-    if (s.traffic.length > 0) fails.push('路径仍有 ' + s.traffic.length + ' 架飞机');
-    if (typeof ModuleRegistry !== 'undefined') {
-      s.activeModules.forEach(function (mid) {
-        var mod = ModuleRegistry.get(mid);
-        if (mod && mod.checkWin) {
-          var extra = mod.checkWin(s);
-          if (extra && extra.length) fails = fails.concat(extra);
-        }
-      });
-    }
-    if (fails.length === 0) {
-      s.phase = 'win';
-      s.finalStats = { rounds: s.round, axis: s.axis, gear: s.gearAct, flaps: s.flapsAct, coffee: s.coffee, reroll: s.reroll };
-      logPush(s, '🏆 降落成功！欢迎抵达。', 'win');
-    } else {
-      s.phase = 'lose'; s.loseReason = '降落条件未满足：' + fails.join('；');
-      logPush(s, '💥 ' + s.loseReason, 'lose');
-    }
-  } else {
+  if (s.altitude === 0 && s.distance === 0) {
     s.phase = 'roundEnd';
-    logPush(s, '—— 第 ' + s.round + ' 轮结束 ——');
+    logPush(s, '🛬 机场与触地高度对齐 — 下一轮为着陆轮，须完成放置并满足 A–D');
+    return true;
   }
+
+  s.phase = 'roundEnd';
+  logPush(s, '—— 第 ' + s.round + ' 轮结束 ——');
   return true;
 }
 
@@ -624,9 +770,10 @@ function nextRound(s) {
 var GameLogic = {
   CONFIG: CONFIG, ROLES: ROLES, SLOTS: SLOTS, SHARED_SLOTS: SHARED_SLOTS,
   isSharedSlot: isSharedSlot, getSlotDef: getSlotDef, getPlacement: getPlacement,
-  mergeConfig: mergeConfig, resolveScenario: resolveScenario,
+  mergeConfig: mergeConfig, getScenarioConfig: getScenarioConfig, resolveScenario: resolveScenario,
   newGame: newGame, beginRound: beginRound,
-  rollDice: rollDice, rerollAll: rerollAll,
+  rollDice: rollDice, beginReroll: beginReroll, submitRerollPick: submitRerollPick,
+  ensureRerollPick: ensureRerollPick, rerollAll: rerollAll,
   placeDie: placeDie, useCoffee: useCoffee,
   resolveRound: resolveRound, nextRound: nextRound,
   applyPlacementEffect: applyPlacementEffect, applyAllPlacementEffects: applyAllPlacementEffects,
@@ -634,7 +781,9 @@ var GameLogic = {
   effVal: effVal, brakeValue: brakeValue, orangeMark: getOrangeMark, getOrangeMark: getOrangeMark,
   radioTarget: radioTarget, radioDieForDistance: radioDieForDistance, isLandingRound: isLandingRound, isWaitingMode: isWaitingMode,
   checkApproachAxis: checkApproachAxis, collectAltitudeReroll: collectAltitudeReroll,
-  getApproachAxisRules: getApproachAxisRules,
+  getApproachAxisRules: getApproachAxisRules, altitudeTrackSteps: altitudeTrackSteps, altitudeStartRole: altitudeStartRole,
+  approachTrackCellCount: approachTrackCellCount, approachTrackOffset: approachTrackOffset, altitudeTrackOffset: altitudeTrackOffset,
+  checkLandingWin: checkLandingWin,
   hasTraffic: hasTraffic, slotAllowed: slotAllowed, radioSlots: radioSlots
 };
 if (typeof window !== 'undefined') window.GameLogic = GameLogic;

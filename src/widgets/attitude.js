@@ -17,7 +17,8 @@ var AttitudeWidget = {
       '<div class="ai-scale"><i style="left:20%"></i><i style="left:40%"></i><i style="left:50%"></i><i style="left:60%"></i><i style="left:80%"></i></div>' +
       '</div><div class="ai-marks"></div><div class="ai-plane"><div class="w"></div></div></div>' +
       '<div class="ai-read"><div class="big' + (Math.abs(axisForUI) >= 2 ? ' danger' : '') + '">' + (axisForUI > 0 ? '+' : '') + axisForUI + '</div>' +
-      '<div class="lbl">ROLL</div><div class="bar"><i style="left:calc(50% + ' + (axisForUI * 12) + 'px)"></i></div>' +
+      '<div class="lbl">ROLL · 大点向该侧倾斜</div><div class="bar"><i style="left:calc(50% + ' + (axisForUI * 12) + 'px)"></i></div>' +
+      '<div class="lbl ai-side-hint"><span class="ai-side pilot">← 机长</span><span>0</span><span class="ai-side copilot">副驾 →</span></div>' +
       '<div class="lbl">水平=0 · ±3 坠毁</div></div>' +
       '</div></div>';
   }

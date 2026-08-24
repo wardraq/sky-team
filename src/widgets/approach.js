@@ -12,19 +12,11 @@ var ApproachWidget = {
     return n;
   },
 
-  cellIcons: function (state, d, planeCount) {
-    var isMe = d === state.distance;
-    if (!isMe && planeCount === 0) return '';
-    var h = ['<div class="app-icons">'];
-    if (isMe) {
-      h.push('<span class="app-icon me-icon" title="我机">✈️</span>');
-    }
-    if (planeCount === 1) {
-      h.push('<span class="app-icon traffic-icon" title="交通">🛩</span>');
-    } else if (planeCount > 1) {
-      h.push('<span class="app-icon traffic-icon" title="交通 ×' + planeCount + '">🛩</span>');
-      h.push('<span class="traffic-badge">×' + planeCount + '</span>');
-    }
+  trafficOverlay: function (planeCount) {
+    if (planeCount === 0) return '';
+    var h = ['<div class="traffic-float" title="交通' + (planeCount > 1 ? ' ×' + planeCount : '') + '">'];
+    h.push('<span class="app-icon traffic-icon">✈️</span>');
+    if (planeCount > 1) h.push('<span class="traffic-badge">×' + planeCount + '</span>');
     h.push('</div>');
     return h.join('');
   },
@@ -35,36 +27,36 @@ var ApproachWidget = {
       counts[d] = (counts[d] || 0) + 1;
     });
     return Object.keys(counts).sort(function (a, b) { return b - a; }).map(function (d) {
-      return counts[d] > 1 ? d + '（×' + counts[d] + '）' : d;
+      var label = d === '0' ? '机场' : d;
+      return counts[d] > 1 ? label + '（×' + counts[d] + '）' : label;
     }).join('、');
   },
 
   render: function (ctx) {
     var state = ctx.state;
     var logic = ctx.logic;
+    var cfg = logic.getScenarioConfig(state);
     var h = [];
     var self = this;
+    var trackCells = logic.approachTrackCellCount(cfg);
+    var trackOffset = logic.approachTrackOffset(state, cfg);
 
-    h.push('<div class="card"><h3>航道 · Approach</h3><div class="approach-row">');
-    for (var d = logic.CONFIG.DISTANCE_START; d >= 0; d--) {
+    h.push('<div class="card"><h3>航道 · Approach</h3>');
+    h.push('<div class="track-viewport" style="--track-cells:' + trackCells + ';--track-offset:' + trackOffset + '">');
+    h.push('<div class="track-window" aria-hidden="true"></div><div class="approach-row track-row">');
+    for (var d = cfg.DISTANCE_START; d >= 0; d--) {
       var planeCount = self.trafficAt(state, d);
       var isMe = d === state.distance;
       var cls = 'app-cell';
-      if (d === 0) {
-        cls += ' airport';
-        if (isMe) cls += ' me waiting';
-        h.push('<div class="' + cls + '"><span class="cell-no">' + d + '</span></div>');
-        continue;
-      }
-      cls += ' has-icons';
-      if (isMe) cls += ' me';
-      if (planeCount > 0) cls += ' plane' + (planeCount > 1 ? ' traffic-multi' : '');
+      if (d === 0) cls += ' airport';
+      if (planeCount > 0) cls += ' has-traffic' + (planeCount > 1 ? ' traffic-multi' : '');
       if (isMe && planeCount > 0) cls += ' traffic-here';
-      if (isMe && state.waiting) cls += ' waiting';
-      h.push('<div class="' + cls + '">' + self.cellIcons(state, d, planeCount) +
-        '<span class="cell-no">' + d + '</span></div>');
+      if (isMe && d === 0 && state.waiting) cls += ' waiting';
+      h.push('<div class="' + cls + '" title="' + (d === 0 ? '机场' : '') + '">');
+      if (planeCount > 0) h.push(self.trafficOverlay(planeCount));
+      h.push('</div>');
     }
-    h.push('</div>');
+    h.push('</div></div>');
 
     var axisRules = logic.getApproachAxisRules(state);
     var ruleKeys = Object.keys(axisRules).filter(function (k) { return axisRules[k] && axisRules[k].length; });

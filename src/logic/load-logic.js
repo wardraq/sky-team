@@ -21,9 +21,12 @@ function loadRegistries(baseDir) {
   function runScript(relativePath) {
     const code = fs.readFileSync(path.join(baseDir, relativePath), 'utf8') +
       '\nif(typeof ScenarioRegistry!=="undefined")global.ScenarioRegistry=ScenarioRegistry;' +
-      '\nif(typeof ModuleRegistry!=="undefined")global.ModuleRegistry=ModuleRegistry;';
+      '\nif(typeof ModuleRegistry!=="undefined")global.ModuleRegistry=ModuleRegistry;' +
+      '\nif(typeof AirportTracks!=="undefined")global.AirportTracks=AirportTracks;' +
+      '\nif(typeof mergeTrack!=="undefined")global.mergeTrack=mergeTrack;';
     new Function(code)();
   }
+  runScript('src/scenarios/airport-tracks.js');
   runScript('src/scenarios/scenario-registry.js');
   runScript('src/scenarios/module-registry.js');
   return {

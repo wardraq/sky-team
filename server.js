@@ -223,6 +223,7 @@ function handleAction(conn, msg) {
   }
 
   if (!room.state) return;
+  GameLogic.ensureRerollPick(room.state);
   const s = room.state;
 
   try {
@@ -233,8 +234,24 @@ function handleAction(conn, msg) {
       case 'begin-roll':
         if (isPlayer && s.phase === 'discuss') s.phase = 'roll';
         break;
+      case 'begin-reroll':
+        if (isPlayer) {
+          var br = GameLogic.beginReroll(s);
+          if (br && !br.ok) { send(conn, { type: 'err', msg: br.why }); return; }
+        }
+        break;
+      case 'reroll-pick':
+        if (isPlayer) {
+          var pickArgs = Array.isArray(args[0]) && args.length === 1 ? args[0] : args;
+          var rp = GameLogic.submitRerollPick(s, role, pickArgs);
+          if (rp && !rp.ok) { send(conn, { type: 'err', msg: rp.why }); return; }
+        }
+        break;
       case 'reroll':
-        if (isPlayer) GameLogic.rerollAll(s);
+        if (isPlayer) {
+          var rb = GameLogic.beginReroll(s);
+          if (rb && !rb.ok) { send(conn, { type: 'err', msg: rb.why }); return; }
+        }
         break;
       case 'done-roll':
         if (isPlayer && s.phase === 'roll') { s.phase = 'place'; s.currentPlayer = s.startPlayer; }
@@ -378,5 +395,6 @@ server.listen(PORT, () => {
   console.log('  副驾:  http://localhost:' + PORT + '/?room=sky&role=copilot');
   console.log('  乘客:  http://localhost:' + PORT + '/?room=sky&role=passenger');
   console.log('  模块实验室: http://localhost:' + PORT + '/test/module-lab.html');
+  console.log('  着陆轮测试: http://localhost:' + PORT + '/test/landing-round-lab.html');
   console.log('==============================================');
 });

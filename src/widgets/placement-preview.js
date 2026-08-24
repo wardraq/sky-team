@@ -23,7 +23,7 @@ var PlacementPreview = {
       result.axisLabel = '⚡ 已生效';
     } else if (pa !== null && ca !== null) {
       var diff = Math.abs(pa - ca);
-      result.axis = state.axis + (pa > ca ? diff : -diff);
+      result.axis = state.axis + (pa > ca ? -diff : diff);
       result.axisLabel = '放置预览';
       result.isPreview = true;
     } else if (pa !== null || ca !== null) {

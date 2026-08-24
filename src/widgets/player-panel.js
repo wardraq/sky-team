@@ -16,8 +16,12 @@ var PlayerPanel = {
     var ui = ctx.ui;
     var viewCtx = ctx.viewCtx;
     var selected = ctx.selected;
+    var rerollSelected = ctx.rerollSelected || {};
+    var rerollActive = ctx.isRerollPicking;
+    var rerollDone = rerollActive && state.rerollPick && state.rerollPick[role] != null;
     var d = state.dice[role][idx];
     var sel = !d.used && selected && selected.role === role && selected.idx === idx ? ' selected' : '';
+    var rsel = rerollActive && !rerollDone && rerollSelected[idx] ? ' reroll-pick' : '';
     var cls = 'die ' + (role === 'pilot' ? 'pilot' : 'copilot');
     if (d.used) cls += ' used';
     var inner;
@@ -33,10 +37,12 @@ var PlayerPanel = {
       inner = cells.join('');
     }
     var attrs = ' data-role="' + role + '" data-idx="' + idx + '"';
-    if (!d.used && state.phase === 'place' && viewCtx.canOperate(role) && state.currentPlayer === role) {
+    if (rerollActive && !rerollDone && viewCtx.canOperate(role) && !d.used && (state.phase === 'place' || state.rolled[role])) {
+      attrs = ' data-act="reroll-pick-die"' + attrs;
+    } else if (!d.used && state.phase === 'place' && viewCtx.canOperate(role) && state.currentPlayer === role && !rerollActive) {
       attrs = ' data-act="pick-die"' + attrs;
     }
-    return '<div class="' + cls + sel + '"' + attrs + '>' + inner + '</div>';
+    return '<div class="' + cls + sel + rsel + '"' + attrs + '>' + inner + '</div>';
   },
 
   slotHTML: function (ctx, role, slotName) {
@@ -95,6 +101,9 @@ var PlayerPanel = {
     var ui = ctx.ui;
     var viewCtx = ctx.viewCtx;
     var selected = ctx.selected;
+    var rerollSelected = ctx.rerollSelected || {};
+    var rerollActive = ctx.isRerollPicking;
+    var rerollDone = rerollActive && state && state.rerollPick && state.rerollPick[role] != null;
     var isPilot = role === 'pilot';
     var duty = isPilot ? '起落架 · 无线电 · 刹车/☕（中栏）' : '襟翼 · 无线电 ×2 · ☕（中栏）';
 
@@ -121,8 +130,18 @@ var PlayerPanel = {
       h.push('<div class="dice-well"><div class="dice-row">');
       for (var i = 0; i < L.CONFIG.DICE_PER_PLAYER; i++) h.push(this.dieHTML(ctx, role, i));
       h.push('</div><div class="dice-actions">');
-      var canRoll = state.phase === 'roll' && !state.rolled[role] && viewCtx.canOperate(role);
+      var canRoll = state.phase === 'roll' && !state.rolled[role] && viewCtx.canOperate(role) && !rerollActive;
       if (canRoll) h.push('<button class="btn-primary" data-act="roll" data-role="' + role + '">🎲 掷骰（保密）</button>');
+      if (rerollActive && viewCtx.canOperate(role)) {
+        if (rerollDone) {
+          h.push('<span style="font-size:11px;color:var(--dim)">重掷已确认 ✓' +
+            (state.rerollPick && state.rerollPick.pilot != null && state.rerollPick.copilot != null ? '' : '，等待对方') + '</span>');
+        } else {
+          var rc = Object.keys(rerollSelected).filter(function (k) { return rerollSelected[k]; }).length;
+          h.push('<button type="button" data-act="reroll-confirm">🔄 确认重掷' + (rc ? '（' + rc + ' 颗）' : '') + '</button>');
+          h.push('<span style="font-size:11px;color:var(--dim);margin-left:6px">点选要重掷的骰子</span>');
+        }
+      }
       if (state.phase === 'roll' && state.rolled[role] && !viewCtx.canSee(role)) {
         h.push('<span style="font-size:11px;color:var(--dim)">已掷 ✓ 请勿偷看对方</span>');
       }

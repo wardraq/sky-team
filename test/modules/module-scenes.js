@@ -159,7 +159,7 @@ var ModulePreviewCatalog = {
         id: 'brake-seq',
         title: '场景 · 刹车顺序',
         desc: '着陆轮前需按 2→4→6 激活刹车，预留冰面主题样式。',
-        patch: { phase: 'place', round: 7, distance: 0, altitude: 1, landingRound: true },
+        patch: { phase: 'place', round: 7, distance: 0, altitude: 0, landingRound: true },
         modulePatch: { 'ice-brakes': {} }
       }
     ]

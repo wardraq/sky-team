@@ -80,7 +80,8 @@ var controller = createGameController({
   ui: ui,
   viewCtx: viewCtx,
   session: session,
-  flash: flash
+  flash: flash,
+  toast: toast
 });
 
 wsHandlers.onMessage = function (m) {
@@ -116,7 +117,7 @@ function renderAll() {
     PlayerPanel.render('copilot', ctx);
     CenterDashboard.mount(ctx);
     setDebug('online · role=' + ui.viewer + ' · room=' + ui.room +
-      ' · r' + state.round + '/' + L.CONFIG.ROUNDS + ' · ' + state.phase +
+      ' · r' + state.round + '/' + roundsMax(state) + ' · ' + state.phase +
       ' · alt' + state.altitude + ' · dist' + state.distance);
   } catch (e) {
     setDebug('RENDER ERR: ' + e.message);
@@ -177,9 +178,14 @@ function renderWaiting() {
     '<div class="sub" style="color:var(--dim)">把链接发给搭档（须同一关卡），两人都进入后自动开始。</div></div>';
 }
 
+function roundsMax(state) {
+  if (!state || !L.getScenarioConfig) return L.CONFIG.ROUNDS;
+  return L.getScenarioConfig(state).ROUNDS;
+}
+
 function renderTopbar(state) {
-  document.getElementById('chip-round').textContent = state ? state.round + '/' + L.CONFIG.ROUNDS : '—';
-  document.getElementById('chip-alt').textContent = state ? state.altitude : '—';
+  document.getElementById('chip-round').textContent = state ? state.round + '/' + roundsMax(state) : '—';
+  document.getElementById('chip-alt').textContent = state ? (state.altitude + 'ft') : '—';
   document.getElementById('chip-dist').textContent = state ? state.distance : '—';
   document.getElementById('chip-axis').textContent = state ? state.axis : '—';
   document.getElementById('chip-brake').textContent = state ? L.brakeValue(state) : '—';

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>着陆轮测试 · Sky Team</title>
+<link rel="stylesheet" href="modules/shared.css">
+<link rel="stylesheet" href="landing-round-lab.css">
+</head>
+<body>
+<header class="page-header">
+  <h1>🛬 着陆轮测试</h1>
+  <span class="sub">最后一轮 UI + 胜利 A–D 判定 · 预设场景 + 交互驱动</span>
+  <nav>
+    <a href="modules/index.html">模块索引</a>
+    <a href="module-lab.html">模块实验室</a>
+    <a href="/">游戏</a>
+  </nav>
+</header>
+
+<p class="win-rules">
+  <b>着陆轮触发：</b>普通轮 <code>distance=0</code> 且 <code>altitude=0</code> 结算后 → <code>roundEnd</code> → 下一轮 <code>landingRound=true</code>。
+  <b>胜利 A–D：</b>A 在机场 · B 姿态 0 · C 起落架+襟翼满 · D 无交通且引擎和 &lt; 刹车值（<code>2+2×brakesAct</code>）。
+</p>
+
+<div class="lab-layout">
+  <aside class="lab-sidebar">
+    <h3>预设场景</h3>
+    <div id="preset-list"></div>
+  </aside>
+
+  <main class="lab-main">
+    <div class="lab-toolbar">
+      <select id="preset-select"></select>
+      <button id="btn-load-preset">加载预设</button>
+      <button id="btn-reset">↺ 重置</button>
+      <span class="chip">phase: <b id="chip-phase">—</b></span>
+      <span class="chip">round: <b id="chip-round">—</b></span>
+      <span class="chip">landing: <b id="chip-landing">—</b></span>
+    </div>
+
+    <div class="lab-action-row" style="margin-bottom:12px">
+      <button data-flow="begin-roll">🎲 开始掷骰</button>
+      <button data-flow="roll-both">掷骰（双方）</button>
+      <button data-flow="done-roll">✔ 进入放置</button>
+      <button data-flow="auto-place-win">⚡ 自动放置（胜利配置）</button>
+      <button data-flow="resolve">✅ 结算</button>
+      <button data-flow="next-round">▶ 下一轮 / 进入着陆轮</button>
+    </div>
+
+    <div id="center"></div>
+  </main>
+
+  <aside class="lab-inspector">
+    <h3>胜利条件 A–D</h3>
+    <ul class="checklist" id="win-checklist"></ul>
+    <h3 style="margin-top:14px">关键状态</h3>
+    <pre id="lab-state">{}</pre>
+  </aside>
+</div>
+
+<h3 style="margin:24px 0 10px;font-size:13px;color:var(--dim);letter-spacing:1px">静态场景预览（并排对照）</h3>
+<div class="static-grid" id="static-scenes"></div>
+
+<script src="/src/logic/game-logic.js"></script>
+<script src="/src/scenarios/airport-tracks.js"></script>
+<script src="/src/scenarios/scenario-registry.js"></script>
+<script src="/src/scenarios/module-registry.js"></script>
+<script src="/src/widgets/placement-preview.js"></script>
+<script src="/src/widgets/phase-banner.js"></script>
+<script src="/src/widgets/approach.js"></script>
+<script src="/src/widgets/altitude.js"></script>
+<script src="/src/widgets/attitude.js"></script>
+<script src="/src/widgets/engine-bar.js"></script>
+<script src="/src/widgets/player-panel.js"></script>
+<script src="/src/widgets/brakes-board.js"></script>
+<script src="/src/widgets/reveal.js"></script>
+<script src="/src/widgets/final.js"></script>
+<script src="/src/widgets/log.js"></script>
+<script src="/src/widgets/center-dashboard.js"></script>
+<script src="landing-round-presets.js"></script>
+<script>
+'use strict';
+
+var LandingLab = {
+  state: null,
+  presetId: 'landing-discuss',
+
+  init: function () {
+    if (!window.GameLogic || !window.CenterDashboard) {
+      document.body.innerHTML = '<p style="padding:40px;color:#ffb4b4">请通过 node server.js 启动后访问 /test/landing-round-lab.html</p>';
+      return;
+    }
+    this.renderPresetUI();
+    this.loadPreset(this.presetId);
+    this.renderStaticScenes();
+    this.bindEvents();
+  },
+
+  ctx: function () {
+    return {
+      state: this.state,
+      logic: GameLogic,
+      ui: { mode: 'local', viewer: 'pilot', canSeeAll: true },
+      isRerollPicking: false
+    };
+  },
+
+  loadPreset: function (id) {
+    var s = LandingRoundPresets.build(id);
+    if (!s) return;
+    this.state = s;
+    this.presetId = id;
+    this.refresh();
+    document.querySelectorAll('.preset-btn').forEach(function (btn) {
+      btn.classList.toggle('active', btn.dataset.preset === id);
+    });
+    var sel = document.getElementById('preset-select');
+    if (sel) sel.value = id;
+  },
+
+  refresh: function () {
+    CenterDashboard.mount(this.ctx());
+    this.renderChips();
+    this.renderChecklist();
+    this.renderStateSnippet();
+    this.bindBannerActions();
+  },
+
+  renderPresetUI: function () {
+    var list = LandingRoundPresets.list();
+    document.getElementById('preset-list').innerHTML = list.map(function (p) {
+      return '<button type="button" class="preset-btn" data-preset="' + p.id + '">' +
+        p.title + '<small>' + p.desc + '</small></button>';
+    }).join('');
+    document.getElementById('preset-select').innerHTML = list.map(function (p) {
+      return '<option value="' + p.id + '">' + p.title + '</option>';
+    }).join('');
+  },
+
+  renderStaticScenes: function () {
+    var ids = ['round-end-trigger', 'landing-discuss', 'reveal-win', 'reveal-overspeed', 'result-win', 'result-lose'];
+    var html = ids.map(function (id) {
+      var meta = LandingRoundPresets.PRESETS[id];
+      var st = LandingRoundPresets.build(id);
+      var dash = CenterDashboard.render({ state: st, logic: GameLogic, ui: { mode: 'local', viewer: 'pilot' } });
+      return '<section class="static-card" id="scene-' + id + '">' +
+        '<h2>' + meta.title + '</h2><p>' + meta.desc + '</p>' + dash + '</section>';
+    }).join('');
+    document.getElementById('static-scenes').innerHTML = html;
+  },
+
+  renderChips: function () {
+    var s = this.state;
+    document.getElementById('chip-phase').textContent = s ? s.phase : '—';
+    document.getElementById('chip-round').textContent = s ? s.round : '—';
+    document.getElementById('chip-landing').textContent = s ? (s.landingRound ? '是' : '否') : '—';
+  },
+
+  effEngine: function () {
+    var s = this.state;
+    if (!s) return null;
+    var pe = GameLogic.effVal(s.placements.pilot.engine);
+    var ce = GameLogic.effVal(s.placements.copilot.engine);
+    if (pe === null || ce === null) return null;
+    return pe + ce;
+  },
+
+  renderChecklist: function () {
+    var s = this.state;
+    if (!s) return;
+    var cfg = GameLogic.CONFIG;
+    var brake = GameLogic.brakeValue(s);
+    var eng = this.effEngine();
+    var items = [
+      { id: 'A', label: '在机场（distance=0）', ok: s.distance === 0, detail: '距 ' + s.distance },
+      { id: 'B', label: '姿态水平（axis=0）', ok: s.axis === 0, detail: 'axis=' + s.axis },
+      { id: 'C', label: '起落架+襟翼满', ok: s.gearAct >= cfg.GEAR_COUNT && s.flapsAct >= cfg.FLAP_COUNT,
+        detail: 'G' + s.gearAct + '/' + cfg.GEAR_COUNT + ' F' + s.flapsAct + '/' + cfg.FLAP_COUNT },
+      { id: 'D', label: '无交通 & 引擎和 < 刹车', ok: s.traffic.length === 0 && eng !== null && eng < brake,
+        detail: eng === null ? '引擎未放置' : ('引擎' + eng + ' vs 刹车' + brake + ' · 交通×' + s.traffic.length) }
+    ];
+    document.getElementById('win-checklist').innerHTML = items.map(function (it) {
+      var cls = it.ok ? 'ok' : (s.landingRound && (s.phase === 'reveal' || s.phase === 'place') ? 'fail' : 'pending');
+      var icon = it.ok ? '✓' : (cls === 'fail' ? '✗' : '○');
+      return '<li class="' + cls + '">' + icon + ' <b>' + it.id + '</b> ' + it.label +
+        '<span class="tag">' + it.detail + '</span></li>';
+    }).join('');
+  },
+
+  renderStateSnippet: function () {
+    var s = this.state;
+    if (!s) return;
+    var view = {
+      phase: s.phase,
+      round: s.round,
+      landingRound: s.landingRound,
+      distance: s.distance,
+      altitude: s.altitude,
+      axis: s.axis,
+      gearAct: s.gearAct,
+      flapsAct: s.flapsAct,
+      brakesAct: s.brakesAct,
+      brakeValue: GameLogic.brakeValue(s),
+      traffic: s.traffic.length,
+      engineSum: this.effEngine()
+    };
+    document.getElementById('lab-state').textContent = JSON.stringify(view, null, 2);
+  },
+
+  bindBannerActions: function () {
+    var self = this;
+    var center = document.getElementById('center');
+    center.querySelectorAll('[data-act]').forEach(function (btn) {
+      btn.onclick = function () { self.runFlow(btn.dataset.act); };
+    });
+  },
+
+  bindEvents: function () {
+    var self = this;
+    document.getElementById('preset-list').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-preset]');
+      if (btn) self.loadPreset(btn.dataset.preset);
+    });
+    document.getElementById('btn-load-preset').onclick = function () {
+      self.loadPreset(document.getElementById('preset-select').value);
+    };
+    document.getElementById('btn-reset').onclick = function () {
+      self.loadPreset(self.presetId);
+    };
+    document.querySelector('.lab-action-row').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-flow]');
+      if (btn) self.runFlow(btn.dataset.flow);
+    });
+  },
+
+  runFlow: function (action) {
+    var s = this.state;
+    if (!s) return;
+    switch (action) {
+      case 'begin-roll':
+        if (s.phase === 'discuss') s.phase = 'roll';
+        break;
+      case 'roll-both':
+        if (s.phase === 'roll' || s.phase === 'discuss') {
+          if (s.phase === 'discuss') s.phase = 'roll';
+          GameLogic.rollDice(s, 'pilot');
+          GameLogic.rollDice(s, 'copilot');
+        }
+        break;
+      case 'done-roll':
+        if (s.phase === 'roll' && s.rolled.pilot && s.rolled.copilot) {
+          s.phase = 'place';
+          s.currentPlayer = s.startPlayer;
+        }
+        break;
+      case 'auto-place-win':
+        this.autoPlaceWin();
+        break;
+      case 'resolve':
+      case 'settle':
+        if (s.phase === 'reveal') GameLogic.resolveRound(s);
+        break;
+      case 'next-round':
+        if (s.phase === 'roundEnd') GameLogic.nextRound(s);
+        break;
+      default:
+        break;
+    }
+    this.refresh();
+  },
+
+  autoPlaceWin: function () {
+    var s = this.state;
+    if (s.phase === 'discuss') s.phase = 'roll';
+    if (s.phase === 'roll') {
+      GameLogic.rollDice(s, 'pilot');
+      GameLogic.rollDice(s, 'copilot');
+      s.phase = 'place';
+      s.currentPlayer = s.startPlayer;
+    }
+    prepAtAirportInline(s);
+    s.placements.pilot.axis = { v: 3, mod: 0, hidden: true };
+    s.placements.copilot.axis = { v: 3, mod: 0, hidden: true };
+    s.placements.pilot.engine = { v: 1, mod: 0, hidden: true };
+    s.placements.copilot.engine = { v: 2, mod: 0, hidden: true };
+    s.dice.pilot.forEach(function (d) { d.used = true; });
+    s.dice.copilot.forEach(function (d) { d.used = true; });
+    s.roundResolved = { axis: true, engine: true };
+    s.phase = 'reveal';
+    s.currentPlayer = null;
+    if (!s.log) s.log = [];
+    s.log.unshift({ msg: '（测试）自动放置完成 — 引擎 1+2，满足减速条件', cls: '', round: s.round });
+  }
+};
+
+function prepAtAirportInline(s) {
+  s.distance = 0;
+  s.altitude = 0;
+  s.landingRound = true;
+  s.traffic = [];
+  s.axis = 0;
+  s.gearAct = 3;
+  s.flapsAct = 4;
+  s.gearOn = { gear1: true, gear2: true, gear3: true };
+  s.flapsOn = { flap1: true, flap2: true, flap3: true, flap4: true };
+  s.brakesAct = 2;
+  s.brakesOn = { brake1: true, brake2: true, brake3: false };
+}
+
+LandingLab.init();
+</script>
+</body>
+</html>

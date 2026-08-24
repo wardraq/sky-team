@@ -30,9 +30,21 @@ function smokeScenario(id) {
   Logic.beginRound(s);
   assert(s.phase === 'discuss', id + ' begins in discuss');
 
+  if (id === 'test') {
+    assert(s.distance === 1, 'test distance 1 (2-cell track)');
+    assert(s.altitude === 1000, 'test altitude 1000');
+    assert(s.traffic.length === 1 && s.traffic[0] === 0, 'test 1 plane at airport');
+    assert(s.reroll === 1, 'test 1000ft beginRound 收入重掷');
+    assert(s.rerollOnTrack.indexOf(1000) === -1, 'test 1000ft 轨上重掷已收走');
+    assert(Logic.approachTrackCellCount(Logic.getScenarioConfig(s)) === 2, 'test 2 approach cells');
+    assert(Logic.altitudeTrackSteps(Logic.getScenarioConfig(s)).join(',') === '1000,0', 'test altitude steps');
+  }
   if (id === 'yul') {
     assert(s.traffic.indexOf(3) !== -1, 'yul traffic at 3');
-    assert(s.distance === 6, 'yul distance 6');
+    assert(s.traffic.filter(function (d) { return d === 0; }).length === 2, 'yul traffic ×2 at airport');
+    assert(s.traffic.filter(function (d) { return d === 1; }).length === 3, 'yul traffic ×3 at dist 1');
+    assert(s.traffic.filter(function (d) { return d === 7; }).length === 0, 'yul no traffic at dist 7');
+    assert(s.distance === 7, 'yul distance 7');
   }
   if (id === 'lhr') {
     assert(s.traffic.indexOf(1) !== -1 && s.traffic.indexOf(2) !== -1, 'lhr multi traffic');
