@@ -1,5 +1,5 @@
 /* ============================================================
- * 航道 Widget —— 距离格 + 空中交通警告
+ * 航道 Widget —— 距离格（6→0，含机场）+ 空中交通警告
  * ============================================================ */
 'use strict';
 
@@ -38,24 +38,30 @@ var ApproachWidget = {
     var cfg = logic.getScenarioConfig(state);
     var h = [];
     var self = this;
-    var trackCells = logic.approachTrackCellCount(cfg);
+    var dists = [];
+    for (var d = cfg.DISTANCE_START; d >= 0; d--) dists.push(d);
+    var trackCells = dists.length;
     var trackOffset = logic.approachTrackOffset(state, cfg);
 
     h.push('<div class="card"><h3>航道 · Approach</h3>');
-    h.push('<div class="track-viewport" style="--track-cells:' + trackCells + ';--track-offset:' + trackOffset + '">');
-    h.push('<div class="track-window" aria-hidden="true"></div><div class="approach-row track-row">');
-    for (var d = cfg.DISTANCE_START; d >= 0; d--) {
-      var planeCount = self.trafficAt(state, d);
-      var isMe = d === state.distance;
+    h.push('<div class="track-viewport approach-viewport" style="--track-cells:' + trackCells +
+      ';--track-offset:' + trackOffset + '">');
+    h.push('<div class="track-window" aria-hidden="true"></div>');
+    h.push('<div class="approach-row track-row">');
+    dists.forEach(function (dist) {
+      var planeCount = self.trafficAt(state, dist);
+      var isMe = dist === state.distance;
       var cls = 'app-cell';
-      if (d === 0) cls += ' airport';
+      if (dist === 0) cls += ' airport';
       if (planeCount > 0) cls += ' has-traffic' + (planeCount > 1 ? ' traffic-multi' : '');
       if (isMe && planeCount > 0) cls += ' traffic-here';
-      if (isMe && d === 0 && state.waiting) cls += ' waiting';
-      h.push('<div class="' + cls + '" title="' + (d === 0 ? '机场' : '') + '">');
+      if (isMe && dist === 0 && state.waiting) cls += ' waiting';
+      if (isMe && dist === 0) cls += ' airport-here';
+      h.push('<div class="' + cls + '" title="' + (dist === 0 ? '机场' : ('距 ' + dist)) + '">');
+      if (dist === 0) h.push('<span class="airport-label">机场</span>');
       if (planeCount > 0) h.push(self.trafficOverlay(planeCount));
       h.push('</div>');
-    }
+    });
     h.push('</div></div>');
 
     var axisRules = logic.getApproachAxisRules(state);

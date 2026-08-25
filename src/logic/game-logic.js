@@ -233,10 +233,19 @@ function approachTrackCellCount(cfg) {
   return start + 1;
 }
 
+/** 进近轨滑动段格数（不含右侧固定机场格） */
+function approachSlideCellCount(cfg) {
+  cfg = cfg || CONFIG;
+  var start = cfg.DISTANCE_START != null ? cfg.DISTANCE_START : CONFIG.DISTANCE_START;
+  return start;
+}
+
 function approachTrackOffset(state, cfg) {
   cfg = cfg || CONFIG;
   var start = cfg.DISTANCE_START != null ? cfg.DISTANCE_START : CONFIG.DISTANCE_START;
-  return start - state.distance;
+  var offset = start - state.distance;
+  if (offset < 0) offset = 0;
+  return offset;
 }
 
 function altitudeTrackOffset(state, cfg) {
@@ -782,7 +791,8 @@ var GameLogic = {
   radioTarget: radioTarget, radioDieForDistance: radioDieForDistance, isLandingRound: isLandingRound, isWaitingMode: isWaitingMode,
   checkApproachAxis: checkApproachAxis, collectAltitudeReroll: collectAltitudeReroll,
   getApproachAxisRules: getApproachAxisRules, altitudeTrackSteps: altitudeTrackSteps, altitudeStartRole: altitudeStartRole,
-  approachTrackCellCount: approachTrackCellCount, approachTrackOffset: approachTrackOffset, altitudeTrackOffset: altitudeTrackOffset,
+  approachTrackCellCount: approachTrackCellCount, approachSlideCellCount: approachSlideCellCount,
+  approachTrackOffset: approachTrackOffset, altitudeTrackOffset: altitudeTrackOffset,
   checkLandingWin: checkLandingWin,
   hasTraffic: hasTraffic, slotAllowed: slotAllowed, radioSlots: radioSlots
 };
