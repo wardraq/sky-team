@@ -44,7 +44,8 @@ function smokeScenario(id) {
     assert(s.traffic.filter(function (d) { return d === 0; }).length === 2, 'yul traffic ×2 at airport');
     assert(s.traffic.filter(function (d) { return d === 1; }).length === 3, 'yul traffic ×3 at dist 1');
     assert(s.traffic.filter(function (d) { return d === 7; }).length === 0, 'yul no traffic at dist 7');
-    assert(s.distance === 7, 'yul distance 7');
+    assert(s.traffic.filter(function (d) { return d === 6; }).length === 0, 'yul no traffic at dist 6');
+    assert(s.distance === 6, 'yul distance 6');
   }
   if (id === 'lhr') {
     assert(s.traffic.indexOf(1) !== -1 && s.traffic.indexOf(2) !== -1, 'lhr multi traffic');

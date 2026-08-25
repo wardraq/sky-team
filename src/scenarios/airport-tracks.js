@@ -14,7 +14,7 @@
 
 var AirportTracks = {
   yul: {
-    DISTANCE_START: 7,
+    DISTANCE_START: 6,
     TRAFFIC_START: [4, 3, 3, 2, 1, 1, 1, 0, 0],
     ALTITUDE_START: 6000,
     ALTITUDE_STEP: 1000,

@@ -22,7 +22,7 @@ window.addEventListener('unhandledrejection', function (e) {
 
 var L = window.GameLogic;
 if (!L) {
-  showError('逻辑层未加载。请运行 node server.js 后访问 http://localhost:8080/');
+  showError('逻辑层未加载。请运行 node server.js 后访问 http://localhost:8088/');
   throw new Error('GameLogic missing');
 }
 
@@ -150,7 +150,12 @@ function populateScenarioSelect() {
   sel.addEventListener('change', syncHint);
   var params = new URLSearchParams(location.search);
   var fromUrl = params.get('scenario');
-  if (fromUrl && ScenarioRegistry.isPlayable(fromUrl)) sel.value = ScenarioRegistry.get(fromUrl).id;
+  var defaultId = ScenarioRegistry.defaultId || 'yul';
+  if (fromUrl && ScenarioRegistry.isPlayable(fromUrl)) {
+    sel.value = ScenarioRegistry.get(fromUrl).id;
+  } else {
+    sel.value = defaultId;
+  }
   syncHint();
 }
 

@@ -1,11 +1,11 @@
 /* ============================================================
  * 天合小队 Sky Team —— 联机服务端（零依赖）
  * 职责：静态页面服务 + WebSocket 房间管理 + 规则仲裁 + 状态过滤
- * 运行：node server.js   （默认端口 8080，可用 PORT 覆盖）
+ * 运行：node server.js   （默认端口 8088，可用 PORT 覆盖）
  * 页面：
- *   机长  http://host:8080/?room=abc&role=pilot
- *   副驾  http://host:8080/?room=abc&role=copilot
- *   乘客  http://host:8080/?room=abc&role=passenger  （上帝视角观战）
+ *   机长  http://host:8088/?room=abc&role=pilot
+ *   副驾  http://host:8088/?room=abc&role=copilot
+ *   乘客  http://host:8088/?room=abc&role=passenger  （上帝视角观战）
  * ============================================================ */
 'use strict';
 const http = require('http');
@@ -14,7 +14,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const DIR = __dirname;
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8088;
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
 /* ---------- 逻辑层：从 src/logic/game-logic.js 加载（单点维护） ---------- */

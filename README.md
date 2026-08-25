@@ -11,7 +11,7 @@
 **环境**：Node.js 18+（无 npm 依赖、无构建步骤）
 
 ```bash
-# 启动服务（默认端口 8080）
+# 启动服务（默认端口 8088）
 node server.js
 
 # 静默模式（不打印启动横幅）
@@ -27,21 +27,22 @@ PORT=3000 node server.js
 nohup QUIET=1 node server.js > server.log 2>&1 &
 ```
 
-查看是否在跑：`lsof -i :8080` 或 `tail -f server.log`
+查看是否在跑：`lsof -i :8088` 或 `tail -f server.log`
 
-**停止服务**：前台 `Ctrl+C`；后台则 `lsof -ti :8080 | xargs kill`
+**停止服务**：前台 `Ctrl+C`；后台则 `lsof -ti :8088 | xargs kill`
 
 浏览器访问（本机）：
 
 | 入口 | URL |
 |------|-----|
-| 联机大厅 | http://localhost:8080/ |
-| 机长 | http://localhost:8080/?room=sky&role=pilot&scenario=yul |
-| 副驾 | http://localhost:8080/?room=sky&role=copilot&scenario=yul |
+| 联机大厅 | http://localhost:8088/ |
+| 游戏指导 | http://localhost:8088/guide.html |
+| 机长 | http://localhost:8088/?room=sky&role=pilot&scenario=yul |
+| 副驾 | http://localhost:8088/?room=sky&role=copilot&scenario=yul |
 | 测试机场（短轨） | `…&scenario=test` |
-| 观战（只读） | http://localhost:8080/?room=sky&role=passenger |
-| 模块实验室 | http://localhost:8080/test/module-lab.html |
-| 着陆轮测试 | http://localhost:8080/test/landing-round-lab.html |
+| 观战（只读） | http://localhost:8088/?room=sky&role=passenger |
+| 模块实验室 | http://localhost:8088/test/module-lab.html |
+| 着陆轮测试 | http://localhost:8088/test/landing-round-lab.html |
 
 **局域网联机**：在同一 Wi‑Fi 下，把 `localhost` 换成主机局域网 IP（如 `192.168.1.10`），`room` 与 `scenario` 两边保持一致。
 
@@ -73,7 +74,7 @@ nohup QUIET=1 node server.js > server.log 2>&1 &
 | 集中精力 ☕ | 共用 ×3 | 任意，获得咖啡 token（上限 3） |
 
 **普通轮引擎**：引擎和与 **蓝标记** 比较，决定前进格数或悬停。  
-**着陆轮引擎**：第二颗引擎放上时与 **刹车值**（`2 + 2×已激活刹车数`）比较，须 **引擎和 < 刹车值**。
+**着陆轮引擎**：第二颗引擎放上时与 **刹车值**（`2×已激活刹车数`，初始 **0**，最高 **6**）比较，须 **引擎和 < 刹车值**。
 
 **重掷**：轮初经过高度轨 🔄 格收入标记；使用时双方 **各选任意颗** 自己骰子重掷（须分别确认）。  
 **咖啡**：放置前在己方骰子上 ±1 修正（消耗 token）。

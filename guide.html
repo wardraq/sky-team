@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>游戏指导 · 天合小队 Sky Team</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg0: #0c141d; --bg1: #141f2b; --bg2: #1b2a39; --bg3: #243545;
+    --edge: #2e4155; --edge-hi: #3c5269; --text: #dfe9f2; --dim: #8193a5;
+    --blue: #4aa8ff; --orange: #ff9440; --green: #3ddc84; --amber: #ffc53d; --red: #ff5a5a;
+    --mono: "SF Mono", Menlo, Consolas, monospace;
+    --nav-w: 220px;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: radial-gradient(120% 90% at 50% 0%, #16222f 0%, var(--bg0) 60%);
+    color: var(--text); line-height: 1.65; font-size: 14px;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .layout { display: flex; min-height: 100vh; }
+  nav.guide-nav {
+    position: sticky; top: 0; width: var(--nav-w); height: 100vh; flex-shrink: 0;
+    padding: 20px 14px; border-right: 1px solid var(--edge);
+    background: linear-gradient(180deg, var(--bg1), var(--bg0)); overflow-y: auto;
+  }
+  nav.guide-nav h1 { font-size: 15px; letter-spacing: 1px; margin-bottom: 4px; }
+  nav.guide-nav .back { font-size: 12px; color: var(--dim); display: block; margin-bottom: 18px; }
+  nav.guide-nav ul { list-style: none; }
+  nav.guide-nav li { margin-bottom: 2px; }
+  nav.guide-nav a {
+    display: block; padding: 7px 10px; border-radius: 8px; font-size: 13px; color: var(--dim);
+    text-decoration: none; border: 1px solid transparent;
+  }
+  nav.guide-nav a:hover { color: var(--text); background: var(--bg2); }
+  nav.guide-nav a.active { color: var(--amber); border-color: #6b5826; background: #2a2010; font-weight: 600; }
+
+  main { flex: 1; max-width: 920px; padding: 28px 32px 80px; }
+  .hero { margin-bottom: 36px; }
+  .hero h2 { font-size: 28px; letter-spacing: 2px; margin-bottom: 8px; }
+  .hero .lead { color: #c3d0dd; font-size: 15px; max-width: 640px; }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .pill {
+    font-size: 11px; padding: 4px 10px; border-radius: 999px;
+    background: var(--bg2); border: 1px solid var(--edge); color: var(--dim);
+  }
+
+  section { margin-bottom: 48px; scroll-margin-top: 20px; }
+  section > h2 {
+    font-size: 20px; margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--edge); letter-spacing: 1px;
+  }
+  section > h3 { font-size: 15px; color: var(--blue); margin: 20px 0 8px; }
+  p, li { color: #c3d0dd; font-size: 14px; }
+  ul, ol { padding-left: 22px; margin: 8px 0; }
+  li { margin: 4px 0; }
+  .note {
+    background: var(--bg2); border: 1px solid var(--edge); border-left: 3px solid var(--amber);
+    border-radius: 8px; padding: 10px 14px; margin: 12px 0; font-size: 13px; color: #c3d0dd;
+  }
+  .note strong { color: var(--amber); }
+
+  /* 流程时间线 */
+  .timeline { display: flex; flex-direction: column; gap: 0; margin: 16px 0; }
+  .tl-step {
+    display: grid; grid-template-columns: 48px 1fr; gap: 12px; position: relative;
+    padding-bottom: 20px;
+  }
+  .tl-step:not(:last-child)::before {
+    content: ""; position: absolute; left: 23px; top: 36px; bottom: 0; width: 2px; background: var(--edge);
+  }
+  .tl-num {
+    width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 18px; background: var(--bg2); border: 2px solid var(--edge-hi);
+    z-index: 1;
+  }
+  .tl-body { background: var(--bg1); border: 1px solid var(--edge); border-radius: 10px; padding: 12px 14px; }
+  .tl-body h4 { font-size: 14px; margin-bottom: 4px; }
+  .tl-body p { font-size: 13px; color: var(--dim); margin: 0; }
+
+  /* 界面地图 */
+  .cockpit-map {
+    display: grid; grid-template-columns: 1fr 1.35fr 1fr; grid-template-rows: auto 1fr auto;
+    gap: 8px; margin: 20px 0; padding: 12px; background: var(--bg1);
+    border: 1px solid var(--edge); border-radius: 14px;
+  }
+  .map-topbar {
+    grid-column: 1 / -1; padding: 8px 12px; background: var(--bg2); border-radius: 8px;
+    font-size: 11px; color: var(--dim); display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  }
+  .map-chip { background: var(--bg3); border: 1px solid var(--edge); border-radius: 4px; padding: 2px 7px; font-family: var(--mono); font-size: 10px; }
+  .map-panel {
+    border: 2px dashed var(--edge); border-radius: 10px; padding: 10px; min-height: 200px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .map-panel.pilot { border-color: rgba(74,168,255,.45); }
+  .map-panel.copilot { border-color: rgba(255,148,64,.45); }
+  .map-panel .label { font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
+  .map-panel.pilot .label { color: var(--blue); }
+  .map-panel.copilot .label { color: var(--orange); }
+  .map-center { display: flex; flex-direction: column; gap: 6px; }
+  .map-block {
+    position: relative; padding: 8px 10px 8px 36px; background: var(--bg2); border: 1px solid var(--edge);
+    border-radius: 8px; font-size: 11px; color: var(--dim); cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .map-block:hover, .map-block.highlight { border-color: var(--amber); background: #2a2010; color: var(--text); }
+  .map-block .n {
+    position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+    width: 22px; height: 22px; border-radius: 50%; background: var(--bg3); border: 1px solid var(--edge-hi);
+    display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--amber);
+  }
+
+  /* 组件卡片 */
+  .comp-grid { display: grid; gap: 12px; }
+  .comp-card {
+    background: var(--bg1); border: 1px solid var(--edge); border-radius: 12px; padding: 14px 16px;
+    scroll-margin-top: 24px; transition: border-color .2s, box-shadow .2s;
+  }
+  .comp-card.highlight { border-color: var(--amber); box-shadow: 0 0 0 1px rgba(255,197,61,.25); }
+  .comp-card .head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .comp-card .num {
+    font-family: var(--mono); font-size: 11px; color: var(--amber); background: #2a2010;
+    padding: 2px 8px; border-radius: 4px; border: 1px solid #6b5826;
+  }
+  .comp-card h4 { font-size: 15px; }
+  .comp-card .where { font-size: 11px; color: var(--dim); font-family: var(--mono); }
+  .comp-card p { font-size: 13px; margin: 6px 0 0; }
+  .comp-card ul { margin-top: 6px; font-size: 13px; }
+
+  table.slot-table {
+    width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px;
+  }
+  table.slot-table th, table.slot-table td {
+    border: 1px solid var(--edge); padding: 8px 10px; text-align: left;
+  }
+  table.slot-table th { background: var(--bg2); color: var(--dim); font-weight: 600; }
+  table.slot-table th.th-pilot { color: var(--blue); }
+  table.slot-table th.th-copilot { color: var(--orange); }
+  table.slot-table td { vertical-align: top; }
+  table.slot-table .p { color: var(--blue); font-weight: 600; }
+  table.slot-table .c { color: var(--orange); font-weight: 600; }
+  table.slot-table .muted { color: var(--dim); }
+  table.slot-table .shared { text-align: center; color: var(--amber); font-weight: 600; }
+  .slot-intro { font-size: 13px; color: var(--dim); margin-bottom: 4px; }
+
+  .faq dt { font-weight: 700; color: var(--text); margin-top: 14px; font-size: 14px; }
+  .faq dd { color: var(--dim); font-size: 13px; margin: 4px 0 0 0; padding-left: 0; }
+
+  @media (max-width: 900px) {
+    .layout { flex-direction: column; }
+    nav.guide-nav { position: relative; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--edge); }
+    main { padding: 20px 16px 60px; }
+    .cockpit-map { grid-template-columns: 1fr; }
+    .map-topbar { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="guide-nav" aria-label="指导目录">
+    <h1>📖 游戏指导</h1>
+    <a class="back" href="/">← 返回大厅</a>
+    <ul>
+      <li><a href="#start" data-nav="start">5 分钟上手</a></li>
+      <li><a href="#flow" data-nav="flow">每轮流程</a></li>
+      <li><a href="#map" data-nav="map">界面地图</a></li>
+      <li><a href="#lobby" data-nav="lobby">① 联机大厅</a></li>
+      <li><a href="#topbar" data-nav="topbar">② 顶栏状态</a></li>
+      <li><a href="#panels" data-nav="panels">③ 左右面板</a></li>
+      <li><a href="#center" data-nav="center">④ 中央仪表</a></li>
+      <li><a href="#slots" data-nav="slots">槽位速查</a></li>
+      <li><a href="#tips" data-nav="tips">协作与 FAQ</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <div class="hero">
+      <h2>天合小队 · 怎么玩</h2>
+      <p class="lead">
+        这是一份<b>可随时查阅</b>的新手指导：先读「5 分钟上手」和「每轮流程」，开玩后把本页留在第二个标签页，
+        用<b>界面地图</b>对照屏幕上的每个区域。比弹窗规则更适合边玩边查。
+      </p>
+      <div class="pill-row">
+        <span class="pill">👥 双人联机</span>
+        <span class="pill">🎲 掷骰后禁谈点数</span>
+        <span class="pill">🛬 7 轮内降落</span>
+        <span class="pill">📱 机长 / 副驾各开一页</span>
+      </div>
+    </div>
+
+    <section id="start">
+      <h2>5 分钟上手</h2>
+      <ol>
+        <li>运行 <code>node server.js</code>，浏览器打开 <a href="/">大厅</a>。</li>
+        <li>输入相同<b>房间号</b>，选择同一<b>关卡</b>。</li>
+        <li>两人分别点<b>机长</b>（蓝）与<b>副驾</b>（橙），各开一个标签页。</li>
+        <li>都进入后自动开局。每轮：讨论 → 秘密掷骰 → 轮流放骰 → 确认结算。</li>
+        <li>第 7 轮（或提前到达机场进入<b>着陆轮</b>）满足全部条件即胜利。</li>
+      </ol>
+      <div class="note"><strong>核心技巧：</strong>掷骰后不能告诉对方「我掷了几点」，只能通过<b>放哪个槽位、什么顺序</b>来传递信息。讨论阶段可以商量策略，但不能说具体点数。</div>
+    </section>
+
+    <section id="flow">
+      <h2>每轮流程</h2>
+      <div class="timeline">
+        <div class="tl-step">
+          <div class="tl-num">1</div>
+          <div class="tl-body"><h4>策略讨论 discuss</h4><p>公开商量「这轮要不要清飞机」「谁放引擎」等，<b>禁止提骰子点数</b>。准备好后点「开始掷骰」。</p></div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-num">2</div>
+          <div class="tl-body"><h4>秘密掷骰 roll</h4><p>各自点「掷骰」，4 颗骰子只有你自己能看到。对方界面显示 🔒。双方都掷完后进入放置。</p></div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-num">3</div>
+          <div class="tl-body"><h4>轮流放置 place</h4><p>机长 / 副驾交替操作：点一颗骰 →（可选）用 ☕ 修正 → 点空槽位。姿态、引擎第二颗放上会<b>立即结算</b>。8 颗放满进入揭示。</p></div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-num">4</div>
+          <div class="tl-body"><h4>揭示结算 reveal</h4><p>确认本轮结果：降低高度、检查终局条件。可在此阶段用剩余 ☕ 微调已放置的骰（若规则允许）。</p></div>
+        </div>
+      </div>
+      <p>轮内任意时刻可消耗 🔄 <b>重掷标记</b>：双方各自点选要重掷的骰子，各重掷一次（放置阶段仅限未用骰）。</p>
+    </section>
+
+    <section id="map">
+      <h2>界面地图</h2>
+      <p>点击下方色块，跳转到对应说明。布局与游戏中驾驶舱一致：左机长 · 中仪表 · 右副驾。</p>
+      <div class="cockpit-map" id="cockpit-map">
+        <div class="map-topbar">
+          <span>顶栏</span>
+          <span class="map-chip">房间</span><span class="map-chip">关卡</span><span class="map-chip">轮次</span>
+          <span class="map-chip">高度</span><span class="map-chip">距机场</span><span class="map-chip">姿态</span>
+          <span class="map-chip">☕</span><span class="map-chip">🔄</span>
+          <span class="map-chip">📖规则</span>
+        </div>
+        <div class="map-panel pilot">
+          <div class="label">👨‍✈️ 机长面板</div>
+          <div class="map-block" data-target="comp-dice"><span class="n">A</span>骰子区 + 操作提示</div>
+          <div class="map-block" data-target="comp-axis"><span class="n">B</span>姿态 · 引擎 · 无线电</div>
+          <div class="map-block" data-target="comp-gear"><span class="n">C</span>起落架 ×3</div>
+        </div>
+        <div class="map-center">
+          <div class="map-block" data-target="comp-phase"><span class="n">1</span>阶段横幅 + 按钮</div>
+          <div class="map-block" data-target="comp-approach"><span class="n">2</span>航道</div>
+          <div class="map-block" data-target="comp-altitude"><span class="n">3</span>高度轨</div>
+          <div class="map-block" data-target="comp-attitude"><span class="n">4</span>姿态仪</div>
+          <div class="map-block" data-target="comp-engine"><span class="n">5</span>引擎 / 速度标记</div>
+          <div class="map-block" data-target="comp-brakes"><span class="n">6</span>刹车 + ☕ 集中精力</div>
+          <div class="map-block" data-target="comp-log"><span class="n">7</span>飞行日志 / 终局</div>
+        </div>
+        <div class="map-panel copilot">
+          <div class="label">👩‍✈️ 副驾面板</div>
+          <div class="map-block" data-target="comp-dice"><span class="n">A</span>骰子区 + 操作提示</div>
+          <div class="map-block" data-target="comp-axis"><span class="n">B</span>姿态 · 引擎 · 无线电×2</div>
+          <div class="map-block" data-target="comp-flaps"><span class="n">D</span>襟翼 ×4</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="lobby">
+      <h2>① 联机大厅</h2>
+      <div class="comp-grid">
+        <article class="comp-card" id="comp-lobby">
+          <div class="head"><span class="num">大厅</span><h4>进入游戏前</h4></div>
+          <p class="where">#lobby-screen · 首次打开页面</p>
+          <ul>
+            <li><b>房间号</b>：两人必须一致，例如 <code>sky</code>。</li>
+            <li><b>关卡</b>：下拉选择场景；机长选关后副驾会同步。</li>
+            <li><b>角色卡片</b>：机长 / 副驾 / 乘客（观战只读）。</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="topbar">
+      <h2>② 顶栏状态</h2>
+      <div class="comp-grid">
+        <article class="comp-card" id="comp-topbar">
+          <div class="head"><span class="num">顶栏</span><h4>全局快照</h4></div>
+          <p class="where">header.topbar · 游戏中顶部</p>
+          <ul>
+            <li><b>◀</b> 离开房间回到大厅。</li>
+            <li><b>轮次</b> 当前第几轮 / 共 7 轮。</li>
+            <li><b>高度</b> 当前高度（英尺）；与高度轨同步。</li>
+            <li><b>距机场</b> 航道上的距离格，0 = 到达机场。</li>
+            <li><b>姿态</b> 水平仪读数，0 为水平，±3 尾旋坠毁。</li>
+            <li><b>刹车值</b> 着陆轮速度上限，随刹车槽激活增加。</li>
+            <li><b>☕</b> 剩余咖啡 token，放置时可修正骰点。</li>
+            <li><b>🔄</b> 剩余重掷标记数量。</li>
+            <li><b>📖 规则</b> 打开简短规则弹窗（本页更详细）。</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="panels">
+      <h2>③ 左右面板</h2>
+      <div class="comp-grid">
+        <article class="comp-card" id="comp-dice">
+          <div class="head"><span class="num">A</span><h4>骰子区</h4><span class="where">panel-pilot / panel-copilot 顶部</span></div>
+          <p>你的 4 颗骰子。放置阶段轮到你时高亮；已用的骰变灰。对方掷骰阶段你只能看到自己的点数。</p>
+          <ul>
+            <li><b>掷骰</b>：roll 阶段点击，结果仅自己可见。</li>
+            <li><b>☕ 修正预览条</b>：选中骰子后出现 +1 / −1 / 清除，与剩余 token 联动。</li>
+            <li>黄色提示条会说明当前该做什么（轮到你了 / 等待对方等）。</li>
+          </ul>
+        </article>
+        <article class="comp-card" id="comp-axis">
+          <div class="head"><span class="num">B</span><h4>姿态 · 引擎 · 无线电</h4></div>
+          <p><b>姿态 / 引擎</b>：双方各 1 槽，<b>强制</b>每轮必须各放 1 颗。第二颗放上时立即比较并倾斜 / 推进。</p>
+          <p><b>无线电</b>：机长 1 槽；副驾「·左」「·右」2 槽。骰点 N = 从当前位置数第 N 格，清除该格飞机（1=当前格，2=前方第一格…）。</p>
+        </article>
+        <article class="comp-card" id="comp-gear">
+          <div class="head"><span class="num">C</span><h4>起落架（机长）</h4><span class="where">左侧面板</span></div>
+          <p>3 个槽：限 1/2、3/4、5/6，<b>顺序任意</b>。激活后蓝速度标记前移，终局须全部激活。</p>
+        </article>
+        <article class="comp-card" id="comp-flaps">
+          <div class="head"><span class="num">D</span><h4>襟翼（副驾）</h4><span class="where">右侧面板</span></div>
+          <p>4 个槽须按 1/2 → 2/3 → 4/5 → 5/6 <b>顺序</b>激活。每激活一档橙速度标记前移。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="center">
+      <h2>④ 中央仪表</h2>
+      <div class="comp-grid">
+        <article class="comp-card" id="comp-phase">
+          <div class="head"><span class="num">1</span><h4>阶段横幅</h4></div>
+          <p>显示当前阶段与操作说明；右侧按钮随阶段变化（开始掷骰 / 完成放置 / 确认结算 / 重掷确认等）。</p>
+        </article>
+        <article class="comp-card" id="comp-approach">
+          <div class="head"><span class="num">2</span><h4>航道</h4></div>
+          <p>距离 6 → 0 的进近格。✈️ = 你的位置；🛩 = 交通飞机。警告条会提示撞机风险与无线电所需骰点。</p>
+        </article>
+        <article class="comp-card" id="comp-altitude">
+          <div class="head"><span class="num">3</span><h4>高度轨</h4></div>
+          <p>每轮结算下降一格。边框颜色表示该高度<b>谁先手</b>（蓝=机长，橙=副驾）。🔄 格轮初收入重掷标记；着陆高度格显示 🛬。</p>
+        </article>
+        <article class="comp-card" id="comp-attitude">
+          <div class="head"><span class="num">4</span><h4>姿态仪</h4></div>
+          <p>人工水平仪：双方姿态骰比较后倾斜。放置阶段会显示预览。终局必须完全水平 (0)。</p>
+        </article>
+        <article class="comp-card" id="comp-engine">
+          <div class="head"><span class="num">5</span><h4>引擎 / 速度</h4></div>
+          <p>双骰之和对比<b>蓝、橙</b>标记：低于蓝悬停；蓝~橙前进 1；高于橙前进 2。放置阶段显示预览与撞机警告。</p>
+        </article>
+        <article class="comp-card" id="comp-brakes">
+          <div class="head"><span class="num">6</span><h4>刹车 & 集中精力</h4></div>
+          <p><b>刹车</b>：机长 2→4→6 顺序激活，刻度轨 0（2 左侧）→ 2 → 4 → 6；每激活一档标记 +2。<b>☕</b>：共用 3 个放骰槽，获得 token；放任意骰时可消耗修正 ±1。</p>
+        </article>
+        <article class="comp-card" id="comp-log">
+          <div class="head"><span class="num">7</span><h4>日志 & 终局</h4></div>
+          <p><b>飞行日志</b>：记录每轮关键事件（姿态、引擎、无线电、失败原因等）。终局卡片显示胜利 / 失败与统计。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="slots">
+      <h2>槽位速查</h2>
+      <p class="slot-intro">数字表示该角色有几个放骰槽；「强制」= 每轮必须各放 1 颗。侧栏槽在左右面板，标「中央」的在中间仪表区。</p>
+      <table class="slot-table">
+        <thead>
+          <tr>
+            <th>槽位</th>
+            <th class="th-pilot">👨‍✈️ 机长</th>
+            <th class="th-copilot">👩‍✈️ 副驾</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>姿态</td>
+            <td class="p">1 槽 · 强制</td>
+            <td class="c">1 槽 · 强制</td>
+            <td>双方各放 1 颗；<b>第二颗</b>放上后比较并倾斜</td>
+          </tr>
+          <tr>
+            <td>引擎</td>
+            <td class="p">1 槽 · 强制</td>
+            <td class="c">1 槽 · 强制</td>
+            <td>双方各放 1 颗；<b>第二颗</b>放上后决定前进格数</td>
+          </tr>
+          <tr>
+            <td>无线电</td>
+            <td class="p">1 槽</td>
+            <td class="c">2 槽（左 / 右）</td>
+            <td>任意点数；骰点 N = 从当前位置数第 N 格，清除该格飞机</td>
+          </tr>
+          <tr>
+            <td>起落架</td>
+            <td class="p">3 槽</td>
+            <td class="muted">—</td>
+            <td>限 1/2、3/4、5/6，<b>顺序不限</b>；每激活一档蓝速度标记 +1</td>
+          </tr>
+          <tr>
+            <td>襟翼</td>
+            <td class="muted">—</td>
+            <td class="c">4 槽</td>
+            <td>须按 1/2 → 2/3 → 4/5 → 5/6 <b>顺序</b>激活；橙速度标记 +1</td>
+          </tr>
+          <tr>
+            <td>刹车</td>
+            <td class="p">3 槽 · 中央</td>
+            <td class="muted">—</td>
+            <td>须按 2 → 4 → 6 <b>顺序</b>激活；标记 0→2→4→6（最高 6）</td>
+          </tr>
+          <tr>
+            <td>集中精力 ☕</td>
+            <td colspan="2" class="shared">共用 3 槽 · 中央</td>
+            <td>放入获 ☕ token；之后放任意骰时可消耗，修正 ±1</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="tips">
+      <h2>协作与 FAQ</h2>
+      <dl class="faq">
+        <dt>为什么对方看不到我的骰子？</dt>
+        <dd>联机版由服务端过滤状态，roll 阶段隐藏对方点数——这是 Sky Team 的核心机制，不是 bug。</dd>
+        <dt>无线电放了为什么飞机还在？</dt>
+        <dd>清除哪一格由<b>骰点</b>决定，不是槽位名。例如在前方 1 格有飞机时，需要骰点 <b>2</b>（1=当前格）。</dd>
+        <dt>经过有飞机的格子会撞吗？</dt>
+        <dd>官方规则：仅当<b>当前位置</b>有飞机且你必须前进时才撞机；单纯经过前方格可以存活。</dd>
+        <dt>本地怎么双人测试？</dt>
+        <dd>同一浏览器开两个标签，分别进机长和副驾，房间号与关卡保持一致。</dd>
+        <dt>想看更完整规则？</dt>
+        <dd>游戏内 📖 规则弹窗，或仓库内 <code>docs/DESIGN.md</code>、<code>docs/SkyTeam.zh.md</code>。</dd>
+      </dl>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  var navLinks = document.querySelectorAll('nav.guide-nav a[data-nav]');
+  var sections = [];
+  navLinks.forEach(function (a) {
+    var id = a.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if (el) sections.push({ id: id, el: el, link: a });
+  });
+
+  function onScroll() {
+    var y = window.scrollY + 80;
+    var current = sections[0];
+    sections.forEach(function (s) {
+      if (s.el.offsetTop <= y) current = s;
+    });
+    navLinks.forEach(function (a) { a.classList.remove('active'); });
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  document.querySelectorAll('.map-block[data-target]').forEach(function (block) {
+    block.addEventListener('click', function () {
+      var id = block.getAttribute('data-target');
+      var target = document.getElementById(id);
+      if (!target) return;
+      document.querySelectorAll('.comp-card.highlight').forEach(function (c) { c.classList.remove('highlight'); });
+      document.querySelectorAll('.map-block.highlight').forEach(function (b) { b.classList.remove('highlight'); });
+      block.classList.add('highlight');
+      target.classList.add('highlight');
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -7,7 +7,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 
 const HOST = '127.0.0.1';
-const PORT = parseInt(process.argv[2] || '8080', 10);
+const PORT = parseInt(process.argv[2] || '8088', 10);
 
 /* 逻辑层（用于决策） */
 const { loadGameLogic } = require(path.join(ROOT, 'src/logic/load-logic'));
