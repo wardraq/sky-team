@@ -138,7 +138,14 @@
     border: 1px solid var(--edge); padding: 8px 10px; text-align: left;
   }
   table.slot-table th { background: var(--bg2); color: var(--dim); font-weight: 600; }
-  table.slot-table .p { color: var(--blue); } table.slot-table .c { color: var(--orange); }
+  table.slot-table th.th-pilot { color: var(--blue); }
+  table.slot-table th.th-copilot { color: var(--orange); }
+  table.slot-table td { vertical-align: top; }
+  table.slot-table .p { color: var(--blue); font-weight: 600; }
+  table.slot-table .c { color: var(--orange); font-weight: 600; }
+  table.slot-table .muted { color: var(--dim); }
+  table.slot-table .shared { text-align: center; color: var(--amber); font-weight: 600; }
+  .slot-intro { font-size: 13px; color: var(--dim); margin-bottom: 4px; }
 
   .faq dt { font-weight: 700; color: var(--text); margin-top: 14px; font-size: 14px; }
   .faq dd { color: var(--dim); font-size: 13px; margin: 4px 0 0 0; padding-left: 0; }
@@ -355,16 +362,58 @@
 
     <section id="slots">
       <h2>槽位速查</h2>
+      <p class="slot-intro">数字表示该角色有几个放骰槽；「强制」= 每轮必须各放 1 颗。侧栏槽在左右面板，标「中央」的在中间仪表区。</p>
       <table class="slot-table">
-        <thead><tr><th>槽位</th><th>归属</th><th>限制</th><th>效果</th></tr></thead>
+        <thead>
+          <tr>
+            <th>槽位</th>
+            <th class="th-pilot">👨‍✈️ 机长</th>
+            <th class="th-copilot">👩‍✈️ 副驾</th>
+            <th>说明</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td>姿态</td><td class="p">机长</td><td class="c">副驾</td><td>强制；第二颗放上比较倾斜</td></tr>
-          <tr><td>引擎</td><td class="p">机长</td><td class="c">副驾</td><td>强制；第二颗放上决定前进格数</td></tr>
-          <tr><td>无线电</td><td class="p">×1</td><td class="c">×2</td><td>任意点数；清除对应格飞机</td></tr>
-          <tr><td>起落架</td><td class="p">×3</td><td>—</td><td>1/2、3/4、5/6；蓝标记 +1</td></tr>
-          <tr><td>襟翼</td><td>—</td><td class="c">×4</td><td>按顺序；橙标记 +1</td></tr>
-          <tr><td>刹车</td><td class="p">×3</td><td>—</td><td>2→4→6 顺序；刹车值 +2</td></tr>
-          <tr><td>集中精力 ☕</td><td colspan="2">共用 ×3</td><td>获 token；放置时修正骰 ±1</td></tr>
+          <tr>
+            <td>姿态</td>
+            <td class="p">1 槽 · 强制</td>
+            <td class="c">1 槽 · 强制</td>
+            <td>双方各放 1 颗；<b>第二颗</b>放上后比较并倾斜</td>
+          </tr>
+          <tr>
+            <td>引擎</td>
+            <td class="p">1 槽 · 强制</td>
+            <td class="c">1 槽 · 强制</td>
+            <td>双方各放 1 颗；<b>第二颗</b>放上后决定前进格数</td>
+          </tr>
+          <tr>
+            <td>无线电</td>
+            <td class="p">1 槽</td>
+            <td class="c">2 槽（左 / 右）</td>
+            <td>任意点数；骰点 N = 从当前位置数第 N 格，清除该格飞机</td>
+          </tr>
+          <tr>
+            <td>起落架</td>
+            <td class="p">3 槽</td>
+            <td class="muted">—</td>
+            <td>限 1/2、3/4、5/6，<b>顺序不限</b>；每激活一档蓝速度标记 +1</td>
+          </tr>
+          <tr>
+            <td>襟翼</td>
+            <td class="muted">—</td>
+            <td class="c">4 槽</td>
+            <td>须按 1/2 → 2/3 → 4/5 → 5/6 <b>顺序</b>激活；橙速度标记 +1</td>
+          </tr>
+          <tr>
+            <td>刹车</td>
+            <td class="p">3 槽 · 中央</td>
+            <td class="muted">—</td>
+            <td>须按 2 → 4 → 6 <b>顺序</b>激活；刹车值 +2</td>
+          </tr>
+          <tr>
+            <td>集中精力 ☕</td>
+            <td colspan="2" class="shared">共用 3 槽 · 中央</td>
+            <td>放入获 ☕ token；之后放任意骰时可消耗，修正 ±1</td>
+          </tr>
         </tbody>
       </table>
     </section>
