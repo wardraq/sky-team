@@ -36,6 +36,7 @@ nohup QUIET=1 node server.js > server.log 2>&1 &
 | 入口 | URL |
 |------|-----|
 | 联机大厅 | http://localhost:8080/ |
+| 游戏指导 | http://localhost:8080/guide.html |
 | 机长 | http://localhost:8080/?room=sky&role=pilot&scenario=yul |
 | 副驾 | http://localhost:8080/?room=sky&role=copilot&scenario=yul |
 | 测试机场（短轨） | `…&scenario=test` |
