@@ -94,7 +94,7 @@ var LandingRoundPresets = (function () {
     },
     'reveal-win': {
       title: '揭示 · 可胜利',
-      desc: '引擎 1+2=3 < 刹车 6，满足 A–D',
+      desc: '引擎 1+2=3 < 刹车 4，满足 A–D',
       build: function () {
         var s = baseYul();
         prepAtAirport(s);
@@ -106,7 +106,7 @@ var LandingRoundPresets = (function () {
     },
     'reveal-overspeed': {
       title: '揭示 · 速度过快',
-      desc: '引擎 4+3=7 ≥ 刹车 6 → 失败',
+      desc: '引擎 4+3=7 ≥ 刹车 4 → 失败',
       build: function () {
         var s = PRESETS['reveal-win'].build();
         prepReveal(s, 3, 3, 4, 3);

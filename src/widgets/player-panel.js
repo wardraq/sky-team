@@ -155,12 +155,15 @@ var PlayerPanel = {
           if (selected && selected.role === role && ctx.pendingCoffee) {
             var pv = ctx.pendingCoffeePreview ? ctx.pendingCoffeePreview(state) : null;
             var pc = ctx.pendingCoffee;
-            var spent = pc.plus + pc.minus;
+            var spent = pc.spent != null ? pc.spent : ((pc.plus || 0) + (pc.minus || 0));
+            var baseV = state.dice[role][selected.idx].v;
             if (pv !== null && (spent > 0 || state.coffee > 0)) {
+              var costHint = spent > 0 ? ('将消耗 ' + spent + ' 枚') : '可选修正';
               h.push('<div class="hide-banner coffee-preview"><span class="coffee-preview-text">☕ 修正预览：' +
-                state.dice[role][selected.idx].v + ' → <b>' + pv + '</b>（+' + pc.plus + '/−' + pc.minus + '，剩 ' + state.coffee + '）</span>' +
+                baseV + ' → <b>' + pv + '</b>（' + costHint + '，池内 ' + state.coffee + '）</span>' +
                 '<span class="coffee-preview-actions">' +
-                (state.coffee > spent ? '<button type="button" data-act="coffee-plus">+1</button><button type="button" data-act="coffee-minus">−1</button>' : '') +
+                (ctx.canAdjustCoffeePreview && ctx.canAdjustCoffeePreview(1) ? '<button type="button" data-act="coffee-plus">+1</button>' : '') +
+                (ctx.canAdjustCoffeePreview && ctx.canAdjustCoffeePreview(-1) ? '<button type="button" data-act="coffee-minus">−1</button>' : '') +
                 (spent > 0 ? '<button type="button" data-act="coffee-clear">清除</button>' : '') +
                 '</span></div>');
             }

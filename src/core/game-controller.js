@@ -11,7 +11,7 @@ function createGameController(options) {
   var listeners = [];
   var state = null;
   var selected = null;
-  var pendingCoffee = { plus: 0, minus: 0 };
+  var pendingAdjust = 0;
   var rerollSelected = {};
   var localRerollMode = false;
   var flashFn = options.flash || function () {};
@@ -58,30 +58,39 @@ function createGameController(options) {
 
   function clearSelected() {
     selected = null;
-    pendingCoffee = { plus: 0, minus: 0 };
+    pendingAdjust = 0;
+  }
+
+  function pendingCoffeePayload() {
+    return {
+      plus: pendingAdjust > 0 ? pendingAdjust : 0,
+      minus: pendingAdjust < 0 ? -pendingAdjust : 0,
+      adjust: pendingAdjust,
+      spent: Math.abs(pendingAdjust)
+    };
   }
 
   function pendingCoffeePreview(state) {
     if (!selected || !state) return null;
     var d = state.dice[selected.role][selected.idx];
     if (!d || d.used) return null;
-    return clampDie(d.v + pendingCoffee.plus - pendingCoffee.minus);
+    return clampDie(d.v + pendingAdjust);
   }
 
   function clampDie(v) {
     return Math.max(1, Math.min(6, v));
   }
 
-  function canSpendCoffee(state, delta) {
+  function canAdjustCoffee(state, delta) {
     if (!state || state.phase !== 'place' || state.coffee <= 0) return false;
     if (!selected || state.currentPlayer !== selected.role) return false;
     if (ui.viewer !== selected.role) return false;
     var d = state.dice[selected.role][selected.idx];
     if (!d || d.used) return false;
-    var spent = pendingCoffee.plus + pendingCoffee.minus;
-    if (spent >= state.coffee) return false;
-    var nv = d.v + pendingCoffee.plus - pendingCoffee.minus + (delta > 0 ? 1 : -1);
-    return nv >= 1 && nv <= 6;
+    var next = pendingAdjust + delta;
+    var nv = d.v + next;
+    if (nv < 1 || nv > 6) return false;
+    return Math.abs(next) <= state.coffee;
   }
 
   function isPlayer() {
@@ -143,19 +152,19 @@ function createGameController(options) {
         return;
 
       case 'coffee-plus':
-        if (!canSpendCoffee(state, 1)) return;
-        pendingCoffee.plus++;
+        if (!canAdjustCoffee(state, 1)) return;
+        pendingAdjust++;
         notify();
         return;
 
       case 'coffee-minus':
-        if (!canSpendCoffee(state, -1)) return;
-        pendingCoffee.minus++;
+        if (!canAdjustCoffee(state, -1)) return;
+        pendingAdjust--;
         notify();
         return;
 
       case 'coffee-clear':
-        pendingCoffee = { plus: 0, minus: 0 };
+        pendingAdjust = 0;
         notify();
         return;
 
@@ -173,8 +182,13 @@ function createGameController(options) {
           return;
         }
         if (state.dice[role][idx].used) return;
-        selected = (selected && selected.role === role && selected.idx === idx)
-          ? null : { role: role, idx: idx };
+        if (selected && selected.role === role && selected.idx === idx) {
+          selected = null;
+          pendingAdjust = 0;
+        } else {
+          selected = { role: role, idx: idx };
+          pendingAdjust = 0;
+        }
         notify();
         return;
 
@@ -190,9 +204,10 @@ function createGameController(options) {
           flashFn('先点一个自己的骰子，再点槽位');
           return;
         }
-        session.sendAction('place', [selected.idx, slot, pendingCoffee.plus, pendingCoffee.minus]);
+        var pc = pendingCoffeePayload();
+        session.sendAction('place', [selected.idx, slot, pc.plus, pc.minus]);
         selected = null;
-        pendingCoffee = { plus: 0, minus: 0 };
+        pendingAdjust = 0;
         return;
 
       case 'coffee':
@@ -227,10 +242,11 @@ function createGameController(options) {
       viewCtx: viewCtx,
       state: state,
       selected: selected,
-      pendingCoffee: pendingCoffee,
+      pendingCoffee: pendingCoffeePayload(),
       rerollSelected: rerollSelected,
       isRerollPicking: isRerollPicking(),
       pendingCoffeePreview: pendingCoffeePreview,
+      canAdjustCoffeePreview: function (delta) { return canAdjustCoffee(state, delta); },
       emit: dispatch
     };
   }
@@ -241,7 +257,7 @@ function createGameController(options) {
     setState: setState,
     getState: getState,
     getSelected: getSelected,
-    getPendingCoffee: function () { return pendingCoffee; },
+    getPendingCoffee: function () { return pendingCoffeePayload(); },
     clearSelected: clearSelected,
     clearRerollMode: clearRerollMode,
     getContext: getContext,

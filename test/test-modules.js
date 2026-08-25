@@ -72,8 +72,8 @@ console.log('[traffic] 空中交通（logicOwner: core）');
   assert(s.traffic.filter(function (d) { return d === 1; }).length === 3, '左数第 7 格（距 1）有 3 架飞机');
   assert(s.traffic.filter(function (d) { return d === 4; }).length === 1, '左数第 4 格（距 4）有 1 架飞机');
   assert(s.traffic.filter(function (d) { return d === 5; }).length === 0, '左数第 3 格（距 5）无飞机');
-  assert(s.traffic.filter(function (d) { return d === 7; }).length === 0, '左数第 1 格（距 7）无飞机');
-  assert(s.distance === 7, 'YUL 初始位置距 7');
+  assert(s.traffic.filter(function (d) { return d === 6; }).length === 0, '左数第 1 格（距 6）无飞机');
+  assert(s.distance === 6, 'YUL 初始位置距 6');
   assert(Logic.hasTraffic(s, 3), 'hasTraffic(3)');
 
   const s2 = Logic.newGame('training');
@@ -307,6 +307,13 @@ console.log('\n[slot-rules] 起落架 / 襟翼 / 刹车点数与顺序');
   s.brakesOn.brake1 = true;
   assert(Logic.slotAllowed(s, 'pilot', 'brake2', 4).ok, 'brake1 后 brake2 接受点数 4');
 
+  s = Logic.newGame('yul');
+  assert(Logic.brakeValue(s) === 0, 'brakeValue 初始 0');
+  s.brakesAct = 1;
+  assert(Logic.brakeValue(s) === 2, 'brakeValue 激活 1 档 = 2');
+  s.brakesAct = 3;
+  assert(Logic.brakeValue(s) === 6, 'brakeValue 激活 3 档 = 6');
+
   s = prepPlace('copilot');
   assert(!Logic.slotAllowed(s, 'copilot', 'flap2', 2).ok, '未激活 flap1 时不可放 flap2');
   assert(Logic.slotAllowed(s, 'copilot', 'flap1', 1).ok, 'flap1 接受点数 1');
@@ -334,6 +341,28 @@ console.log('\n[slot-rules] 起落架 / 襟翼 / 刹车点数与顺序');
   s.gearOn.gear1 = true;
   s.gearAct = 1;
   assert(Logic.slotAllowed(s, 'pilot', 'gear1', 1).ok, '已激活起落架槽仍可放置（无效果）');
+}
+
+console.log('\n[coffee] 放置时修正消耗按净变化计');
+{
+  function prepCoffeePlace() {
+    const s = Logic.newGame('yul');
+    s.phase = 'place';
+    s.currentPlayer = 'pilot';
+    s.dice.pilot[0].v = 6;
+    s.dice.pilot[0].used = false;
+    s.coffee = 3;
+    return s;
+  }
+  let s = prepCoffeePlace();
+  Logic.placeDie(s, 'pilot', 0, 'axis', { coffeePlus: 0, coffeeMinus: 2 });
+  assert(s.coffee === 1, '6→4 消耗 2 枚咖啡');
+  assert(Logic.effVal(s.placements.pilot.axis) === 4, '修正后点数为 4');
+
+  s = prepCoffeePlace();
+  Logic.placeDie(s, 'pilot', 0, 'axis', { coffeePlus: 2, coffeeMinus: 2 });
+  assert(s.coffee === 3, 'plus/minus 抵消时不消耗咖啡');
+  assert(Logic.effVal(s.placements.pilot.axis) === 6, '抵消后仍为 6');
 }
 
 console.log('\n[axis] 姿态倾斜方向（大点向该侧）');
@@ -376,11 +405,11 @@ console.log('\n[landing] 蒙特利尔着陆轮流程');
   }
   const s0 = Logic.newGame('yul');
   assert(s0.altitude === 6000, 'YUL 初始高度 6000ft');
-  assert(Logic.approachTrackOffset(s0) === 0, '初始距 7 → 航道偏移 0');
+  assert(Logic.approachTrackOffset(s0) === 0, '初始距 6 → 航道偏移 0');
   assert(Logic.altitudeTrackOffset(s0) === 0, '初始 6000ft → 高度偏移 0');
   s0.distance = 4;
   s0.altitude = 4000;
-  assert(Logic.approachTrackOffset(s0) === 3, '距 4 → 航道左移 3 格');
+  assert(Logic.approachTrackOffset(s0) === 2, '距 4 → 航道左移 2 格');
   assert(Logic.altitudeTrackOffset(s0) === 2, '4000ft → 高度左移 2 格');
   s0.distance = 0;
   s0.altitude = 1000;

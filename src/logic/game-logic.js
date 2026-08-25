@@ -10,14 +10,14 @@ var CONFIG = {
   ALTITUDE_START: 6000,
   ALTITUDE_STEP: 1000,
   ALTITUDE_MIN: 0,
-  DISTANCE_START: 7,
+  DISTANCE_START: 6,
   AXIS_LIMIT: 3,
   TRAFFIC_START: [4, 3, 3, 2, 1, 1, 1, 0, 0],
   BLUE_START: 5,
   BLUE_MAX: 8,
   ORANGE_START: 8,
   ORANGE_MAX: 12,
-  BRAKE_BASE: 2,
+  BRAKE_BASE: 0,
   BRAKE_STEP: 2,
   COFFEE_MAX: 3,
   COFFEE_SLOT_COUNT: 3,
@@ -662,10 +662,10 @@ function placeDie(s, role, dieIdx, slotName, opts) {
 
   var cPlus = Math.max(0, opts.coffeePlus | 0);
   var cMinus = Math.max(0, opts.coffeeMinus | 0);
-  var coffeeSpent = cPlus + cMinus;
-  if (coffeeSpent > s.coffee) return { ok: false, why: '咖啡不足（需要 ' + coffeeSpent + '，剩余 ' + s.coffee + '）' };
   var finalV = die.v + cPlus - cMinus;
   if (finalV < 1 || finalV > 6) return { ok: false, why: '咖啡修正后点数须在 1~6（当前 ' + finalV + '）' };
+  var coffeeSpent = Math.abs(finalV - die.v);
+  if (coffeeSpent > s.coffee) return { ok: false, why: '咖啡不足（需要 ' + coffeeSpent + '，剩余 ' + s.coffee + '）' };
 
   var chk = slotAllowed(s, role, slotName, finalV);
   if (!chk.ok) return { ok: false, why: chk.why };
@@ -675,7 +675,7 @@ function placeDie(s, role, dieIdx, slotName, opts) {
   setPlacement(s, role, slotName, { v: die.v, mod: finalV - die.v });
   if (coffeeSpent > 0) {
     s.coffee -= coffeeSpent;
-    logPush(s, '☕ 放置前修正骰子 ' + die.v + ' → ' + finalV + '（+' + cPlus + '/−' + cMinus + '，剩 ' + s.coffee + '）');
+    logPush(s, '☕ 放置前修正骰子 ' + die.v + ' → ' + finalV + '（消耗 ' + coffeeSpent + '，剩 ' + s.coffee + '）');
   }
   logPush(s, ROLES[role] + ' 在「' + def.name + '」放置骰子' + (finalV !== die.v ? '（' + finalV + '）' : ''));
   applyPlacementEffect(s, role, slotName);

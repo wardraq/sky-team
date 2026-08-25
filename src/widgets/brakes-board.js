@@ -7,7 +7,7 @@
 var BrakesBoardWidget = {
   brakeTrackHTML: function (state, logic) {
     var val = logic.brakeValue(state);
-    var marks = [2, 3, 4, 5, 6];
+    var marks = [0, 2, 3, 4, 5, 6];
     var h = ['<div class="brake-track" aria-label="刹车刻度轨">'];
     h.push('<span class="brake-track-label">刹车</span>');
     marks.forEach(function (m) {

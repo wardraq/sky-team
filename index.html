@@ -559,7 +559,7 @@
     <span class="chip">高度 <b id="chip-alt">7</b></span>
     <span class="chip">距机场 <b id="chip-dist">6</b></span>
     <span class="chip">姿态 <b id="chip-axis">0</b></span>
-    <span class="chip">刹车值 <b id="chip-brake">2</b></span>
+    <span class="chip">刹车值 <b id="chip-brake">0</b></span>
     <span class="chip">☕ <b id="chip-coffee">0/3</b></span>
     <span class="chip" id="mode-tag">联机</span>
     <span class="chip" id="peer-chip" style="display:none"></span>
@@ -595,7 +595,7 @@
       <li><b>集中精力</b>：共用 ☕ 槽 ×3，放置获得 token（上限 3）；<b>放置任意骰时</b>可消耗 ☕ 修正该骰 ±1（不越 1~6，不循环）。</li>
       <li><b>起落架（机长）×3</b>：限 1/2、3/4、5/6，任意顺序；每激活蓝标记 +1（初始 5，满档 8）。已激活槽可再放但无效果。</li>
       <li><b>襟翼（副驾）×4</b>：限 1/2→2/3→4/5→5/6 按序；每激活橙标记 +1（初始 8）。</li>
-      <li><b>刹车（机长）×3</b>：按序 2→4→6；每激活刹车值 +2（初始 2）。<b>着陆轮</b>（到机场且高度≤1）引擎和须 &lt; 刹车值。</li>
+      <li><b>刹车（机长）×3</b>：按序 2→4→6；每激活一档标记右移（初始 <b>0</b>，最高 <b>6</b>）。<b>着陆轮</b>（到机场且高度≤1）引擎和须 &lt; 刹车值；至少须激活第一档（标记 ≥2）才能刹停。</li>
     </ul>
     <h4>轨道</h4>
     <ul>
