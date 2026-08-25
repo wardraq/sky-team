@@ -21,17 +21,6 @@ var ApproachWidget = {
     return h.join('');
   },
 
-  trafficSummary: function (traffic) {
-    var counts = {};
-    traffic.forEach(function (d) {
-      counts[d] = (counts[d] || 0) + 1;
-    });
-    return Object.keys(counts).sort(function (a, b) { return b - a; }).map(function (d) {
-      var label = d === '0' ? '机场' : d;
-      return counts[d] > 1 ? label + '（×' + counts[d] + '）' : label;
-    }).join('、');
-  },
-
   render: function (ctx) {
     var state = ctx.state;
     var logic = ctx.logic;
@@ -68,22 +57,14 @@ var ApproachWidget = {
     }
 
     if (state.traffic.length > 0) {
-      var sorted = state.traffic.slice().sort(function (a, b) { return b - a; });
-      var ahead = sorted.filter(function (dist) { return dist < state.distance; });
-      var nextDanger = ahead.length > 0 ? ahead[0] : null;
-      var trafficMsg = '⚠ 空中交通：距离 ' + self.trafficSummary(state.traffic) + ' 处有飞机';
-      if (nextDanger !== null) {
-        var needVal = logic.radioDieForDistance(state, nextDanger);
-        var stepsAhead = state.distance - nextDanger;
-        if (logic.hasTraffic(state, state.distance)) {
-          trafficMsg += '（当前位置有飞机，必须前进将撞机——无线电骰点 ' + needVal + ' 可清除，或悬停）';
-        } else {
-          trafficMsg += '（前方 ' + stepsAhead + ' 格处有飞机——可前进经过；若下轮停在该格且需前进则须先清障。无线电骰点 ' + needVal + ' 可清除）';
-        }
+      var danger = logic.hasTraffic(state, state.distance);
+      var trafficMsg = '⚠ 无线电驱离：骰点 <b>N</b> = 从当前位置起第 <b>N</b> 格（1=本格），清除该格 <b>1 架</b>飞机；同格多架须多次清除。';
+      if (danger) {
+        trafficMsg += ' 本格有飞机时须前进，否则撞机；可悬停（引擎和 &lt; 蓝标记）或无线电清障。';
       } else {
-        trafficMsg += '（已通过 — 安全）';
+        trafficMsg += ' 可前进经过占机格；若下轮停在该格且须前进，须先清障。';
       }
-      h.push('<div style="margin-top:8px;padding:6px 10px;background:' + (nextDanger !== null ? '#3a1a1a' : '#0f3a26') + ';border-radius:6px;font-size:12px;color:' + (nextDanger !== null ? '#ffb4b4' : '#3ddc84') + '">' + trafficMsg + '</div>');
+      h.push('<div style="margin-top:8px;padding:6px 10px;background:#3a1a1a;border-radius:6px;font-size:12px;color:#ffb4b4;line-height:1.55">' + trafficMsg + '</div>');
     } else {
       h.push('<div style="margin-top:8px;padding:6px 10px;background:#0f3a26;border-radius:6px;font-size:12px;color:#3ddc84">✓ 路径清空</div>');
     }
