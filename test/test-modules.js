@@ -412,6 +412,8 @@ console.log('\n[landing] 蒙特利尔着陆轮流程');
   assert(Logic.approachTrackOffset(s0) === 2, '距 4 → 航道左移 2 格');
   assert(Logic.altitudeTrackOffset(s0) === 2, '4000ft → 高度左移 2 格');
   s0.distance = 0;
+  assert(Logic.approachTrackOffset(s0) === 6, '距 0（机场）→ 偏移 6');
+  assert(Logic.approachTrackCellCount(Logic.getScenarioConfig(s0)) === 7, 'YUL 航道共 7 格含机场');
   s0.altitude = 1000;
   s0.gearAct = 3;
   s0.flapsAct = 4;
