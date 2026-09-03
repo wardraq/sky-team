@@ -109,8 +109,29 @@ var GuidePreview = {
     document.getElementById('guide-app').style.flexDirection = 'column';
     document.getElementById('guide-app').style.minHeight = '100vh';
 
-    this.state = this.scene === 'landing' ? this.buildLanding() : this.buildMidGame();
+    this.state = this.scene === 'landing' ? this.buildLanding()
+      : (this.scene === 'round1' ? this.buildRound1() : this.buildMidGame());
     this.render();
+  },
+
+  buildRound1: function () {
+    var s = GameLogic.newGame('yul');
+    GameLogic.collectAltitudeReroll(s);
+    s.round = 1;
+    s.phase = 'place';
+    s.currentPlayer = 'pilot';
+    s.startPlayer = 'pilot';
+    s.rolled = { pilot: true, copilot: true };
+    s.dice.pilot = [
+      { v: 5, used: false }, { v: 2, used: false }, { v: 6, used: false }, { v: 3, used: false }
+    ];
+    s.dice.copilot = [
+      { v: 4, used: false }, { v: 1, used: false }, { v: 5, used: false }, { v: 2, used: false }
+    ];
+    if (!s.log) s.log = [];
+    s.log.unshift({ msg: '🔄 高度 6000 英尺获得重掷标记', cls: '', round: 1 });
+    s.log.unshift({ msg: '✈ 第 1 轮放置：高度 6000ft · 距机场 6 · 蓝标记在 4 与 5 之间', cls: '', round: 1 });
+    return s;
   },
 
   buildMidGame: function () {

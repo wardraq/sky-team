@@ -260,6 +260,7 @@
       <p>以下为与正式对局<b>完全一致</b>的 UI 只读预览（真实 Widget 渲染，非示意图）。切换场景对照不同阶段的屏幕。</p>
       <div class="ui-tabs" role="tablist" aria-label="界面场景">
         <button type="button" class="ui-tab active" data-scene="lobby" role="tab" aria-selected="true">联机大厅</button>
+        <button type="button" class="ui-tab" data-scene="round1" role="tab">对局中 · 第 1 轮</button>
         <button type="button" class="ui-tab" data-scene="game" role="tab">对局中 · 第 4 轮</button>
         <button type="button" class="ui-tab" data-scene="landing" role="tab">着陆轮</button>
       </div>
@@ -394,7 +395,7 @@
         </article>
         <article class="comp-card" id="comp-engine">
           <div class="head"><span class="num">5</span><h4>引擎 / 速度</h4></div>
-          <p>双骰之和对比<b>蓝、橙</b>标记：低于蓝悬停；蓝~橙前进 1；高于橙前进 2。放置阶段显示预览与撞机警告。</p>
+          <p>双骰之和对比<b>蓝、橙</b>标记。蓝标记夹在两数之间（初始 4 与 5 之间），故和 = 5 已越过蓝、前进 1；低于蓝才悬停；蓝~橙前进 1；高于橙前进 2。放置阶段显示预览与撞机警告。</p>
         </article>
         <article class="comp-card" id="comp-brakes">
           <div class="head"><span class="num">6</span><h4>刹车 & 集中精力</h4></div>
@@ -507,11 +508,13 @@
 
   var sceneDesc = {
     lobby: '进入游戏前：输入房间号、选关卡、各自选机长 / 副驾角色（各开一个标签页）。',
+    round1: '第 1 轮开局（place 阶段）：高度 6000ft、距机场 6；蓝标记在 4 与 5 之间，橙标记在 8 与 9 之间；尚未放置任何骰。',
     game: '对局中（place 阶段）：机长轮到自己，姿态已放、引擎待放；航道距 3、高度 3000ft，示例交通与槽位状态。',
     landing: '着陆轮 discuss 阶段：已到机场且高度 0；起落架 / 襟翼已满，刹车 2 档；下一轮须满足 A–D 胜利条件。'
   };
   var uiFrame = document.getElementById('guide-ui-frame');
   var uiDesc = document.getElementById('ui-scene-desc');
+  var uiOpen = document.querySelector('.ui-open-link');
   document.querySelectorAll('.ui-tab[data-scene]').forEach(function (tab) {
     tab.addEventListener('click', function () {
       var scene = tab.getAttribute('data-scene');
@@ -521,6 +524,7 @@
       });
       if (uiFrame) uiFrame.src = '/guide-preview.html?scene=' + scene;
       if (uiDesc && sceneDesc[scene]) uiDesc.textContent = sceneDesc[scene];
+      if (uiOpen) uiOpen.href = '/guide-preview.html?scene=' + scene;
     });
   });
 

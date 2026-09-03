@@ -326,6 +326,46 @@ console.log('\n[slot-rules] 起落架 / 襟翼 / 刹车点数与顺序');
   assert(!Logic.tryResolveEngineImmediate(s), '1 档刹车时引擎 1+1=2 < 3 成功');
   assert(s.phase !== 'lose', '引擎 2 不因限速 3 判负');
 
+  loadScript('src/widgets/engine-bar.js');
+  var Aero = global.EngineBarWidget;
+  assert(!!Aero, 'EngineBarWidget 可加载');
+  var cellW = 100 / 11;
+  assert(Math.abs(Aero.blueDividerPct(5) - 3 * cellW) < 0.01, '蓝标记 5 落在 4 与 5 之间的格缝');
+  assert(Math.abs(Aero.orangeDividerPct(8) - 7 * cellW) < 0.01, '橙标记 8 落在 8 与 9 之间的格缝');
+  assert(Aero.orangeDividerPct(12) === 100, '橙标记满档刚过 12，落在最右沿');
+
+  assert(Logic.blueMarkLabel(5) === '4 与 5 之间', '蓝标记 5 展示为 4 与 5 之间');
+  assert(Logic.orangeMarkLabel(8) === '8 与 9 之间', '橙标记 8 展示为 8 与 9 之间');
+  assert(Logic.engineAdvanceSpaces(4, 5, 8) === 0, '和 4 未过 4–5 间蓝标记 → 悬停');
+  assert(Logic.engineAdvanceSpaces(5, 5, 8) === 1, '和 5 已过 4–5 间蓝标记 → 前进 1');
+  assert(Logic.engineAdvanceSpaces(8, 5, 8) === 1, '和 8 未过 8–9 间橙标记 → 前进 1');
+  assert(Logic.engineAdvanceSpaces(9, 5, 8) === 2, '和 9 已过 8–9 间橙标记 → 前进 2');
+  assert(Logic.engineAdvanceSpaces(5, 6, 8) === 0, '1 档起落架后蓝在 5–6 间，和 5 悬停');
+
+  function engineCase(blue, orange, pe, ce) {
+    var g = Logic.newGame('training');
+    g.phase = 'place';
+    g.distance = 6;
+    g.traffic = [];
+    g.waiting = false;
+    g.landingRound = false;
+    g.blueMark = blue;
+    g.orangeMark = orange;
+    g.roundResolved = { axis: false, engine: false };
+    g.placements.pilot.engine = { v: pe, mod: 0 };
+    g.placements.copilot.engine = { v: ce, mod: 0 };
+    Logic.tryResolveEngineImmediate(g);
+    return g;
+  }
+  var e4 = engineCase(5, 8, 1, 3);
+  assert(e4.distance === 6 && e4.phase !== 'lose', '1+3=4 低于 4–5 间蓝标记，悬停');
+  var e5 = engineCase(5, 8, 2, 3);
+  assert(e5.distance === 5 && e5.phase !== 'lose', '2+3=5 已越过 4–5 间蓝标记，前进 1');
+  var e8 = engineCase(5, 8, 4, 4);
+  assert(e8.distance === 5, '4+4=8 未越过 8–9 间橙标记，前进 1');
+  var e9 = engineCase(5, 8, 5, 4);
+  assert(e9.distance === 4, '5+4=9 已越过 8–9 间橙标记，前进 2');
+
   s = prepPlace('copilot');
   assert(!Logic.slotAllowed(s, 'copilot', 'flap2', 2).ok, '未激活 flap1 时不可放 flap2');
   assert(Logic.slotAllowed(s, 'copilot', 'flap1', 1).ok, 'flap1 接受点数 1');

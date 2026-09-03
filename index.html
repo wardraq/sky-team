@@ -319,11 +319,13 @@
   .ai-read .ai-side-hint .ai-side.pilot { color: var(--blue); }
   .ai-read .ai-side-hint .ai-side.copilot { color: var(--orange); }
 
-  /* 空气动力学条 */
-  .aero-box { position: relative; height: 30px; background: var(--bg1); border-radius: 6px; border: 1px solid var(--edge); margin-top: 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,.5); }
-  .aero-box .tick { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(223,233,242,.16); }
-  .aero-box .tick span { position: absolute; top: 2px; left: 3px; font-size: 9.5px; color: var(--dim); font-family: var(--mono); }
-  .aero-mark { position: absolute; top: -5px; width: 6px; height: 40px; border-radius: 2px; transition: left .3s; box-shadow: 0 0 10px currentColor; }
+  /* 空气动力学条：11 格圆点（2–12），标记夹在两格之间 */
+  .aero-box { position: relative; height: 36px; background: var(--bg1); border-radius: 6px; border: 1px solid var(--edge); margin-top: 6px; box-shadow: inset 0 2px 5px rgba(0,0,0,.5); }
+  .aero-cells { display: flex; height: 100%; position: relative; z-index: 1; }
+  .aero-cell { flex: 1; display: flex; align-items: center; justify-content: center; border-right: 1px solid rgba(223,233,242,.12); }
+  .aero-cell:last-child { border-right: none; }
+  .aero-cell span { font-size: 11px; color: var(--dim); font-family: var(--mono); line-height: 1; }
+  .aero-mark { position: absolute; top: -4px; bottom: -4px; width: 7px; margin-left: -3.5px; border-radius: 2px; transition: left .3s; box-shadow: 0 0 10px currentColor; z-index: 2; }
   .aero-mark.blue { background: var(--blue); color: var(--blue-glow); }
   .aero-mark.orange { background: var(--orange); color: var(--orange-glow); }
   .aero-zone { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: rgba(74,168,255,.14); transition: left .3s, width .3s; }
@@ -440,7 +442,7 @@
   /* 高度轨（方格尺寸与航道一致；边框色 = 该高度先手：6000 蓝、5000 橙…） */
   .alt-row { display: flex; gap: 4px; }
   .alt-cell {
-    flex: 1; height: 54px; border: 1px solid var(--edge); border-radius: 8px;
+    flex: 1; height: 54px; border: 2px solid var(--edge); border-radius: 8px;
     display: flex; align-items: center; justify-content: center; position: relative;
     background: var(--bg1); font-size: 12px; color: var(--dim); font-family: var(--mono);
     box-shadow: inset 0 2px 5px rgba(0,0,0,.4);
@@ -453,9 +455,12 @@
     background: repeating-linear-gradient(90deg, var(--amber) 0 6px, transparent 6px 12px);
     border-radius: 2px;
   }
-  .alt-cell.current-alt {
-    z-index: 1;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,.4), inset 0 0 0 1px var(--amber), 0 0 10px rgba(255,197,61,.35);
+  .alt-cell.current-alt { z-index: 1; border-width: 3px; }
+  .alt-cell.current-alt.pilot {
+    box-shadow: inset 0 2px 5px rgba(0,0,0,.4), 0 0 12px rgba(74,168,255,.5);
+  }
+  .alt-cell.current-alt.copilot {
+    box-shadow: inset 0 2px 5px rgba(0,0,0,.4), 0 0 12px rgba(255,148,64,.45);
   }
 
   /* 日志 */
@@ -616,11 +621,11 @@
     <h4>槽位一览</h4>
     <ul>
       <li><b>姿态（强制）</b>：双方骰子比较，差值使水平仪向点数大的一方倾斜；到 ±3 即尾旋坠毁。终局必须完全水平（0）。</li>
-      <li><b>引擎（强制）</b>：第二颗放上时，两骰之和 vs 蓝/橙标记——和 &lt; 蓝悬停；蓝~橙（含等于橙）前进 1；&gt; 橙前进 2。当前位置或路径上有飞机则撞机。到达机场后进入等待模式（再推进即坠毁）。</li>
+      <li><b>引擎（强制）</b>：第二颗放上时，两骰之和 vs 蓝/橙标记。蓝标记夹在两数之间（初始 <b>4 与 5 之间</b>），故和 = 5 已越过蓝标记、前进 1；和 &lt; 5 才悬停。蓝~橙（含等于橙）前进 1；&gt; 橙前进 2。当前位置有飞机且须前进则撞机。到达机场后进入等待模式（再推进即坠毁）。</li>
       <li><b>无线电</b>：机长 1 槽、副驾 2 槽；任意点数。<b>1=当前位置，2=前方第一格</b>，放置当下清除该格飞机。</li>
       <li><b>集中精力</b>：共用 ☕ 槽 ×3，放置获得 token（上限 3）；<b>放置任意骰时</b>可消耗 ☕ 修正该骰 ±1（不越 1~6，不循环）。</li>
-      <li><b>起落架（机长）×3</b>：限 1/2、3/4、5/6，任意顺序；每激活蓝标记 +1（初始 5，满档 8）。已激活槽可再放但无效果。</li>
-      <li><b>襟翼（副驾）×4</b>：限 1/2→2/3→4/5→5/6 按序；每激活橙标记 +1（初始 8）。</li>
+      <li><b>起落架（机长）×3</b>：限 1/2、3/4、5/6，任意顺序；每激活蓝标记右移一档（初始 <b>4 与 5 之间</b>，满档 <b>7 与 8 之间</b>）。已激活槽可再放但无效果。</li>
+      <li><b>襟翼（副驾）×4</b>：限 1/2→2/3→4/5→5/6 按序；每激活橙标记右移一档（初始 <b>8 与 9 之间</b>，满档刚过 12）。</li>
       <li><b>刹车（机长）×3</b>：按序 2→4→6；红标记在刻度<b>槽位</b>上右移：2 左 → 2–3 间 → 4–5 间 → 6 后（对应限速 &lt; 2 / 3 / 5 / 7）。<b>着陆轮</b>引擎和须 &lt; 限速；至少须激活第一档（标记离开 2 左）才能刹停。</li>
     </ul>
     <h4>轨道</h4>

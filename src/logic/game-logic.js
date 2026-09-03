@@ -13,6 +13,11 @@ var CONFIG = {
   DISTANCE_START: 6,
   AXIS_LIMIT: 3,
   TRAFFIC_START: [4, 3, 3, 2, 1, 1, 1, 0, 0],
+  /**
+   * 比较阈值（整数），对应速度表上两数之间的夹缝，不是刻度圆点本身。
+   * 蓝标记夹在 (BLUE-1) 与 BLUE 之间：初始 4 与 5 之间，故引擎和 = 5 已越过蓝标记、前进 1。
+   * 橙标记夹在 ORANGE 与 (ORANGE+1) 之间：初始 8 与 9 之间，故和 = 8 仍前进 1，和 = 9 前进 2。
+   */
   BLUE_START: 5,
   BLUE_MAX: 8,
   ORANGE_START: 8,
@@ -208,6 +213,27 @@ function brakeValue(s) {
 }
 function getOrangeMark(s) { return s.orangeMark; }
 
+/** 蓝标记展示：BLUE=5 →「4 与 5 之间」 */
+function blueMarkLabel(blueMark) {
+  return (blueMark - 1) + ' 与 ' + blueMark + ' 之间';
+}
+
+/** 橙标记展示：ORANGE=8 →「8 与 9 之间」；满档刚过 12 */
+function orangeMarkLabel(orangeMark) {
+  if (orangeMark >= CONFIG.ORANGE_MAX) return '刚过 12';
+  return orangeMark + ' 与 ' + (orangeMark + 1) + ' 之间';
+}
+
+/**
+ * 普通轮进近格数。蓝在 (blue-1)~blue 之间，故 es === blue 前进 1；
+ * 橙在 orange~(orange+1) 之间，故 es === orange 仍前进 1。
+ */
+function engineAdvanceSpaces(es, blueMark, orangeMark) {
+  if (es < blueMark) return 0;
+  if (es <= orangeMark) return 1;
+  return 2;
+}
+
 function isLandingRound(s) { return !!s.landingRound; }
 function isWaitingMode(s) { return s.distance === 0 && !s.landingRound; }
 
@@ -376,10 +402,10 @@ function tryResolveEngineImmediate(s) {
       logPush(s, '💥 ' + s.loseReason, 'lose');
       return true;
     }
-    logPush(s, '⚡ 等待模式：速度 ' + es + ' 低于蓝标记 ' + s.blueMark + '，悬停安全');
+    logPush(s, '⚡ 等待模式：速度 ' + es + ' 低于蓝标记（' + blueMarkLabel(s.blueMark) + '），悬停安全');
   } else {
     var orange = getOrangeMark(s);
-    var k = es < s.blueMark ? 0 : (es <= orange ? 1 : 2);
+    var k = engineAdvanceSpaces(es, s.blueMark, orange);
     if (k > 0) {
       if (hasTraffic(s, s.distance)) {
         s.phase = 'lose';
@@ -408,7 +434,7 @@ function tryResolveEngineImmediate(s) {
       }
       logPush(s, '⚡ 引擎 ' + es + ' → 前进 ' + k + ' 格，距机场 ' + s.distance);
     } else {
-      logPush(s, '⚡ 引擎 ' + es + ' < 蓝标记 ' + s.blueMark + '，悬停');
+      logPush(s, '⚡ 引擎 ' + es + ' < 蓝标记（' + blueMarkLabel(s.blueMark) + '），悬停');
     }
   }
   return false;
@@ -462,7 +488,7 @@ function applyPlacementEffect(s, role, slotName) {
       s.gearOn[slotName] = true;
       s.gearAct++;
       s.blueMark = clamp(CONFIG.BLUE_START + s.gearAct, CONFIG.BLUE_START, CONFIG.BLUE_MAX);
-      logPush(s, '起落架「' + def.name + '」激活 → 蓝标记 ' + s.blueMark);
+      logPush(s, '起落架「' + def.name + '」激活 → 蓝标记 ' + blueMarkLabel(s.blueMark));
     } else {
       logPush(s, '起落架「' + def.name + '」已激活，放置无效果');
     }
@@ -471,7 +497,7 @@ function applyPlacementEffect(s, role, slotName) {
     s.flapsOn[slotName] = true;
     s.flapsAct++;
     s.orangeMark = clamp(s.orangeMark + 1, CONFIG.ORANGE_START, CONFIG.ORANGE_MAX);
-    logPush(s, '襟翼「' + def.name + '」激活 ' + s.flapsAct + '/' + CONFIG.FLAP_COUNT + ' → 橙标记 ' + s.orangeMark);
+    logPush(s, '襟翼「' + def.name + '」激活 ' + s.flapsAct + '/' + CONFIG.FLAP_COUNT + ' → 橙标记 ' + orangeMarkLabel(s.orangeMark));
     applied = true;
   } else if (def.order === 'brake' && !s.brakesOn[slotName]) {
     s.brakesOn[slotName] = true;
@@ -792,6 +818,7 @@ var GameLogic = {
   applyPlacementEffect: applyPlacementEffect, applyAllPlacementEffects: applyAllPlacementEffects,
   tryResolveAxisImmediate: tryResolveAxisImmediate, tryResolveEngineImmediate: tryResolveEngineImmediate,
   effVal: effVal, brakeValue: brakeValue, orangeMark: getOrangeMark, getOrangeMark: getOrangeMark,
+  engineAdvanceSpaces: engineAdvanceSpaces, blueMarkLabel: blueMarkLabel, orangeMarkLabel: orangeMarkLabel,
   radioTarget: radioTarget, radioDieForDistance: radioDieForDistance, isLandingRound: isLandingRound, isWaitingMode: isWaitingMode,
   checkApproachAxis: checkApproachAxis, collectAltitudeReroll: collectAltitudeReroll,
   getApproachAxisRules: getApproachAxisRules, altitudeTrackSteps: altitudeTrackSteps, altitudeStartRole: altitudeStartRole,

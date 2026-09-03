@@ -150,10 +150,12 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .ai-read .bar { width: 120px; height: 8px; background: linear-gradient(90deg, #3a1616, #3a3a16 45%, #163a26); border: 1px solid var(--edge); border-radius: 4px; margin: 8px 0 2px; position: relative; }
 .ai-read .bar i { position: absolute; top: -3px; width: 3px; height: 14px; background: #fff; left: 50%; transition: left .3s; }
 
-.aero-box { position: relative; height: 30px; background: var(--bg1); border-radius: 6px; border: 1px solid var(--edge); margin-top: 6px; }
-.aero-box .tick { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(223,233,242,.16); }
-.aero-box .tick span { position: absolute; top: 2px; left: 3px; font-size: 9.5px; color: var(--dim); font-family: var(--mono); }
-.aero-mark { position: absolute; top: -5px; width: 6px; height: 40px; border-radius: 2px; transition: left .3s; }
+.aero-box { position: relative; height: 36px; background: var(--bg1); border-radius: 6px; border: 1px solid var(--edge); margin-top: 6px; }
+.aero-cells { display: flex; height: 100%; position: relative; z-index: 1; }
+.aero-cell { flex: 1; display: flex; align-items: center; justify-content: center; border-right: 1px solid rgba(223,233,242,.12); }
+.aero-cell:last-child { border-right: none; }
+.aero-cell span { font-size: 11px; color: var(--dim); font-family: var(--mono); line-height: 1; }
+.aero-mark { position: absolute; top: -4px; bottom: -4px; width: 7px; margin-left: -3.5px; border-radius: 2px; transition: left .3s; z-index: 2; }
 .aero-mark.blue { background: var(--blue); }
 .aero-mark.orange { background: var(--orange); }
 .aero-zone { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: rgba(74,168,255,.14); transition: left .3s, width .3s; }
