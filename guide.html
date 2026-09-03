@@ -150,12 +150,39 @@
   .faq dt { font-weight: 700; color: var(--text); margin-top: 14px; font-size: 14px; }
   .faq dd { color: var(--dim); font-size: 13px; margin: 4px 0 0 0; padding-left: 0; }
 
+  /* 游戏界面预览 */
+  .ui-tabs {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 10px;
+  }
+  .ui-tab {
+    font: inherit; font-size: 13px; padding: 7px 14px; border-radius: 999px;
+    border: 1px solid var(--edge); background: var(--bg2); color: var(--dim); cursor: pointer;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .ui-tab:hover { color: var(--text); border-color: var(--edge-hi); }
+  .ui-tab.active {
+    color: var(--amber); border-color: #6b5826; background: #2a2010; font-weight: 600;
+  }
+  .ui-preview-frame-wrap {
+    border: 1px solid var(--edge); border-radius: 14px; overflow: hidden;
+    background: var(--bg0); margin: 12px 0 8px; box-shadow: 0 8px 28px rgba(0,0,0,.35);
+  }
+  .ui-preview-frame-wrap iframe {
+    display: block; width: 100%; height: 820px; border: none; background: var(--bg0);
+  }
+  .ui-scene-desc {
+    font-size: 13px; color: var(--dim); margin-bottom: 4px; line-height: 1.6;
+  }
+  .ui-open-link { font-size: 12px; margin-left: 8px; }
+
   @media (max-width: 900px) {
     .layout { flex-direction: column; }
     nav.guide-nav { position: relative; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--edge); }
     main { padding: 20px 16px 60px; }
     .cockpit-map { grid-template-columns: 1fr; }
     .map-topbar { grid-column: 1; }
+    .ui-preview-frame-wrap { overflow-x: auto; }
+    .ui-preview-frame-wrap iframe { width: 1220px; max-width: none; }
   }
 </style>
 </head>
@@ -167,6 +194,7 @@
     <ul>
       <li><a href="#start" data-nav="start">5 分钟上手</a></li>
       <li><a href="#flow" data-nav="flow">每轮流程</a></li>
+      <li><a href="#ui" data-nav="ui">游戏界面</a></li>
       <li><a href="#map" data-nav="map">界面地图</a></li>
       <li><a href="#lobby" data-nav="lobby">① 联机大厅</a></li>
       <li><a href="#topbar" data-nav="topbar">② 顶栏状态</a></li>
@@ -182,7 +210,7 @@
       <h2>天合小队 · 怎么玩</h2>
       <p class="lead">
         这是一份<b>可随时查阅</b>的新手指导：先读「5 分钟上手」和「每轮流程」，开玩后把本页留在第二个标签页，
-        用<b>界面地图</b>对照屏幕上的每个区域。比弹窗规则更适合边玩边查。
+        先看<b>游戏界面</b>熟悉布局，再用<b>界面地图</b>对照每个区域。比弹窗规则更适合边玩边查。
       </p>
       <div class="pill-row">
         <span class="pill">👥 双人联机</span>
@@ -227,9 +255,28 @@
       <p>轮内任意时刻可消耗 🔄 <b>重掷标记</b>：双方各自点选要重掷的骰子，各重掷一次（放置阶段仅限未用骰）。</p>
     </section>
 
+    <section id="ui">
+      <h2>游戏界面</h2>
+      <p>以下为与正式对局<b>完全一致</b>的 UI 只读预览（真实 Widget 渲染，非示意图）。切换场景对照不同阶段的屏幕。</p>
+      <div class="ui-tabs" role="tablist" aria-label="界面场景">
+        <button type="button" class="ui-tab active" data-scene="lobby" role="tab" aria-selected="true">联机大厅</button>
+        <button type="button" class="ui-tab" data-scene="game" role="tab">对局中 · 第 4 轮</button>
+        <button type="button" class="ui-tab" data-scene="landing" role="tab">着陆轮</button>
+      </div>
+      <p class="ui-scene-desc" id="ui-scene-desc">进入游戏前：输入房间号、选关卡、各自选机长 / 副驾角色（各开一个标签页）。</p>
+      <div class="ui-preview-frame-wrap">
+        <iframe id="guide-ui-frame" title="Sky Team 游戏界面预览" src="/guide-preview.html?scene=lobby" loading="lazy"></iframe>
+      </div>
+      <div class="note">
+        <strong>对照提示：</strong>左栏 👨‍✈️ 机长（蓝骰）· 中央仪表（航道 / 高度 / 姿态 / 引擎 / 刹车 / 日志）· 右栏 👩‍✈️ 副驾（橙骰）。
+        顶栏芯片与游戏中实时同步含义相同。
+        <a class="ui-open-link" href="/guide-preview.html?scene=game" target="_blank" rel="noopener">新窗口打开预览 ↗</a>
+      </div>
+    </section>
+
     <section id="map">
       <h2>界面地图</h2>
-      <p>点击下方色块，跳转到对应说明。布局与游戏中驾驶舱一致：左机长 · 中仪表 · 右副驾。</p>
+      <p>点击下方色块，跳转到对应说明。布局与上方<b>游戏界面</b>预览一致：左机长 · 中仪表 · 右副驾。</p>
       <div class="cockpit-map" id="cockpit-map">
         <div class="map-topbar">
           <span>顶栏</span>
@@ -289,7 +336,7 @@
             <li><b>高度</b> 当前高度（英尺）；与高度轨同步。</li>
             <li><b>距机场</b> 航道上的距离格，0 = 到达机场。</li>
             <li><b>姿态</b> 水平仪读数，0 为水平，±3 尾旋坠毁。</li>
-            <li><b>刹车值</b> 着陆轮速度上限，随刹车槽激活增加。</li>
+            <li><b>刹车限速</b> 着陆轮引擎和须严格小于该值；标记在 2 左 / 2–3 / 4–5 / 6 后，对应 &lt;2 / 3 / 5 / 7。</li>
             <li><b>☕</b> 剩余咖啡 token，放置时可修正骰点。</li>
             <li><b>🔄</b> 剩余重掷标记数量。</li>
             <li><b>📖 规则</b> 打开简短规则弹窗（本页更详细）。</li>
@@ -351,7 +398,7 @@
         </article>
         <article class="comp-card" id="comp-brakes">
           <div class="head"><span class="num">6</span><h4>刹车 & 集中精力</h4></div>
-          <p><b>刹车</b>：机长 2→4→6 顺序激活，刻度轨 0（2 左侧）→ 2 → 4 → 6；每激活一档标记 +2。<b>☕</b>：共用 3 个放骰槽，获得 token；放任意骰时可消耗修正 ±1。</p>
+          <p><b>刹车</b>：机长 2→4→6 顺序激活；红标记在刻度槽位右移（2 左 → 2–3 → 4–5 → 6 后），着陆轮引擎和须 &lt; 2 / 3 / 5 / 7。<b>☕</b>：共用 3 个放骰槽，获得 token；放任意骰时可消耗修正 ±1。</p>
         </article>
         <article class="comp-card" id="comp-log">
           <div class="head"><span class="num">7</span><h4>日志 & 终局</h4></div>
@@ -407,7 +454,7 @@
             <td>刹车</td>
             <td class="p">3 槽 · 中央</td>
             <td class="muted">—</td>
-            <td>须按 2 → 4 → 6 <b>顺序</b>激活；标记 0→2→4→6（最高 6）</td>
+            <td>须按 2 → 4 → 6 <b>顺序</b>激活；标记槽位 2 左 → 2–3 → 4–5 → 6 后</td>
           </tr>
           <tr>
             <td>集中精力 ☕</td>
@@ -457,6 +504,25 @@
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+
+  var sceneDesc = {
+    lobby: '进入游戏前：输入房间号、选关卡、各自选机长 / 副驾角色（各开一个标签页）。',
+    game: '对局中（place 阶段）：机长轮到自己，姿态已放、引擎待放；航道距 3、高度 3000ft，示例交通与槽位状态。',
+    landing: '着陆轮 discuss 阶段：已到机场且高度 0；起落架 / 襟翼已满，刹车 2 档；下一轮须满足 A–D 胜利条件。'
+  };
+  var uiFrame = document.getElementById('guide-ui-frame');
+  var uiDesc = document.getElementById('ui-scene-desc');
+  document.querySelectorAll('.ui-tab[data-scene]').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var scene = tab.getAttribute('data-scene');
+      document.querySelectorAll('.ui-tab').forEach(function (t) {
+        t.classList.toggle('active', t === tab);
+        t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+      });
+      if (uiFrame) uiFrame.src = '/guide-preview.html?scene=' + scene;
+      if (uiDesc && sceneDesc[scene]) uiDesc.textContent = sceneDesc[scene];
+    });
+  });
 
   document.querySelectorAll('.map-block[data-target]').forEach(function (block) {
     block.addEventListener('click', function () {

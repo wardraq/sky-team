@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>游戏界面预览 · Sky Team</title>
+<link rel="stylesheet" href="/guide-game.css">
+</head>
+<body class="guide-preview-body preview-readonly">
+<div class="guide-preview-banner">📖 指导手册 · <b>只读预览</b>（与正式对局 UI 一致） · 返回 <a href="/guide.html">游戏指导</a></div>
+
+<div id="guide-lobby" style="display:none">
+  <div id="lobby-screen">
+    <div class="logo">
+      <h1>SKY&nbsp;TEAM</h1>
+      <div class="sub">天合小队 · 双人联机合作降落</div>
+    </div>
+    <div class="room-row">
+      <label>房间号</label>
+      <input type="text" value="sky" readonly>
+    </div>
+    <div class="room-row">
+      <label>关卡</label>
+      <select disabled><option>蒙特利尔 YUL</option></select>
+    </div>
+    <p class="scenario-hint">训练进近 · 7 轮 · 基础交通模块</p>
+    <div class="role-cards">
+      <div class="role-card pilot">
+        <div class="icon">👨‍✈️</div>
+        <div class="rname">机长 PILOT</div>
+        <div class="duty">蓝骰 · 起落架与刹车<br>与副驾各开一页联机</div>
+        <div class="enter">进入房间 ▶</div>
+      </div>
+      <div class="role-card copilot">
+        <div class="icon">👩‍✈️</div>
+        <div class="rname">副驾 CO-PILOT</div>
+        <div class="duty">橙骰 · 襟翼<br>与机长各开一页联机</div>
+        <div class="enter">进入房间 ▶</div>
+      </div>
+      <div class="role-card passenger">
+        <div class="icon">🧐</div>
+        <div class="rname">乘客 PASSENGER</div>
+        <div class="duty">观战 · 上帝视角<br>只读，不可操作</div>
+        <div class="enter">进入观战 ▶</div>
+      </div>
+    </div>
+    <div class="tip">需两人：机长 + 副驾各开一个标签页 · 📖 游戏指导 · 🧪 模块实验室</div>
+  </div>
+</div>
+
+<div id="guide-app" style="display:none">
+  <header class="topbar" id="topbar">
+    <button title="离开房间">◀</button>
+    <h1>🛫 天合小队 <small>Sky Team · 联机</small></h1>
+    <span class="chip">房间 <b id="chip-room">sky</b></span>
+    <span class="chip">关卡 <b id="chip-scenario">蒙特利尔 YUL</b></span>
+    <span class="chip">轮次 <b id="chip-round">—</b></span>
+    <span class="chip">高度 <b id="chip-alt">—</b></span>
+    <span class="chip">距机场 <b id="chip-dist">—</b></span>
+    <span class="chip">姿态 <b id="chip-axis">—</b></span>
+    <span class="chip">限速 &lt; <b id="chip-brake">—</b></span>
+    <span class="chip">☕ <b id="chip-coffee">—</b></span>
+    <span class="chip">联机</span>
+    <span class="chip">🔄 <b id="chip-reroll">—</b></span>
+    <button class="btn-rule">📖 规则</button>
+  </header>
+  <main>
+    <section class="panel pilot highlight" id="panel-pilot"></section>
+    <section class="center" id="center"></section>
+    <section class="panel copilot" id="panel-copilot"></section>
+  </main>
+</div>
+
+<script src="/src/logic/game-logic.js"></script>
+<script src="/src/scenarios/airport-tracks.js"></script>
+<script src="/src/scenarios/scenario-registry.js"></script>
+<script src="/src/scenarios/module-registry.js"></script>
+<script src="/src/core/view-context.js"></script>
+<script src="/src/widgets/placement-preview.js"></script>
+<script src="/src/widgets/phase-banner.js"></script>
+<script src="/src/widgets/approach.js"></script>
+<script src="/src/widgets/altitude.js"></script>
+<script src="/src/widgets/attitude.js"></script>
+<script src="/src/widgets/engine-bar.js"></script>
+<script src="/src/widgets/player-panel.js"></script>
+<script src="/src/widgets/brakes-board.js"></script>
+<script src="/src/widgets/reveal.js"></script>
+<script src="/src/widgets/final.js"></script>
+<script src="/src/widgets/log.js"></script>
+<script src="/src/widgets/center-dashboard.js"></script>
+<script>
+'use strict';
+
+var GuidePreview = {
+  scene: 'game',
+  state: null,
+  ui: { mode: 'local', viewer: 'pilot' },
+
+  init: function () {
+    var params = new URLSearchParams(location.search);
+    this.scene = params.get('scene') || 'game';
+    if (this.scene === 'lobby') {
+      document.getElementById('guide-lobby').style.display = 'block';
+      document.getElementById('guide-app').style.display = 'none';
+      return;
+    }
+    document.getElementById('guide-lobby').style.display = 'none';
+    document.getElementById('guide-app').style.display = 'flex';
+    document.getElementById('guide-app').style.flexDirection = 'column';
+    document.getElementById('guide-app').style.minHeight = '100vh';
+
+    this.state = this.scene === 'landing' ? this.buildLanding() : this.buildMidGame();
+    this.render();
+  },
+
+  buildMidGame: function () {
+    var s = GameLogic.newGame('yul');
+    s.round = 4;
+    s.phase = 'place';
+    s.currentPlayer = 'pilot';
+    s.startPlayer = 'pilot';
+    s.distance = 3;
+    s.altitude = 3000;
+    s.axis = 0;
+    s.blueMark = 6;
+    s.orangeMark = 10;
+    s.gearAct = 1;
+    s.gearOn.gear1 = true;
+    s.flapsAct = 2;
+    s.flapsOn.flap1 = true;
+    s.flapsOn.flap2 = true;
+    s.brakesAct = 0;
+    s.coffee = 1;
+    s.reroll = 1;
+    s.rolled = { pilot: true, copilot: true };
+    s.traffic = [2, 5];
+    s.dice.pilot = [
+      { v: 4, used: false }, { v: 2, used: true }, { v: 6, used: false }, { v: 1, used: false }
+    ];
+    s.dice.copilot = [
+      { v: 3, used: false }, { v: 5, used: true }, { v: 2, used: false }, { v: 4, used: false }
+    ];
+    s.placements.pilot.axis = { v: 3, mod: 0, hidden: true };
+    s.placements.copilot.axis = null;
+    s.placements.pilot.engine = null;
+    s.placements.copilot.engine = { v: 2, mod: 0, hidden: true };
+    s.placements.pilot.gear2 = { v: 3, mod: 0 };
+    s.placements.copilot.flap3 = { v: 4, mod: 0 };
+    if (!s.log) s.log = [];
+    s.log.unshift({ msg: '⚡ 副驾引擎 2 已放置，等待机长引擎', cls: '', round: s.round });
+    s.log.unshift({ msg: '✈ 距 3 · 高度 3000ft · 第 4 轮放置中', cls: '', round: s.round });
+    return s;
+  },
+
+  buildLanding: function () {
+    var s = GameLogic.newGame('yul');
+    s.round = 8;
+    s.landingRound = true;
+    s.phase = 'discuss';
+    s.distance = 0;
+    s.altitude = 0;
+    s.axis = 0;
+    s.traffic = [];
+    s.gearAct = 3;
+    s.flapsAct = 4;
+    s.gearOn = { gear1: true, gear2: true, gear3: true };
+    s.flapsOn = { flap1: true, flap2: true, flap3: true, flap4: true };
+    s.brakesAct = 2;
+    s.brakesOn = { brake1: true, brake2: true, brake3: false };
+    s.blueMark = 8;
+    s.orangeMark = 12;
+    s.coffee = 2;
+    s.reroll = 0;
+    s.rolled = { pilot: false, copilot: false };
+    s.dice.pilot.forEach(function (d) { d.v = 0; d.used = false; });
+    s.dice.copilot.forEach(function (d) { d.v = 0; d.used = false; });
+    if (!s.log) s.log = [];
+    s.log.unshift({ msg: '🛬 着陆轮 — 须满足 A–D 全部条件', cls: '', round: s.round });
+    return s;
+  },
+
+  ctx: function () {
+    var self = this;
+    return {
+      state: self.state,
+      logic: GameLogic,
+      ui: self.ui,
+      viewCtx: createViewContext(self.ui, function () { return self.state; }),
+      selected: null,
+      pendingCoffee: null,
+      isRerollPicking: false,
+      rerollSelected: {}
+    };
+  },
+
+  renderChips: function () {
+    var s = this.state;
+    var L = GameLogic;
+    document.getElementById('chip-round').textContent = s.round + '/7' + (s.landingRound ? ' 🛬' : '');
+    document.getElementById('chip-alt').textContent = s.altitude;
+    document.getElementById('chip-dist').textContent = s.distance;
+    document.getElementById('chip-axis').textContent = s.axis;
+    document.getElementById('chip-brake').textContent = L.brakeValue(s);
+    document.getElementById('chip-coffee').textContent = s.coffee + '/' + L.CONFIG.COFFEE_MAX;
+    document.getElementById('chip-reroll').textContent = s.reroll;
+  },
+
+  render: function () {
+    var ctx = this.ctx();
+    PlayerPanel.render('pilot', ctx);
+    PlayerPanel.render('copilot', ctx);
+    CenterDashboard.mount(ctx);
+    this.renderChips();
+  }
+};
+
+GuidePreview.init();
+</script>
+</body>
+</html>

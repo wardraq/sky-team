@@ -308,11 +308,23 @@ console.log('\n[slot-rules] 起落架 / 襟翼 / 刹车点数与顺序');
   assert(Logic.slotAllowed(s, 'pilot', 'brake2', 4).ok, 'brake1 后 brake2 接受点数 4');
 
   s = Logic.newGame('yul');
-  assert(Logic.brakeValue(s) === 0, 'brakeValue 初始 0');
+  assert(Logic.brakeValue(s) === 2, 'brakeValue 初始（2 左）限速 2');
   s.brakesAct = 1;
-  assert(Logic.brakeValue(s) === 2, 'brakeValue 激活 1 档 = 2');
+  assert(Logic.brakeValue(s) === 3, 'brakeValue 激活 1 档（2–3 间）限速 3');
+  s.brakesAct = 2;
+  assert(Logic.brakeValue(s) === 5, 'brakeValue 激活 2 档（4–5 间）限速 5');
   s.brakesAct = 3;
-  assert(Logic.brakeValue(s) === 6, 'brakeValue 激活 3 档 = 6');
+  assert(Logic.brakeValue(s) === 7, 'brakeValue 激活 3 档（6 后）限速 7');
+
+  s = Logic.newGame('yul');
+  s.landingRound = true;
+  s.distance = 0;
+  s.brakesAct = 1;
+  s.placements.pilot.engine = { v: 1, mod: 0 };
+  s.placements.copilot.engine = { v: 1, mod: 0 };
+  s.roundResolved = { axis: false, engine: false };
+  assert(!Logic.tryResolveEngineImmediate(s), '1 档刹车时引擎 1+1=2 < 3 成功');
+  assert(s.phase !== 'lose', '引擎 2 不因限速 3 判负');
 
   s = prepPlace('copilot');
   assert(!Logic.slotAllowed(s, 'copilot', 'flap2', 2).ok, '未激活 flap1 时不可放 flap2');

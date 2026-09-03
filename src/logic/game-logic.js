@@ -17,8 +17,8 @@ var CONFIG = {
   BLUE_MAX: 8,
   ORANGE_START: 8,
   ORANGE_MAX: 12,
-  BRAKE_BASE: 0,
-  BRAKE_STEP: 2,
+  /** 着陆轮引擎和须严格小于该值；对应红标记槽位 2左 / 2–3 / 4–5 / 6后 */
+  BRAKE_SPEED_LIMITS: [2, 3, 5, 7],
   COFFEE_MAX: 3,
   COFFEE_SLOT_COUNT: 3,
   REROLL_START: 0,
@@ -201,7 +201,11 @@ function clearTraffic(s, d) {
   var idx = s.traffic.indexOf(d);
   if (idx !== -1) s.traffic.splice(idx, 1);
 }
-function brakeValue(s) { return CONFIG.BRAKE_BASE + CONFIG.BRAKE_STEP * s.brakesAct; }
+function brakeValue(s) {
+  var limits = CONFIG.BRAKE_SPEED_LIMITS || [2, 3, 5, 7];
+  var n = Math.max(0, Math.min(s.brakesAct, limits.length - 1));
+  return limits[n];
+}
 function getOrangeMark(s) { return s.orangeMark; }
 
 function isLandingRound(s) { return !!s.landingRound; }

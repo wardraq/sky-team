@@ -1,10 +1,5 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>天合小队 Sky Team · Web 联机</title>
-<style>
+/* 游戏界面样式 — 与 index.html 驾驶舱同步 */
+
   /* ============================================================
      天合小队 Sky Team —— 驾驶舱仪表风格（深色）
      ============================================================ */
@@ -529,136 +524,19 @@
   }
   .room-row select:focus { outline: none; border-color: var(--blue); }
   .scenario-hint { font-size: 12px; color: var(--dim); margin: -6px 0 14px 0; line-height: 1.5; }
-</style>
-</head>
-<body>
-<div id="app">
 
-  <!-- ============ 联机大厅 ============ -->
-  <div id="lobby-screen">
-    <div class="logo">
-      <h1>SKY&nbsp;TEAM</h1>
-      <div class="sub">天合小队 · 双人联机合作降落</div>
-    </div>
-    <div class="room-row">
-      <label for="room-input">房间号</label>
-      <input id="room-input" type="text" value="sky" maxlength="32" placeholder="sky">
-    </div>
-    <div class="room-row">
-      <label for="scenario-select">关卡</label>
-      <select id="scenario-select" aria-label="选择关卡"></select>
-    </div>
-    <p class="scenario-hint" id="scenario-hint"></p>
-    <div class="role-cards">
-      <div class="role-card pilot" data-join="pilot">
-        <div class="icon">👨‍✈️</div>
-        <div class="rname">机长 PILOT</div>
-        <div class="duty">蓝骰 · 起落架与刹车<br>与副驾各开一页联机</div>
-        <div class="enter">进入房间 ▶</div>
-      </div>
-      <div class="role-card copilot" data-join="copilot">
-        <div class="icon">👩‍✈️</div>
-        <div class="rname">副驾 CO-PILOT</div>
-        <div class="duty">橙骰 · 襟翼<br>与机长各开一页联机</div>
-        <div class="enter">进入房间 ▶</div>
-      </div>
-      <div class="role-card passenger" data-join="passenger">
-        <div class="icon">🧐</div>
-        <div class="rname">乘客 PASSENGER</div>
-        <div class="duty">观战 · 上帝视角<br>只读，不可操作</div>
-        <div class="enter">进入观战 ▶</div>
-      </div>
-    </div>
-    <div class="tip">需两人：机长 + 副驾各开一个标签页 · <a href="/guide.html" style="color:var(--green)">📖 游戏指导</a> · <a href="/test/module-lab.html" style="color:var(--amber)">🧪 模块实验室</a></div>
-  </div>
-
-  <!-- 兼容旧 id（隐藏） -->
-  <div id="start-screen" style="display:none"></div>
-
-  <!-- ============ 游戏界面 ============ -->
-  <header class="topbar" id="topbar" style="display:none">
-    <button onclick="UI.leaveRoom()" title="离开房间">◀</button>
-    <h1>🛫 天合小队 <small>Sky Team · 联机</small></h1>
-    <span class="chip">房间 <b id="chip-room">sky</b></span>
-    <span class="chip" id="chip-scenario-wrap">关卡 <b id="chip-scenario">—</b></span>
-    <span class="chip">轮次 <b id="chip-round">1/7</b></span>
-    <span class="chip">高度 <b id="chip-alt">7</b></span>
-    <span class="chip">距机场 <b id="chip-dist">6</b></span>
-    <span class="chip">姿态 <b id="chip-axis">0</b></span>
-    <span class="chip">限速 &lt; <b id="chip-brake">2</b></span>
-    <span class="chip">☕ <b id="chip-coffee">0/3</b></span>
-    <span class="chip" id="mode-tag">联机</span>
-    <span class="chip" id="peer-chip" style="display:none"></span>
-    <span class="chip">🔄 <b id="chip-reroll">0</b></span>
-    <button class="btn-rule" onclick="UI.openRules()">📖 规则</button>
-  </header>
-
-  <main style="display:none">
-    <section class="panel pilot" id="panel-pilot"></section>
-    <section class="center" id="center"></section>
-    <section class="panel copilot" id="panel-copilot"></section>
-  </main>
-</div>
-
-<!-- 规则弹窗 -->
-<div class="modal-mask" id="rules-mask">
-  <div class="modal">
-    <button class="close-x" onclick="UI.closeRules()">✕</button>
-    <h2>📖 天合小队 · 规则说明</h2>
-    <p>双人<b>联机</b>合作桌游。机长与副驾各开一个页面，在 7 轮内把客机安全降落。核心张力：<b>掷骰之后禁止交流具体点数</b>，只能靠放置位置和顺序传递信息。乘客位为观战（只读）。</p>
-    <h4>每轮流程</h4>
-    <ul>
-      <li><b>策略讨论</b>：可公开讨论策略，但不能提骰子点数。</li>
-      <li><b>掷骰</b>：各自秘密掷 4 个骰子（对方看不到点数）。</li>
-      <li><b>放置</b>：轮流放骰子；<b>放置当下</b>可用 ☕ 修正该骰（±1/枚）。姿态/引擎第二颗放上即结算；每轮须在「姿态」「引擎」各放 1 颗。</li>
-      <li><b>轮末</b>：8 颗放完后确认结算（降低高度等）。</li>
-    </ul>
-    <h4>槽位一览</h4>
-    <ul>
-      <li><b>姿态（强制）</b>：双方骰子比较，差值使水平仪向点数大的一方倾斜；到 ±3 即尾旋坠毁。终局必须完全水平（0）。</li>
-      <li><b>引擎（强制）</b>：第二颗放上时，两骰之和 vs 蓝/橙标记——和 &lt; 蓝悬停；蓝~橙（含等于橙）前进 1；&gt; 橙前进 2。当前位置或路径上有飞机则撞机。到达机场后进入等待模式（再推进即坠毁）。</li>
-      <li><b>无线电</b>：机长 1 槽、副驾 2 槽；任意点数。<b>1=当前位置，2=前方第一格</b>，放置当下清除该格飞机。</li>
-      <li><b>集中精力</b>：共用 ☕ 槽 ×3，放置获得 token（上限 3）；<b>放置任意骰时</b>可消耗 ☕ 修正该骰 ±1（不越 1~6，不循环）。</li>
-      <li><b>起落架（机长）×3</b>：限 1/2、3/4、5/6，任意顺序；每激活蓝标记 +1（初始 5，满档 8）。已激活槽可再放但无效果。</li>
-      <li><b>襟翼（副驾）×4</b>：限 1/2→2/3→4/5→5/6 按序；每激活橙标记 +1（初始 8）。</li>
-      <li><b>刹车（机长）×3</b>：按序 2→4→6；红标记在刻度<b>槽位</b>上右移：2 左 → 2–3 间 → 4–5 间 → 6 后（对应限速 &lt; 2 / 3 / 5 / 7）。<b>着陆轮</b>引擎和须 &lt; 限速；至少须激活第一档（标记离开 2 左）才能刹停。</li>
-    </ul>
-    <h4>轨道</h4>
-    <ul>
-      <li><b>航道</b>：从距离 6 推进到机场（0）。过早到达进入等待模式；高度与位置同步后进入着陆轮。</li>
-      <li>终局：距离 = 0、姿态 = 0、起落架/襟翼全激活、无飞机、着陆轮速度 &lt; 刹车值 → 胜利。</li>
-    </ul>
-    <h4>其他</h4>
-    <ul>
-      <li><b>重掷标记</b>：高度轨 🔄 格（6000、2000 英尺）轮初自动收入；<b>轮内任意时刻</b>可消耗 1 枚，双方各自<b>点选</b>要重掷的骰子（放置阶段仅限未用骰），各重掷一次。</li>
-      <li>航道转弯：若场景配置了姿态要求，前进时经过格须满足（见航道说明）。</li>
-      <li>碰撞：必须前进时，<b>当前位置</b>格上有飞机 → 撞机；仅<b>经过</b>前方有飞机的格（不停留）→ 存活。</li>
-      <li>即时失败：姿态 ±3、撞机、冲出、等待模式推进、高度归零未到机场、航道转弯失败、着陆轮超速。</li>
-    </ul>
-    <div class="diff"><b>与原版差异</b>：仅 1 个训练场景可玩；蒙特利尔基础进近无转弯约束（其他机场通过场景 APPROACH_AXIS 配置）。</div>
-  </div>
-</div>
-
-
-<script src="src/logic/game-logic.js"></script>
-<script src="src/scenarios/airport-tracks.js"></script>
-<script src="src/scenarios/scenario-registry.js"></script>
-<script src="src/scenarios/module-registry.js"></script>
-<script src="src/core/view-context.js"></script>
-<script src="src/core/game-session.js"></script>
-<script src="src/core/game-controller.js"></script>
-<script src="src/widgets/placement-preview.js"></script>
-<script src="src/widgets/phase-banner.js"></script>
-<script src="src/widgets/attitude.js"></script>
-<script src="src/widgets/engine-bar.js"></script>
-<script src="src/widgets/brakes-board.js"></script>
-<script src="src/widgets/approach.js"></script>
-<script src="src/widgets/altitude.js"></script>
-<script src="src/widgets/reveal.js"></script>
-<script src="src/widgets/final.js"></script>
-<script src="src/widgets/log.js"></script>
-<script src="src/widgets/center-dashboard.js"></script>
-<script src="src/widgets/player-panel.js"></script>
-<script src="src/app.js"></script>
-</body>
-</html>
+/* guide-preview 专用 */
+html, body.guide-preview-body { height: auto; min-height: 100%; overflow: auto; }
+body.guide-preview-body { min-width: 1220px; overflow-x: auto; }
+#guide-app { display: flex; flex-direction: column; min-height: 100vh; }
+.guide-preview-banner {
+  padding: 6px 12px; font-size: 11px; color: var(--dim); text-align: center;
+  background: rgba(255,197,61,.08); border-bottom: 1px solid rgba(255,197,61,.25);
+}
+.guide-preview-banner b { color: var(--amber); }
+#guide-lobby { min-height: 100vh; }
+#guide-lobby #lobby-screen { position: relative; inset: auto; min-height: 100vh; }
+.preview-readonly, .preview-readonly * { cursor: default !important; }
+.preview-readonly button, .preview-readonly .slot, .preview-readonly .die, .preview-readonly .role-card {
+  pointer-events: none !important;
+}

@@ -6,16 +6,38 @@
 
 var BrakesBoardWidget = {
   brakeTrackHTML: function (state, logic) {
-    var val = logic.brakeValue(state);
-    var marks = [0, 2, 3, 4, 5, 6];
+    var act = state.brakesAct || 0;
+    var limit = logic.brakeValue(state);
+    var slots = [
+      { pos: 0, label: '2 左侧' },
+      { pos: 1, label: '2 与 3 之间' },
+      { pos: 2, label: '4 与 5 之间' },
+      { pos: 3, label: '6 之后' }
+    ];
+
+    function slotHTML(pos) {
+      var def = slots[pos];
+      var cur = act === pos;
+      return '<span class="brake-slot' + (cur ? ' cur' : '') + '" title="' + def.label + '">' +
+        (cur ? '●' : '·') + '</span>';
+    }
+
+    function tick(n) {
+      return '<span class="brake-tick">' + n + '</span>';
+    }
+
     var h = ['<div class="brake-track" aria-label="刹车刻度轨">'];
     h.push('<span class="brake-track-label">刹车</span>');
-    marks.forEach(function (m) {
-      var active = val >= m;
-      var cur = val === m;
-      h.push('<span class="brake-tick' + (active ? ' past' : '') + (cur ? ' cur' : '') + '">' + m + '</span>');
-    });
-    h.push('<span class="brake-track-val">标记 <b>' + val + '</b></span>');
+    h.push(slotHTML(0));
+    h.push(tick(2));
+    h.push(slotHTML(1));
+    h.push(tick(3));
+    h.push(tick(4));
+    h.push(slotHTML(2));
+    h.push(tick(5));
+    h.push(tick(6));
+    h.push(slotHTML(3));
+    h.push('<span class="brake-track-val">引擎和 &lt; <b>' + limit + '</b></span>');
     h.push('</div>');
     return h.join('');
   },
