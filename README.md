@@ -54,13 +54,18 @@ nohup QUIET=1 node server.js > server.log 2>&1 &
 
 ## 怎么玩
 
+**新手推荐：**
+
+- **[游戏指导](guide.html)** — 5 分钟上手、界面地图、与正式对局一致的 UI 预览（大厅 / 第 1 轮 / 第 4 轮 / 着陆轮）；启动服务后访问 http://localhost:8088/guide.html
+- **[教学视频（B 站）](https://www.bilibili.com/video/BV1mfPtznE1n/)** — 《天合小队》保姆级教学 + 试玩：一看就懂，一玩就会
+
 1. 在大厅输入房间号、**选择关卡**，再选角色进入。
 2. 机长与副驾都连接后（须同一关卡），服务端自动开局。
 3. 每轮流程：**策略讨论 → 秘密掷骰 → 轮流放置 → 揭示结算**。
 4. 掷骰完成后至放置结束前，对方看不到你的骰子点数（服务端过滤）。
 5. 普通轮结算后高度下降；当 **距机场 0 且高度 0** 时进入 **着陆轮**，须再完成一轮放置并满足胜利 A–D。
 
-详细规则见游戏内 **📖 规则** 弹窗，或 [`docs/SkyTeam.zh.md`](docs/SkyTeam.zh.md)、[`docs/DESIGN.md`](docs/DESIGN.md)。
+详细规则见 **[游戏指导](guide.html)**、游戏内 **📖 规则** 弹窗，或 [`docs/SkyTeam.zh.md`](docs/SkyTeam.zh.md)、[`docs/DESIGN.md`](docs/DESIGN.md)。
 
 ### 与 Sky Team 对齐的槽位规则（摘要）
 
@@ -119,8 +124,16 @@ nohup QUIET=1 node server.js > server.log 2>&1 &
 ```
 sky-team/
 ├── index.html              # 游戏主页面（联机大厅 + 驾驶舱 UI）
+├── guide.html              # 游戏指导（新手边玩边查）
+├── guide-preview.html      # 指导页内嵌 UI 预览（只读，与正式对局一致）
+├── guide-game.css          # 指导页 / 预览共用样式
 ├── server.js               # HTTP 静态服务 + WebSocket 房间 + 规则仲裁
 ├── docs/                   # 规则与设计文档
+│   ├── SkyTeam.zh.md       # 中文规则书（按官方 PDF 全译）
+│   ├── SkyTeam.raw.md      # 页图 OCR 原文 + 补充说明
+│   ├── SkyTeam.en.md       # 英文规则整理
+│   ├── DESIGN.md           # 架构、结算顺序、与原版差异
+│   └── pdf-pages/          # 官方规则书页图（page-01 … page-20）
 ├── test/
 │   ├── test.js             # 逻辑层蒙特卡洛冒烟
 │   ├── test-modules.js     # 玩法模块与规则单元测试
@@ -128,6 +141,8 @@ sky-team/
 │   ├── test-online.js      # 联机 E2E 测试
 │   ├── module-lab.html     # 模块/规则实验室
 │   ├── landing-round-lab.html   # 着陆轮 UI + 预设场景
+│   ├── landing-round-presets.js # 着陆轮实验室预设数据
+│   ├── approach-lab.html   # 航道 UI 调试
 │   └── modules/            # 各模块 UI 预览页
 └── src/
     ├── logic/
@@ -138,7 +153,7 @@ sky-team/
     │   ├── scenario-registry.js   # 关卡注册（引用 airport-tracks）
     │   └── module-registry.js     # 可选玩法模块 Hook
     ├── core/               # 联机会话、控制器、视图权限
-    ├── widgets/            # 面板、航道、高度、刹车板、姿态等
+    ├── widgets/            # 面板、航道、高度、刹车板、姿态、气动条等
     ├── lab/                # 模块实验室运行时
     └── app.js              # 浏览器入口
 ```
@@ -157,7 +172,7 @@ sky-team/
 
 ```bash
 node test/test.js              # 默认模拟 500 局
-node test/test-modules.js      # 模块与规则测试（90+ 项）
+node test/test-modules.js      # 模块与规则测试（120+ 项）
 node test/test-scenarios.js    # 可玩关卡冒烟（test / yul / lhr / hnd）
 node test/test-online.js       # 需先启动 server.js
 ```
@@ -216,6 +231,8 @@ ScenarioRegistry.register({
 
 ### 更多文档
 
+- [`guide.html`](guide.html) / http://localhost:8088/guide.html — 游戏指导（界面地图 + UI 预览）
+- [B 站教学视频](https://www.bilibili.com/video/BV1mfPtznE1n/) — 保姆级教学 + 试玩
 - [`docs/SkyTeam.zh.md`](docs/SkyTeam.zh.md) — 对照官方 PDF 整理的中文规则
 - [`docs/DESIGN.md`](docs/DESIGN.md) — 架构、结算顺序、与原版差异
 - 页面右下角 **dbg-badge** — 联机调试信息
